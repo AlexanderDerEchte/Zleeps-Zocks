@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name" translatable="false">Zocks Zleep</string>
+  <string name="app_slogan" translatable="false">Zleep well, zleep Zocks.</string>
+
+  <!-- Navigation -->
+  <string name="nav_home">Start</string>
+  <string name="nav_nights">Nächte</string>
+  <string name="nav_control">Steuerung</string>
+  <string name="nav_settings">Einstellungen</string>
+
+  <!-- Begrüßung -->
+  <string name="greeting_morning">Guten Morgen</string>
+  <string name="greeting_day">Hallo</string>
+  <string name="greeting_evening">Guten Abend</string>
+  <string name="greeting_night">Gute Nacht</string>
+
+  <!-- Startseite -->
+  <string name="home_last_night">Letzte Nacht</string>
+  <string name="home_no_night_title">Noch keine Nacht aufgezeichnet</string>
+  <string name="home_no_night_body">Starte heute Abend deine erste Nacht. Danach siehst du hier Score, Dauer und Schlafphasen.</string>
+  <string name="home_socks">Deine Socken</string>
+  <string name="home_quick_actions">Schnellzugriff</string>
+  <string name="action_heat">Heizen</string>
+  <string name="action_massage">Massage</string>
+  <string name="action_start_night">Nacht starten</string>
+  <string name="action_pair_socks">Socken koppeln</string>
+  <string name="snackbar_pair_first">Bitte koppele zuerst deine Socken.</string>
+
+  <!-- Socken -->
+  <string name="sock_left">Links</string>
+  <string name="sock_right">Rechts</string>
+  <string name="sock_disconnected">Nicht verbunden</string>
+  <string name="sock_status_description">%1$s: %2$s</string>
+
+  <!-- Nächte -->
+  <string name="nights_empty_title">Noch keine Nächte</string>
+  <string name="nights_empty_body">Sobald du eine Nacht aufzeichnest, erscheint sie hier mit Kalender, Notizen und Tags.</string>
+
+  <!-- Steuerung -->
+  <string name="control_heat">Heizen</string>
+  <string name="control_massage">Massage</string>
+  <string name="control_not_connected_title">Socken nicht verbunden</string>
+  <string name="control_not_connected_heat">Koppele deine Socken, um Wärme und Zieltemperatur einzustellen.</string>
+  <string name="control_not_connected_massage">Koppele deine Socken, um Massageprogramme zu starten.</string>
+
+  <!-- Einstellungen -->
+  <string name="settings_section_general">Allgemein</string>
+  <string name="settings_units">Einheiten</string>
+  <string name="settings_units_value">°C, 24 Stunden</string>
+  <string name="settings_notifications">Benachrichtigungen</string>
+  <string name="settings_section_devices">Geräte</string>
+  <string name="settings_devices">Geräteverwaltung</string>
+  <string name="settings_devices_value">Keine Socken gekoppelt</string>
+  <string name="settings_section_data">Daten</string>
+  <string name="settings_export_csv">Als CSV exportieren</string>
+  <string name="settings_health_connect">Health Connect</string>
+  <string name="settings_delete_data">Alle Daten löschen</string>
+  <string name="settings_section_about">Info</string>
+  <string name="settings_version">Version</string>
+  <string name="settings_developer">Entwickleroptionen</string>
+  <string name="settings_coming_soon">Bald verfügbar</string>
+  <string name="settings_offline_hint">Alle Daten bleiben auf diesem Gerät. Kein Konto, keine Cloud.</string>
+  <string name="wellness_title">Wellnessprodukt</string>
+  <string name="wellness_body">Zocks Zleep ist ein Wellnessprodukt und kein Medizinprodukt. Die Werte sind Schätzungen und nicht für Diagnose oder Behandlung gedacht.</string>
+
+  <!-- Zustände -->
+  <string name="state_loading">Wird geladen …</string>
+  <string name="state_error_title">Etwas ist schiefgelaufen</string>
+  <string name="action_retry">Erneut versuchen</string>
+</resources>

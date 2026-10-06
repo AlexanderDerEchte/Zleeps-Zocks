@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="nav_home">Home</string>
+  <string name="nav_nights">Nights</string>
+  <string name="nav_control">Control</string>
+  <string name="nav_settings">Settings</string>
+
+  <string name="greeting_morning">Good morning</string>
+  <string name="greeting_day">Hello</string>
+  <string name="greeting_evening">Good evening</string>
+  <string name="greeting_night">Good night</string>
+
+  <string name="home_last_night">Last night</string>
+  <string name="home_no_night_title">No night recorded yet</string>
+  <string name="home_no_night_body">Start your first night this evening. Afterwards you\'ll see score, duration and sleep stages here.</string>
+  <string name="home_socks">Your socks</string>
+  <string name="home_quick_actions">Quick actions</string>
+  <string name="action_heat">Heat</string>
+  <string name="action_massage">Massage</string>
+  <string name="action_start_night">Start night</string>
+  <string name="action_pair_socks">Pair socks</string>
+  <string name="snackbar_pair_first">Please pair your socks first.</string>
+
+  <string name="sock_left">Left</string>
+  <string name="sock_right">Right</string>
+  <string name="sock_disconnected">Not connected</string>
+  <string name="sock_status_description">%1$s: %2$s</string>
+
+  <string name="nights_empty_title">No nights yet</string>
+  <string name="nights_empty_body">As soon as you record a night it will appear here, with calendar, notes and tags.</string>
+
+  <string name="control_heat">Heat</string>
+  <string name="control_massage">Massage</string>
+  <string name="control_not_connected_title">Socks not connected</string>
+  <string name="control_not_connected_heat">Pair your socks to set warmth and target temperature.</string>
+  <string name="control_not_connected_massage">Pair your socks to start massage programs.</string>
+
+  <string name="settings_section_general">General</string>
+  <string name="settings_units">Units</string>
+  <string name="settings_units_value">°C, 24 hours</string>
+  <string name="settings_notifications">Notifications</string>
+  <string name="settings_section_devices">Devices</string>
+  <string name="settings_devices">Manage devices</string>
+  <string name="settings_devices_value">No socks paired</string>
+  <string name="settings_section_data">Data</string>
+  <string name="settings_export_csv">Export as CSV</string>
+  <string name="settings_health_connect">Health Connect</string>
+  <string name="settings_delete_data">Delete all data</string>
+  <string name="settings_section_about">About</string>
+  <string name="settings_version">Version</string>
+  <string name="settings_developer">Developer options</string>
+  <string name="settings_coming_soon">Coming soon</string>
+  <string name="settings_offline_hint">All data stays on this device. No account, no cloud.</string>
+  <string name="wellness_title">Wellness product</string>
+  <string name="wellness_body">Zocks Zleep is a wellness product, not a medical device. Values are estimates and not intended for diagnosis or treatment.</string>
+
+  <string name="state_loading">Loading …</string>
+  <string name="state_error_title">Something went wrong</string>
+  <string name="action_retry">Try again</string>
+</resources>
