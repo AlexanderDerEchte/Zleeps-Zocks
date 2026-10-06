@@ -4,7 +4,9 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import at.zocks.zleep.data.settings.DataStoreSettingsRepository
+import at.zocks.zleep.domain.heat.HeatMode
 import at.zocks.zleep.domain.model.DeviceMode
+import at.zocks.zleep.domain.model.SockSide
 import at.zocks.zleep.domain.model.TemperatureUnit
 import at.zocks.zleep.domain.model.UserSettings
 import com.google.common.truth.Truth.assertThat
@@ -54,6 +56,31 @@ class DataStoreSettingsRepositoryTest {
         assertThat(stored.bedtime).isEqualTo(LocalTime.of(23, 15))
         assertThat(stored.sleepGoalMinutes).isEqualTo(450)
         assertThat(stored.simulatorSpeed).isEqualTo(1200)
+    }
+
+    @Test
+    fun `heat and massage preferences are persisted`() = runTest {
+        val store = dataStore()
+        DataStoreSettingsRepository(store).update {
+            it.copy(
+                heat = it.heat.copy(
+                    side = SockSide.LEFT,
+                    mode = HeatMode.TARGET,
+                    targetTemperatureC = 36.5,
+                    preheatEnabled = true,
+                    preheatTime = LocalTime.of(21, 45),
+                ),
+                massage = it.massage.copy(programId = "custom:3", intensity = 80, favorites = setOf("builtin:wave")),
+            )
+        }
+        val stored = DataStoreSettingsRepository(store).settings.first()
+        assertThat(stored.heat.side).isEqualTo(SockSide.LEFT)
+        assertThat(stored.heat.mode).isEqualTo(HeatMode.TARGET)
+        assertThat(stored.heat.targetTemperatureC).isEqualTo(36.5)
+        assertThat(stored.heat.preheatEnabled).isTrue()
+        assertThat(stored.heat.preheatTime).isEqualTo(LocalTime.of(21, 45))
+        assertThat(stored.massage.programId).isEqualTo("custom:3")
+        assertThat(stored.massage.favorites).containsExactly("builtin:wave")
     }
 
     @Test

@@ -55,8 +55,12 @@ app/src/main/java/at/zocks/zleep/
 │   ├── device/              SockDevice, SockPair, SockPairProvider
 │   ├── repository/          Repository-Interfaces
 │   ├── simulator/           Steuerung von Simulator und Demo-Daten
+│   ├── heat/                HeatSafetyGuard, HeatController, Vorwärmen
+│   ├── massage/             Programme, Muster, MassageController
+│   ├── sleep/               Live-Erkennung „eingeschlafen“
+│   ├── control/             ControlCoordinator (Einstellungen ↔ Regler)
 │   └── analysis/            Kennzahlen einer Nacht
-├── data/                    Room (db/), Repositories, DataStore (settings/)
+├── data/                    Room (db/), Repositories, DataStore (settings/), Wecker (schedule/)
 ├── device/                  Simulator (simulator/), BLE (ble/, ab Phase 7)
 └── di/                      Hilt-Module
 ```
@@ -91,7 +95,7 @@ Danach liegt die Debug-APK unter *Actions → letzter Lauf → Artifacts →
 |---|---|---|
 | 1 | Projektgerüst, Theme, Navigation, CI | ✅ fertig |
 | 2 | Datenmodell, Room, Simulator mit Demo-Nächten | ✅ fertig |
-| 3 | Gerätesteuerung: Heizen und Massage | ⏳ offen |
+| 3 | Gerätesteuerung: Heizen und Massage | ✅ fertig |
 | 4 | Nachtaufzeichnung mit Foreground Service | ⏳ offen |
 | 5 | Analyse, Score, Diagramme, Trends | ⏳ offen |
 | 6 | Abendroutine, smarter Wecker, Health Connect, Export | ⏳ offen |
@@ -140,12 +144,48 @@ Danach liegt die Debug-APK unter *Actions → letzter Lauf → Artifacts →
   DataStore, Kennzahlen, `SockPair`, UI-Abläufe (Verbinden, Demo laden → Nacht öffnen,
   Gerätemodus wechseln).
 
+### Phase 3 – enthalten
+
+- **Heizen** (*Steuerung → Heizen*):
+  - Stufe 1–5 oder Zieltemperatur 20–40 °C in 0,5-°C-Schritten.
+  - Beide Socken gemeinsam oder einzeln.
+  - Timer 15–90 min, „Aus, sobald ich eingeschlafen bin“ (Bewegungs-Erkennung).
+  - Tägliches Vorwärmen zur festen Uhrzeit (Systemwecker, auch nach Neustart).
+- **Sicherheit** (`HeatSafetyGuard`, jeder Befehl und jeder Messwert läuft hindurch):
+
+  | Regel | Wert |
+  |---|---|
+  | Zieltemperatur | auf 20–40 °C begrenzt |
+  | Harte Abschaltung | Haut oder Heizelement > 42 °C |
+  | Laufzeit | max. 90 min am Stück, danach 15 min Pause |
+  | Unplausibel | < 10 °C, > 50 °C, Sprung > 3 °C in 10 s, > 30 s kein Wert |
+  | Ohne Temperatursensor | wird gar nicht geheizt |
+
+  Abschaltungen erscheinen als Meldung auf jedem Screen. Solange geheizt wird, zeigt ein
+  oranges Band oben die Restzeit und einen Stopp-Knopf.
+- **Massage** (*Steuerung → Massage*):
+  - Programme Entspannung, Welle, Kneten, Pulsieren, Erholung (links/rechts im Wechsel),
+    Intensiv, Sleep Mode.
+  - Muster über die vier Zonen Ferse, Gewölbe, Ballen, Zehen.
+  - Intensität (sofort wirksam), Dauer, Seite, Favoriten.
+  - Eigene Programme (Art, Tempo, Zonen) speichern und löschen.
+  - Sanftes Ausklingen am Ende (Sleep Mode: halbe Dauer, max. 5 min).
+- **Daten:** eigene Programme in Room (Schema v2 mit Migration und Migrationstest),
+  Einstellungen und Favoriten in DataStore.
+- **Entwickleroptionen:** „Sensorfehler links/rechts“ löst die Sicherheitsabschaltung aus.
+- **Tests (100):** u. a. Sicherheitsregeln, Heiz- und Massageregler in virtueller Zeit,
+  Schlaferkennung, Muster, Migration, UI-Abläufe (Heizen mit Band, Abschaltung bei
+  Sensorfehler, Zieltemperatur, Massage, Favoriten, eigene Programme).
+
+> Die Sicherheitslogik der App ergänzt die Absicherung in der Firmware, sie ersetzt sie nicht.
+
 ### Simulator ausprobieren
 
 *Einstellungen → Entwickleroptionen:*
 1. „Socken verbinden“ (Live-Werte erscheinen),
 2. „Nacht abspielen“ (Zeitraffer wählen),
-3. „30 Demo-Nächte laden“ (danach unter *Nächte*).
+3. „30 Demo-Nächte laden“ (danach unter *Nächte*),
+4. unter *Steuerung* heizen, dann hier „Sensorfehler links“ → Sicherheitsabschaltung.
 
 Bis die Bluetooth-Anbindung steht (Phase 7), ist der Simulator Standard.
 

@@ -199,6 +199,25 @@ private fun SimulatorCard(state: DeveloperUiState, onEvent: (DeveloperEvent) -> 
                 Row(horizontalArrangement = Arrangement.spacedBy(Dimens.SpaceM)) {
                     listOf(SockSide.LEFT, SockSide.RIGHT).forEach { side ->
                         FilledTonalButton(
+                            onClick = { onEvent(DeveloperEvent.SensorFault(side)) },
+                            modifier = Modifier
+                                .weight(1f)
+                                .heightIn(min = Dimens.ThumbTarget)
+                                .testTag("dev_fault_${side.name.lowercase()}"),
+                        ) {
+                            Text(
+                                stringResource(
+                                    R.string.dev_sim_fault,
+                                    stringResource(if (side == SockSide.LEFT) R.string.sock_left else R.string.sock_right),
+                                ),
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                    }
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(Dimens.SpaceM)) {
+                    listOf(SockSide.LEFT, SockSide.RIGHT).forEach { side ->
+                        FilledTonalButton(
                             onClick = { onEvent(DeveloperEvent.Dropout(side)) },
                             modifier = Modifier
                                 .weight(1f)

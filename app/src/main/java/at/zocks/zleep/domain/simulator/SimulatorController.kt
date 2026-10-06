@@ -38,6 +38,9 @@ interface SimulatorController {
 
     /** Simuliert einen Verbindungsabbruch der Socke [side] für [seconds] Sekunden (Echtzeit). */
     fun simulateDropout(side: SockSide, seconds: Int)
+
+    /** Lässt den Temperatursensor der Socke [side] einmal einen unplausiblen Wert liefern. */
+    fun simulateSensorFault(side: SockSide)
 }
 
 data class DemoDataStatus(

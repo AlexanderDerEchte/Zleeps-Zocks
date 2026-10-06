@@ -89,9 +89,9 @@ class AppNavigationTest {
         }
         composeRule.onNodeWithTag("action_disconnect_socks").assertExists()
 
-        // Steuerung zeigt jetzt den verbundenen Zustand statt „nicht verbunden“.
+        // Steuerung zeigt jetzt die Heizregler statt „nicht verbunden“.
         composeRule.onNodeWithTag("nav_control").performClick()
-        composeRule.onNodeWithText(composeRule.activity.getString(R.string.control_connected_title)).assertIsDisplayed()
+        composeRule.waitUntilDisplayed("heat_panel")
     }
 
     private companion object {

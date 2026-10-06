@@ -88,6 +88,15 @@ class SimulationEngine @Inject constructor(
         _dropouts.update { current -> current + side.feet.associateWith { until } }
     }
 
+    private val pendingFaults = mutableSetOf<SockSide>()
+
+    override fun simulateSensorFault(side: SockSide) {
+        synchronized(pendingFaults) { pendingFaults += side.feet }
+    }
+
+    /** Liefert `true` genau einmal nach [simulateSensorFault]. */
+    fun consumeSensorFault(side: SockSide): Boolean = synchronized(pendingFaults) { pendingFaults.remove(side) }
+
     fun isDroppedOut(side: SockSide): Boolean =
         _dropouts.value[side]?.let { clock.instant().isBefore(it) } == true
 

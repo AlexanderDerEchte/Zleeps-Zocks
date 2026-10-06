@@ -8,6 +8,8 @@ import androidx.room.Index
 import androidx.room.Junction
 import androidx.room.PrimaryKey
 import androidx.room.Relation
+import at.zocks.zleep.domain.massage.MassageProgramType
+import at.zocks.zleep.domain.massage.MassageTempo
 import at.zocks.zleep.domain.model.NightEventType
 import at.zocks.zleep.domain.model.NightSource
 import at.zocks.zleep.domain.model.SleepStage
@@ -121,4 +123,17 @@ data class NightWithTags(
         associateBy = Junction(NightTagCrossRef::class, parentColumn = "night_id", entityColumn = "tag_id"),
     )
     val tags: List<TagEntity>,
+)
+
+/** Eigenes Massageprogramm (seit Schema-Version 2). */
+@Entity(tableName = "massage_programs")
+data class MassageProgramEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val name: String,
+    val type: MassageProgramType,
+    val intensity: Int,
+    @ColumnInfo(name = "duration_minutes") val durationMinutes: Int,
+    val tempo: MassageTempo,
+    /** Kommagetrennte Zonen, z. B. „HEEL,BALL“. */
+    val zones: String,
 )

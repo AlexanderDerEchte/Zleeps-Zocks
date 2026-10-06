@@ -30,7 +30,11 @@ Tests und Lint als getrennte Gradle-Aufrufe starten (gemeinsam kann Lint an KSP-
   Das aktive Paar (Simulator oder BLE) liefert `SockPairProvider`.
 - Interfaces (Repositories, `SockDevice`, `SimulatorController`) liegen in `domain`,
   Umsetzungen in `data` bzw. `device`, verdrahtet in `di`.
-- Einmalige Meldungen: `@StringRes userMessage` im UiState + `UserMessageEffect`.
+- Einmalige Meldungen: `userMessage` (`@StringRes` oder `UiText` mit Platzhaltern) im
+  UiState + `UserMessageEffect`. App-weite Heizmeldungen kommen über `AppViewModel`.
+- Regler (`HeatController`, `MassageController`, `ControlCoordinator`) sind reines Kotlin
+  und werden in `di/ControlModule` verdrahtet; sie laufen im App-Scope weiter, auch wenn
+  kein Screen offen ist.
 - Rechenintensives (z. B. Demo-Daten) auf dem injizierten `@DefaultDispatcher`.
 - BLE-UUIDs und Datenformat stehen ausschließlich in `device/ble/SockBleProtocol.kt`.
 
@@ -48,7 +52,11 @@ Tests und Lint als getrennte Gradle-Aufrufe starten (gemeinsam kann Lint an KSP-
   Niemals Werte schätzen oder auffüllen, außer im `SimulatedSockDevice`.
 - Heizbefehle gehen immer durch den `HeatSafetyGuard` (Obergrenze, maximale Laufzeit,
   Plausibilitätsprüfung). Grenzwerte: Ziel 20–40 °C, harte Abschaltung > 42 °C,
-  max. 90 min am Stück, unplausibel < 10 °C, > 50 °C oder > 3 °C Sprung in 10 s.
+  max. 90 min am Stück (dann 15 min Pause), unplausibel < 10 °C, > 50 °C, > 3 °C Sprung
+  in 10 s oder > 30 s ohne Wert. Nie direkt `SockDevice.setHeat` aus UI/ViewModel aufrufen,
+  sondern immer `HeatController`.
+- Änderungen an der Sicherheitslogik nur mit Tests, die die Grenze treffen (knapp darunter
+  und knapp darüber).
 - Erkenntnisse als Zusammenhang formulieren, nie als Ursache.
 
 ## UI
@@ -80,13 +88,16 @@ Tests und Lint als getrennte Gradle-Aufrufe starten (gemeinsam kann Lint an KSP-
 - Unit-Tests unter `app/src/test` (JUnit4, Truth, coroutines-test, Turbine). Hilfen in
   `testing/` (`MutableClock`, `FakeSockDevice`, `waitUntilDisplayed`).
 - Simulator-Tests laufen in virtueller Zeit (`runTest`, `backgroundScope` als App-Scope).
-- Room-Tests mit In-Memory-Datenbank unter Robolectric.
+- Room-Tests mit In-Memory-Datenbank unter Robolectric. Jede neue Migration bekommt einen
+  Fall in `MigrationTest` (alte DB wird aus `app/schemas/…/N.json` erzeugt).
+- Regler-Tests mit `FakeSockDevice`/`FakePairProvider` und `SchedulerClock` (virtuelle Zeit).
 - UI-Tests ebenfalls unter `app/src/test` mit Robolectric (`@HiltAndroidTest`,
   `@Config(application = HiltTestApplication::class)`), Compose-Test-API v2.
   Robolectric läuft mit SDK 36 (`src/test/resources/robolectric.properties`).
   Nach Navigation nicht sofort `assertIsDisplayed`, sondern `waitUntilDisplayed(tag)`
   (Übergangsanimation). Vor dem ersten Klick `waitUntilLoaded()` (kein `state_loading`
   mehr sichtbar). `waitUntil` immer mit `UI_TIMEOUT_MS` – CI-Runner sind langsam.
+  Vor Klicks auf Elemente, die weggescrollt sein können, `performScrollTo()`.
 - Algorithmen (Schlafphasen, Score, Routinen, Sicherheit) brauchen eigene Unit-Tests.
 
 ## Git

@@ -4,10 +4,14 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
+import at.zocks.zleep.domain.model.HeatPreferences
+import at.zocks.zleep.domain.model.MassagePreferences
 import at.zocks.zleep.domain.model.UserSettings
 import at.zocks.zleep.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
@@ -48,6 +52,24 @@ class DataStoreSettingsRepository @Inject constructor(
             sleepGoalMinutes = this[Keys.SLEEP_GOAL] ?: defaults.sleepGoalMinutes,
             onboardingCompleted = this[Keys.ONBOARDING_DONE] ?: defaults.onboardingCompleted,
             simulatorSpeed = this[Keys.SIMULATOR_SPEED] ?: defaults.simulatorSpeed,
+            heat = HeatPreferences(
+                side = enumOr(this[Keys.HEAT_SIDE], defaults.heat.side),
+                mode = enumOr(this[Keys.HEAT_MODE], defaults.heat.mode),
+                level = this[Keys.HEAT_LEVEL] ?: defaults.heat.level,
+                targetTemperatureC = this[Keys.HEAT_TARGET] ?: defaults.heat.targetTemperatureC,
+                timerMinutes = this[Keys.HEAT_TIMER] ?: defaults.heat.timerMinutes,
+                autoOffWhenAsleep = this[Keys.HEAT_AUTO_OFF] ?: defaults.heat.autoOffWhenAsleep,
+                preheatEnabled = this[Keys.PREHEAT_ENABLED] ?: defaults.heat.preheatEnabled,
+                preheatTime = timeOr(this[Keys.PREHEAT_TIME], defaults.heat.preheatTime),
+                preheatMinutes = this[Keys.PREHEAT_MINUTES] ?: defaults.heat.preheatMinutes,
+            ),
+            massage = MassagePreferences(
+                side = enumOr(this[Keys.MASSAGE_SIDE], defaults.massage.side),
+                programId = this[Keys.MASSAGE_PROGRAM] ?: defaults.massage.programId,
+                intensity = this[Keys.MASSAGE_INTENSITY] ?: defaults.massage.intensity,
+                durationMinutes = this[Keys.MASSAGE_DURATION] ?: defaults.massage.durationMinutes,
+                favorites = this[Keys.MASSAGE_FAVORITES] ?: defaults.massage.favorites,
+            ),
         )
     }
 
@@ -60,6 +82,24 @@ class DataStoreSettingsRepository @Inject constructor(
         this[Keys.SLEEP_GOAL] = settings.sleepGoalMinutes
         this[Keys.ONBOARDING_DONE] = settings.onboardingCompleted
         this[Keys.SIMULATOR_SPEED] = settings.simulatorSpeed
+        with(settings.heat) {
+            this@write[Keys.HEAT_SIDE] = side.name
+            this@write[Keys.HEAT_MODE] = mode.name
+            this@write[Keys.HEAT_LEVEL] = level
+            this@write[Keys.HEAT_TARGET] = targetTemperatureC
+            this@write[Keys.HEAT_TIMER] = timerMinutes
+            this@write[Keys.HEAT_AUTO_OFF] = autoOffWhenAsleep
+            this@write[Keys.PREHEAT_ENABLED] = preheatEnabled
+            this@write[Keys.PREHEAT_TIME] = preheatTime.toString()
+            this@write[Keys.PREHEAT_MINUTES] = preheatMinutes
+        }
+        with(settings.massage) {
+            this@write[Keys.MASSAGE_SIDE] = side.name
+            this@write[Keys.MASSAGE_PROGRAM] = programId
+            this@write[Keys.MASSAGE_INTENSITY] = intensity
+            this@write[Keys.MASSAGE_DURATION] = durationMinutes
+            this@write[Keys.MASSAGE_FAVORITES] = favorites
+        }
     }
 
     private inline fun <reified E : Enum<E>> enumOr(value: String?, default: E): E =
@@ -77,5 +117,19 @@ class DataStoreSettingsRepository @Inject constructor(
         val SLEEP_GOAL = intPreferencesKey("sleep_goal_minutes")
         val ONBOARDING_DONE = booleanPreferencesKey("onboarding_done")
         val SIMULATOR_SPEED = intPreferencesKey("simulator_speed")
+        val HEAT_SIDE = stringPreferencesKey("heat_side")
+        val HEAT_MODE = stringPreferencesKey("heat_mode")
+        val HEAT_LEVEL = intPreferencesKey("heat_level")
+        val HEAT_TARGET = doublePreferencesKey("heat_target_c")
+        val HEAT_TIMER = intPreferencesKey("heat_timer_minutes")
+        val HEAT_AUTO_OFF = booleanPreferencesKey("heat_auto_off_asleep")
+        val PREHEAT_ENABLED = booleanPreferencesKey("preheat_enabled")
+        val PREHEAT_TIME = stringPreferencesKey("preheat_time")
+        val PREHEAT_MINUTES = intPreferencesKey("preheat_minutes")
+        val MASSAGE_SIDE = stringPreferencesKey("massage_side")
+        val MASSAGE_PROGRAM = stringPreferencesKey("massage_program")
+        val MASSAGE_INTENSITY = intPreferencesKey("massage_intensity")
+        val MASSAGE_DURATION = intPreferencesKey("massage_duration_minutes")
+        val MASSAGE_FAVORITES = stringSetPreferencesKey("massage_favorites")
     }
 }

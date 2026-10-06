@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.res.stringResource
 
 /** Snackbar der App, bereitgestellt von ZocksApp. */
 val LocalSnackbarHostState = staticCompositionLocalOf<SnackbarHostState> {
@@ -18,9 +17,14 @@ val LocalSnackbarHostState = staticCompositionLocalOf<SnackbarHostState> {
  * gezeigt, damit sie nicht erneut erscheint.
  */
 @Composable
-fun UserMessageEffect(@StringRes message: Int?, onShown: () -> Unit) {
+fun UserMessageEffect(@StringRes message: Int?, onShown: () -> Unit) =
+    UserMessageEffect(message?.let { UiText.of(it) }, onShown)
+
+/** Wie oben, für Meldungen mit Platzhaltern. */
+@Composable
+fun UserMessageEffect(message: UiText?, onShown: () -> Unit) {
     val snackbar = LocalSnackbarHostState.current
-    val text = message?.let { stringResource(it) }
+    val text = message?.resolve()
     val currentOnShown = rememberUpdatedState(onShown)
     LaunchedEffect(message) {
         if (text != null) {

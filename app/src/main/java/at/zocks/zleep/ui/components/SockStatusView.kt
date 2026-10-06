@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.BluetoothConnected
 import androidx.compose.material.icons.outlined.BluetoothDisabled
-import androidx.compose.material.icons.outlined.BluetoothSearching
+import androidx.compose.material.icons.automirrored.outlined.BluetoothSearching
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -51,7 +51,7 @@ fun SockStatusView(status: SockStatus?, side: SockSide, modifier: Modifier = Mod
         ConnectionState.CONNECTED ->
             Icons.Outlined.BluetoothConnected to if (status?.heating == true) ZocksThemeExt.colors.heat else MaterialTheme.colorScheme.primary
         ConnectionState.CONNECTING, ConnectionState.RECONNECTING ->
-            Icons.Outlined.BluetoothSearching to MaterialTheme.colorScheme.onSurfaceVariant
+            Icons.AutoMirrored.Outlined.BluetoothSearching to MaterialTheme.colorScheme.onSurfaceVariant
         ConnectionState.DISCONNECTED -> Icons.Outlined.BluetoothDisabled to MaterialTheme.colorScheme.onSurfaceVariant
     }
 

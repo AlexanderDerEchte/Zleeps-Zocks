@@ -168,7 +168,11 @@ class SimulatedSockDevice(
         val heater = heaterTemperature ?: skinBase
         val newHeater = heater + (heaterTarget - heater) * (1 - exp(-stepSeconds / tau))
         heaterTemperature = newHeater
-        val skin = skinBase + (newHeater - skinBase).coerceAtLeast(0.0) * 0.7 + random.nextGaussian(sd = 0.04)
+        val skin = if (engine.consumeSensorFault(side)) {
+            FAULT_TEMPERATURE_C
+        } else {
+            skinBase + (newHeater - skinBase).coerceAtLeast(0.0) * 0.7 + random.nextGaussian(sd = 0.04)
+        }
 
         // Massage
         val massageLevel = if (massage.active) massage.intensity / 100.0 else 0.0
@@ -193,6 +197,9 @@ class SimulatedSockDevice(
 
     companion object {
         const val HEAT_LEVELS = 5
+
+        /** Unplausibler Messwert für den simulierten Sensorfehler. */
+        const val FAULT_TEMPERATURE_C = 55.0
         private const val BASE_DRAIN = 1.5
         private const val HEAT_DRAIN_PER_LEVEL = 3.0
         private const val MASSAGE_DRAIN = 5.0

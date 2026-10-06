@@ -1,5 +1,7 @@
 package at.zocks.zleep.domain.model
 
+import at.zocks.zleep.domain.heat.HeatMode
+import at.zocks.zleep.domain.massage.BuiltInMassagePrograms
 import java.time.LocalTime
 
 enum class DeviceMode { SIMULATOR, BLE }
@@ -17,4 +19,28 @@ data class UserSettings(
     val onboardingCompleted: Boolean = false,
     /** Zeitraffer-Faktor für die simulierte Nacht. */
     val simulatorSpeed: Int = 300,
+    val heat: HeatPreferences = HeatPreferences(),
+    val massage: MassagePreferences = MassagePreferences(),
+)
+
+/** Zuletzt gewählte Heizeinstellungen und Vorwärmen. */
+data class HeatPreferences(
+    val side: SockSide = SockSide.BOTH,
+    val mode: HeatMode = HeatMode.LEVEL,
+    val level: Int = 3,
+    val targetTemperatureC: Double = 34.0,
+    val timerMinutes: Int = 30,
+    val autoOffWhenAsleep: Boolean = true,
+    val preheatEnabled: Boolean = false,
+    val preheatTime: LocalTime = LocalTime.of(22, 0),
+    val preheatMinutes: Int = 20,
+)
+
+/** Zuletzt gewählte Massage und Favoriten. */
+data class MassagePreferences(
+    val side: SockSide = SockSide.BOTH,
+    val programId: String = BuiltInMassagePrograms.RELAX.id,
+    val intensity: Int = 50,
+    val durationMinutes: Int = 15,
+    val favorites: Set<String> = setOf(BuiltInMassagePrograms.RELAX.id, BuiltInMassagePrograms.SLEEP.id),
 )

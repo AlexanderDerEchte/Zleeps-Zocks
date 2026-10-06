@@ -30,7 +30,11 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import at.zocks.zleep.R
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import at.zocks.zleep.ui.components.HeatingBanner
 import at.zocks.zleep.ui.components.LocalSnackbarHostState
+import at.zocks.zleep.ui.components.UserMessageEffect
 import at.zocks.zleep.ui.control.ControlRoute
 import at.zocks.zleep.ui.developer.DeveloperRoute
 import at.zocks.zleep.ui.home.HomeRoute
@@ -47,12 +51,18 @@ import at.zocks.zleep.ui.nights.NightsRoute
 import at.zocks.zleep.ui.settings.SettingsScreen
 
 @Composable
-fun ZocksApp(navController: NavHostController = rememberNavController()) {
+fun ZocksApp(
+    navController: NavHostController = rememberNavController(),
+    appViewModel: AppViewModel = hiltViewModel(),
+) {
     val snackbarHostState = remember { SnackbarHostState() }
+    val appState by appViewModel.uiState.collectAsStateWithLifecycle()
 
     CompositionLocalProvider(LocalSnackbarHostState provides snackbarHostState) {
+    UserMessageEffect(appState.notice, appViewModel::noticeShown)
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
+        topBar = { HeatingBanner(appState.heatingRemaining, appViewModel::stopHeating) },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = { ZocksBottomBar(navController) },
     ) { innerPadding ->

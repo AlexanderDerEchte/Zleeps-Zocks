@@ -3,7 +3,6 @@ package at.zocks.zleep.ui.control
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Spa
 import androidx.compose.material.icons.outlined.Whatshot
 import androidx.compose.material3.MaterialTheme
@@ -26,6 +25,8 @@ import at.zocks.zleep.R
 import at.zocks.zleep.ui.components.EmptyState
 import at.zocks.zleep.ui.components.ScreenColumn
 import at.zocks.zleep.ui.components.UserMessageEffect
+import at.zocks.zleep.ui.heat.HeatRoute
+import at.zocks.zleep.ui.massage.MassageRoute
 import at.zocks.zleep.ui.components.ZocksCard
 import at.zocks.zleep.ui.navigation.ControlSection
 import at.zocks.zleep.ui.theme.Dimens
@@ -40,6 +41,8 @@ fun ControlRoute(initialSection: ControlSection, viewModel: ControlViewModel = h
         initialSection = initialSection,
         connected = state.pairStatus?.anyConnected == true,
         onPairSocks = { viewModel.onEvent(ControlEvent.ConnectSocks) },
+        heatContent = { HeatRoute() },
+        massageContent = { MassageRoute() },
     )
 }
 
@@ -48,6 +51,8 @@ fun ControlScreen(
     initialSection: ControlSection,
     connected: Boolean,
     onPairSocks: () -> Unit,
+    heatContent: @Composable () -> Unit,
+    massageContent: @Composable () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var section by rememberSaveable(initialSection) { mutableStateOf(initialSection) }
@@ -63,6 +68,7 @@ fun ControlScreen(
                         activeContainerColor = entry.accentContainer(),
                         activeContentColor = MaterialTheme.colorScheme.onSurface,
                     ),
+                    icon = {},
                     modifier = Modifier
                         .heightIn(min = Dimens.ThumbTarget)
                         .testTag("control_tab_${entry.name.lowercase()}"),
@@ -72,17 +78,14 @@ fun ControlScreen(
             }
         }
 
-        ZocksCard {
-            if (connected) {
-                // Heizen und Massage folgen in Phase 3.
-                EmptyState(
-                    icon = Icons.Outlined.CheckCircle,
-                    title = stringResource(R.string.control_connected_title),
-                    body = stringResource(R.string.control_connected_soon),
-                    modifier = Modifier.testTag("control_${section.name.lowercase()}_content"),
-                )
-                return@ZocksCard
+        if (connected) {
+            when (section) {
+                ControlSection.HEAT -> heatContent()
+                ControlSection.MASSAGE -> massageContent()
             }
+            return@ScreenColumn
+        }
+        ZocksCard {
             when (section) {
                 ControlSection.HEAT -> EmptyState(
                     icon = Icons.Outlined.Whatshot,
@@ -122,5 +125,5 @@ private fun ControlSection.accentContainer() = when (this) {
 @Preview
 @Composable
 private fun ControlScreenPreview() {
-    ZocksTheme { ControlScreen(ControlSection.HEAT, connected = false, onPairSocks = {}) }
+    ZocksTheme { ControlScreen(ControlSection.HEAT, connected = false, onPairSocks = {}, heatContent = {}, massageContent = {}) }
 }

@@ -55,6 +55,7 @@ sealed interface DeveloperEvent {
     data object PlayNight : DeveloperEvent
     data object StopNight : DeveloperEvent
     data class Dropout(val side: SockSide) : DeveloperEvent
+    data class SensorFault(val side: SockSide) : DeveloperEvent
     data object LoadDemo : DeveloperEvent
     data object ClearDemo : DeveloperEvent
     data object MessageShown : DeveloperEvent
@@ -105,6 +106,7 @@ class DeveloperViewModel @Inject constructor(
             DeveloperEvent.PlayNight -> simulator.playNight(uiState.value.speed)
             DeveloperEvent.StopNight -> simulator.stopNight()
             is DeveloperEvent.Dropout -> simulator.simulateDropout(event.side, DROPOUT_SECONDS)
+            is DeveloperEvent.SensorFault -> simulator.simulateSensorFault(event.side)
             DeveloperEvent.LoadDemo -> launchSafely {
                 demoData.loadDemoNights()
                 message.value = R.string.dev_demo_loaded
