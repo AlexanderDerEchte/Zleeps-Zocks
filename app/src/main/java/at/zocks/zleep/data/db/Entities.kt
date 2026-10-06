@@ -26,6 +26,7 @@ data class NightEntity(
     @ColumnInfo(name = "final_wake_ms") val finalWakeMs: Long?,
     val source: NightSource,
     val note: String?,
+    @ColumnInfo(name = "sleep_window_manual", defaultValue = "0") val sleepWindowManual: Boolean = false,
 )
 
 /** Messwerte einer Socke, verdichtet auf eine 30-s-Epoche. */

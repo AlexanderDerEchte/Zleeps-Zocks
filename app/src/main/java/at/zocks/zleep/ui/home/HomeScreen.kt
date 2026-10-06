@@ -15,7 +15,9 @@ import androidx.compose.material.icons.outlined.NightsStay
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -31,6 +33,7 @@ import at.zocks.zleep.domain.model.DeviceMode
 import at.zocks.zleep.domain.model.Night
 import at.zocks.zleep.domain.model.NightSource
 import at.zocks.zleep.domain.model.SockSide
+import at.zocks.zleep.domain.recording.RecordingState
 import at.zocks.zleep.ui.components.BigActionButton
 import at.zocks.zleep.ui.components.EmptyState
 import at.zocks.zleep.ui.components.InfoBadge
@@ -45,6 +48,8 @@ import at.zocks.zleep.ui.format.currentLocale
 import at.zocks.zleep.ui.format.formatDuration
 import at.zocks.zleep.ui.format.formatShortDate
 import at.zocks.zleep.ui.format.formatTime
+import at.zocks.zleep.ui.recording.NightStartSheet
+import at.zocks.zleep.ui.recording.RecordingCard
 import at.zocks.zleep.ui.theme.Dimens
 import at.zocks.zleep.ui.theme.MetricTextStyle
 import at.zocks.zleep.ui.theme.ZocksTheme
@@ -58,6 +63,7 @@ fun HomeRoute(
     onOpenHeat: () -> Unit,
     onOpenMassage: () -> Unit,
     onOpenNight: (Long) -> Unit,
+    onOpenNightMode: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -68,7 +74,19 @@ fun HomeRoute(
         onOpenHeat = onOpenHeat,
         onOpenMassage = onOpenMassage,
         onOpenNight = onOpenNight,
+        onOpenNightMode = onOpenNightMode,
     )
+    if (state.showStartSheet) {
+        NightStartSheet(
+            socksConnected = state.pairStatus?.anyConnected == true,
+            onConnectSocks = { viewModel.onEvent(HomeEvent.ConnectSocks) },
+            onStart = {
+                viewModel.onEvent(HomeEvent.ConfirmStart)
+                if (state.pairStatus?.anyConnected == true) onOpenNightMode()
+            },
+            onDismiss = { viewModel.onEvent(HomeEvent.DismissStartSheet) },
+        )
+    }
 }
 
 @Composable
@@ -78,11 +96,18 @@ fun HomeScreen(
     onOpenHeat: () -> Unit,
     onOpenMassage: () -> Unit,
     onOpenNight: (Long) -> Unit,
+    onOpenNightMode: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val greeting = remember { greetingFor(LocalTime.now()) }
+    val scrollState = rememberScrollState()
+    val isRecording = state.recording is RecordingState.Active
+    // Die laufende Nacht steht ganz oben – beim Start bzw. bei der Rückkehr dorthin scrollen.
+    LaunchedEffect(isRecording) {
+        if (isRecording) scrollState.animateScrollTo(0)
+    }
 
-    ScreenColumn(title = null, modifier = modifier.testTag("screen_home")) {
+    ScreenColumn(title = null, modifier = modifier.testTag("screen_home"), scrollState = scrollState) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             ZocksLogo(size = 44.dp)
             Column(Modifier.padding(start = Dimens.SpaceM)) {
@@ -93,6 +118,17 @@ fun HomeScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
+        }
+
+        val recording = state.recording as? RecordingState.Active
+        if (recording != null) {
+            RecordingCard(
+                state = recording,
+                use24h = state.use24HourClock,
+                unit = state.temperatureUnit,
+                onOpenNightMode = onOpenNightMode,
+                onStop = { onEvent(HomeEvent.StopNight) },
+            )
         }
 
         when {
@@ -132,14 +168,16 @@ fun HomeScreen(
                     .testTag("action_massage"),
             )
         }
-        BigActionButton(
-            text = stringResource(R.string.action_start_night),
-            icon = Icons.Filled.Bedtime,
-            onClick = { onEvent(HomeEvent.StartNight) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("action_start_night"),
-        )
+        if (recording == null) {
+            BigActionButton(
+                text = stringResource(R.string.action_start_night),
+                icon = Icons.Filled.Bedtime,
+                onClick = { onEvent(HomeEvent.StartNight) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("action_start_night"),
+            )
+        }
     }
 }
 
@@ -240,6 +278,7 @@ private fun HomeScreenPreview() {
             onOpenHeat = {},
             onOpenMassage = {},
             onOpenNight = {},
+            onOpenNightMode = {},
         )
     }
 }

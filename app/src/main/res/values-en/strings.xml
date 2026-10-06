@@ -79,7 +79,6 @@
   <string name="action_connect_socks">Connect socks</string>
   <string name="action_disconnect_socks">Disconnect</string>
   <string name="message_ble_not_ready">Bluetooth support for real socks will follow in a later update.</string>
-  <string name="message_night_recording_soon">Night recording will follow in the next update.</string>
 
   <string name="home_last_night_of">Last night · %1$s</string>
   <string name="night_sleep_duration">Sleep duration</string>
@@ -249,4 +248,48 @@
   <string name="massage_type_sleep">Fading</string>
 
   <string name="dev_sim_fault">Sensor fault %1$s</string>
+  <string name="recording_channel_name">Night recording</string>
+  <string name="recording_channel_description">Shows that your night is being recorded.</string>
+  <string name="recording_notification_title">Recording your night</string>
+  <string name="recording_notification_text">Since %1$s · %2$s</string>
+  <string name="recording_starting">Starting recording …</string>
+  <string name="recording_status_asleep">sleep detected</string>
+  <string name="recording_status_awake">awake</string>
+  <string name="recording_connection_lost">connection to %1$s lost</string>
+  <string name="recording_stop">End night</string>
+  <string name="recording_card_title">Recording your night</string>
+  <string name="recording_since">since %1$s · %2$s</string>
+  <string name="recording_asleep_since">Asleep since %1$s</string>
+  <string name="recording_awake">Awake</string>
+  <string name="recording_vitals">Heart rate %1$s · foot %2$s</string>
+  <string name="recording_night_mode">Night mode</string>
+  <string name="recording_simulated">Simulated time</string>
+  <string name="recording_stop_confirm_title">End the night?</string>
+  <string name="recording_stop_confirm_body">The recording will be saved and analysed.</string>
+  <string name="recording_saved">Night saved.</string>
+  <string name="recording_saved_auto">Good morning! The night ended automatically and was saved.</string>
+  <string name="recording_discarded">The recording was shorter than 10 minutes and was not saved.</string>
+  <string name="recording_background_limited">Without “Nearby devices” the recording only runs while the app is open.</string>
+
+  <string name="start_sheet_title">Ready for the night?</string>
+  <string name="start_sheet_body">So that the recording lasts all night:</string>
+  <string name="start_check_socks">Socks connected</string>
+  <string name="start_check_socks_missing">Connect your socks first.</string>
+  <string name="start_check_notifications">Notifications</string>
+  <string name="start_check_notifications_body">Shows that recording is running and lets you end the night right away.</string>
+  <string name="start_check_nearby">Nearby devices</string>
+  <string name="start_check_nearby_body">Needed so the app keeps the socks connected while the screen is off.</string>
+  <string name="start_check_battery">Battery optimization</string>
+  <string name="start_check_battery_body">Some phones still stop apps at night. Exclude Zocks Zleep there if nights break off.</string>
+  <string name="start_check_allow">Allow</string>
+  <string name="start_check_open_settings">Settings</string>
+  <string name="start_check_done">Done</string>
+  <string name="start_sheet_start">Start recording</string>
+
+  <string name="night_edit_onset">Change time fell asleep</string>
+  <string name="night_edit_wake">Change wake-up time</string>
+  <string name="night_window_manual">Corrected by you</string>
+  <string name="night_window_reset">Automatic</string>
+  <string name="night_window_invalid">Falling asleep must be before waking up and within the recording.</string>
+  <string name="night_window_saved">Sleep time corrected.</string>
 </resources>

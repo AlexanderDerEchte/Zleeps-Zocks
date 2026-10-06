@@ -6,6 +6,7 @@ import at.zocks.zleep.R
 import at.zocks.zleep.domain.heat.HeatController
 import at.zocks.zleep.domain.heat.HeatNotice
 import at.zocks.zleep.domain.model.SockSide
+import at.zocks.zleep.domain.recording.RecordingLauncher
 import at.zocks.zleep.ui.components.UiText
 import at.zocks.zleep.ui.format.rejectionRes
 import at.zocks.zleep.ui.format.shutoffReasonRes
@@ -40,7 +41,13 @@ data class AppUiState(
 class AppViewModel @Inject constructor(
     private val heatController: HeatController,
     private val clock: Clock,
+    launcher: RecordingLauncher,
 ) : ViewModel() {
+
+    init {
+        // Eine offene Nacht (z. B. nach Absturz oder Update) weiter aufzeichnen.
+        launcher.resumeIfNeeded()
+    }
 
     private val ticker = heatController.state.map { it.isHeating }.distinctUntilChanged().flatMapLatest { heating ->
         if (heating) {

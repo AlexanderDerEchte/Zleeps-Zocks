@@ -36,6 +36,14 @@ Tests und Lint als getrennte Gradle-Aufrufe starten (gemeinsam kann Lint an KSP-
   und werden in `di/ControlModule` verdrahtet; sie laufen im App-Scope weiter, auch wenn
   kein Screen offen ist.
 - Rechenintensives (z. B. Demo-Daten) auf dem injizierten `@DefaultDispatcher`.
+- Nachtaufzeichnung: `NightRecorder` (domain, App-Scope) macht die Arbeit; der
+  `NightRecordingService` hält nur den Prozess am Leben. Start/Stopp aus der UI immer über
+  `RecordingLauncher`. Zeitbezug ist `DeviceClock` (im Simulator Zeitraffer-Zeit);
+  „aktuell“ wird am letzten Messwert gemessen, nicht an der Uhr.
+- Live-Zustände mit hoher Rate (Messwerte) gebündelt veröffentlichen (≤ 1/s), sonst zeichnet
+  die UI im Zeitraffer tausende Male pro Sekunde neu.
+- Schlafphasen nur über das Interface `SleepStageClassifier`; Änderungen an der Heuristik
+  mit `ClassifierEvaluation` gegen den Simulator prüfen und Doku im KDoc anpassen.
 - BLE-UUIDs und Datenformat stehen ausschließlich in `device/ble/SockBleProtocol.kt`.
 
 ## Daten
@@ -98,6 +106,8 @@ Tests und Lint als getrennte Gradle-Aufrufe starten (gemeinsam kann Lint an KSP-
   (Übergangsanimation). Vor dem ersten Klick `waitUntilLoaded()` (kein `state_loading`
   mehr sichtbar). `waitUntil` immer mit `UI_TIMEOUT_MS` – CI-Runner sind langsam.
   Vor Klicks auf Elemente, die weggescrollt sein können, `performScrollTo()`.
+  Zeitkritische UI-Tests auch mit `taskset -c 0` (ein Kern) prüfen – so zeigen sich
+  Wettläufe, die auf langsamen CI-Runnern auftreten.
 - Algorithmen (Schlafphasen, Score, Routinen, Sicherheit) brauchen eigene Unit-Tests.
 
 ## Git

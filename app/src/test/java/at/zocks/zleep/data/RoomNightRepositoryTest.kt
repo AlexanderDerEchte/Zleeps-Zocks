@@ -103,6 +103,24 @@ class RoomNightRepositoryTest {
     }
 
     @Test
+    fun `manual corrections win over automatic analysis until reset`() = runTest {
+        val id = nights.startNight(start, NightSource.DEVICE)
+        nights.updateSleepWindow(id, at(20), at(400), manual = true)
+        nights.updateSleepWindow(id, at(10), at(420))
+        val corrected = nights.observeNight(id).first()!!
+        assertThat(corrected.sleepOnset).isEqualTo(at(20))
+        assertThat(corrected.sleepWindowManual).isTrue()
+        assertThat(nights.getRecordingNight()!!.id).isEqualTo(id)
+
+        nights.resetSleepWindowCorrection(id)
+        nights.updateSleepWindow(id, at(10), at(420))
+        assertThat(nights.observeNight(id).first()!!.sleepOnset).isEqualTo(at(10))
+
+        nights.finishNight(id, at(480))
+        assertThat(nights.getRecordingNight()).isNull()
+    }
+
+    @Test
     fun `sleep window must be ordered`() = runTest {
         val id = nights.startNight(start, NightSource.DEVICE)
         val result = runCatching { nights.updateSleepWindow(id, at(100), at(50)) }

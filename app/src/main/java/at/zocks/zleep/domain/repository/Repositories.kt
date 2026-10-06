@@ -24,7 +24,14 @@ interface NightRepository {
 
     suspend fun startNight(start: Instant, source: NightSource): Long
     suspend fun finishNight(id: Long, end: Instant)
-    suspend fun updateSleepWindow(id: Long, sleepOnset: Instant?, finalWake: Instant?)
+    /** Setzt das Schlaffenster. Automatische Werte überschreiben keine manuelle Korrektur. */
+    suspend fun updateSleepWindow(id: Long, sleepOnset: Instant?, finalWake: Instant?, manual: Boolean = false)
+
+    /** Hebt eine manuelle Korrektur auf; die nächste Auswertung setzt das Fenster neu. */
+    suspend fun resetSleepWindowCorrection(id: Long)
+
+    /** Die noch laufende (nicht beendete) Nacht, falls es eine gibt. */
+    suspend fun getRecordingNight(): Night?
     suspend fun setNote(id: Long, note: String?)
     suspend fun setTags(id: Long, tagIds: Set<Long>)
 

@@ -18,8 +18,7 @@ import kotlinx.coroutines.flow.update
 import java.time.Clock
 import java.time.Duration
 import java.time.Instant
-import java.time.LocalTime
-import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.random.Random
@@ -61,18 +60,16 @@ class SimulationEngine @Inject constructor(
     val ticks: SharedFlow<SimTick> = flow {
         while (true) {
             val current = _state.value
-            val speed = if (current.mode == SimulationMode.NIGHT) current.speed else 1
+            // Nach der Nacht läuft der Zeitraffer weiter (wach), bis „Stoppen“ gedrückt wird.
+            val speed = if (current.mode == SimulationMode.AWAKE) 1 else current.speed
             delay((STEP.toMillis() / speed).coerceAtLeast(1))
             emit(advance())
         }
     }.shareIn(scope, SharingStarted.WhileSubscribed())
 
     override fun playNight(speed: Int) {
-        val zone: ZoneId = clock.zone
-        // Die simulierte Nacht beginnt heute um 22:45 (bzw. gestern, falls schon nach Mitternacht).
-        val now = clock.instant().atZone(zone)
-        val date = if (now.hour < 12) now.toLocalDate().minusDays(1) else now.toLocalDate()
-        val start = date.atTime(LocalTime.of(22, 45)).atZone(zone).toInstant()
+        // Die Nacht beginnt jetzt, damit eine laufende Aufzeichnung lückenlos weiterläuft.
+        val start = clock.instant().truncatedTo(ChronoUnit.SECONDS)
         val newScenario = generator.generate(start, NightProfile(), Random(random.nextLong()))
         scenario = newScenario
         _state.value = SimulatorState(SimulationMode.NIGHT, start, speed.coerceIn(1, MAX_SPEED), null, 0f)
@@ -108,7 +105,7 @@ class SimulationEngine @Inject constructor(
                 val time = current.simulatedTime.plus(STEP)
                 val physiology = night.epochAt(time)
                 if (physiology == null) {
-                    _state.value = current.copy(mode = SimulationMode.FINISHED, simulatedTime = time, speed = 1, trueStage = null, progress = 1f)
+                    _state.value = current.copy(mode = SimulationMode.FINISHED, simulatedTime = time, trueStage = null, progress = 1f)
                     SimTick(time, STEP, generator.awake(awakeProfile, random))
                 } else {
                     val progress = Duration.between(night.start, time).toMillis().toFloat() /

@@ -51,7 +51,34 @@ class MigrationTest {
             assertThat(night.night.source).isEqualTo(NightSource.DEVICE)
             assertThat(night.tags.single().key).isEqualTo("sport")
             assertThat(database.massageProgramDao().observeAll().first()).isEmpty()
-            assertThat(database.openHelper.readableDatabase.version).isEqualTo(2)
+            assertThat(database.openHelper.readableDatabase.version).isEqualTo(ZocksDatabase.VERSION)
+        } finally {
+            database.close()
+            context.deleteDatabase(DB)
+        }
+    }
+
+    @Test
+    fun `migrate 2 to current keeps nights and starts without manual corrections`() = runTest {
+        createDatabaseFromSchema(version = 2).use { db ->
+            db.execSQL(
+                "INSERT INTO nights (id, start_ms, end_ms, sleep_onset_ms, final_wake_ms, source, note) " +
+                    "VALUES (7, 1000, 2000, 1100, 1900, 'SIMULATOR', NULL)",
+            )
+            db.execSQL(
+                "INSERT INTO massage_programs (name, type, intensity, duration_minutes, tempo, zones) " +
+                    "VALUES ('Abendwelle', 'WAVE', 50, 15, 'SLOW', 'HEEL')",
+            )
+        }
+        val database = Room.databaseBuilder(context, ZocksDatabase::class.java, DB)
+            .addMigrations(*ZocksDatabase.ALL_MIGRATIONS)
+            .allowMainThreadQueries()
+            .build()
+        try {
+            val night = database.nightDao().getNight(7)!!.night
+            assertThat(night.sleepWindowManual).isFalse()
+            assertThat(night.sleepOnsetMs).isEqualTo(1100)
+            assertThat(database.massageProgramDao().observeAll().first().single().name).isEqualTo("Abendwelle")
         } finally {
             database.close()
             context.deleteDatabase(DB)

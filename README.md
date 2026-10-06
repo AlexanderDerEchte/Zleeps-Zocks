@@ -59,9 +59,10 @@ app/src/main/java/at/zocks/zleep/
 │   ├── massage/             Programme, Muster, MassageController
 │   ├── sleep/               Live-Erkennung „eingeschlafen“
 │   ├── control/             ControlCoordinator (Einstellungen ↔ Regler)
-│   └── analysis/            Kennzahlen einer Nacht
+│   ├── recording/           NightRecorder, EpochAggregator, NightAnalyzer
+│   └── analysis/            Schlafphasen-Heuristik, Schlaffenster, Kennzahlen
 ├── data/                    Room (db/), Repositories, DataStore (settings/), Wecker (schedule/)
-├── device/                  Simulator (simulator/), BLE (ble/, ab Phase 7)
+├── device/                  Simulator (simulator/), Aufzeichnungsdienst (recording/), BLE (ble/, ab Phase 7)
 └── di/                      Hilt-Module
 ```
 
@@ -96,7 +97,7 @@ Danach liegt die Debug-APK unter *Actions → letzter Lauf → Artifacts →
 | 1 | Projektgerüst, Theme, Navigation, CI | ✅ fertig |
 | 2 | Datenmodell, Room, Simulator mit Demo-Nächten | ✅ fertig |
 | 3 | Gerätesteuerung: Heizen und Massage | ✅ fertig |
-| 4 | Nachtaufzeichnung mit Foreground Service | ⏳ offen |
+| 4 | Nachtaufzeichnung mit Foreground Service | ✅ fertig |
 | 5 | Analyse, Score, Diagramme, Trends | ⏳ offen |
 | 6 | Abendroutine, smarter Wecker, Health Connect, Export | ⏳ offen |
 | 7 | BLE-Implementierung, Feinschliff, Tests | ⏳ offen |
@@ -179,13 +180,40 @@ Danach liegt die Debug-APK unter *Actions → letzter Lauf → Artifacts →
 
 > Die Sicherheitslogik der App ergänzt die Absicherung in der Firmware, sie ersetzt sie nicht.
 
+### Phase 4 – enthalten
+
+- **Nacht starten:** Checkliste „Bereit für die Nacht?“ (Socken verbunden, Benachrichtigungen,
+  „Geräte in der Nähe“, Akku-Optimierung) – jede Berechtigung mit kurzer Erklärung, erst auf
+  Wunsch angefragt.
+- **Aufzeichnung im Vordergrunddienst** (Typ „verbundenes Gerät“) mit ruhiger Benachrichtigung
+  und „Nacht beenden“, Teil-Wakelock, Neustart durch das System (`START_STICKY`) setzt die
+  offene Nacht fort, ebenso der nächste App-Start.
+- **Robust bei Abbrüchen:** Verbindungslücken je Socke werden markiert, abgerissene
+  Verbindungen automatisch neu aufgebaut (2 s, 5 s, 10 s, 30 s, dann minütlich).
+- **Messwerte** je Socke als 30-s-Epochen: Puls, HRV, SpO2 (wenn vorhanden), Hauttemperatur,
+  Bewegung. Wärme- und Massagezeiten sowie Sicherheitsabschaltungen werden in der Nacht markiert.
+- **Schlafphasen** (wach/leicht/tief/REM) über `SleepStageClassifier`; die Heuristik ist in
+  `HeuristicSleepStageClassifier` dokumentiert (Aktigraphie + Puls/HRV relativ zur eigenen
+  Nacht). Gegen den Simulator: ~92 % Übereinstimmung. Mit echten Sockendaten neu kalibrieren.
+- **Einschlafen/Aufwachen** automatisch (`SleepWindowDetector`), von Hand korrigierbar
+  (Nachtdetail, Stift-Symbol); „Automatisch“ hebt die Korrektur wieder auf.
+- **Automatisches Ende:** nach ≥ 3 h Schlaf und 30 min Wachsein, spätestens nach 16 h.
+  Aufzeichnungen unter 10 min werden verworfen.
+- **Nachtmodus:** fast schwarz, große Uhr, ohne untere Leiste.
+- Datenbank Schema v3 (Merker „von Hand korrigiert“) mit Migrationstest.
+
+**Grenzen:** Ab Android 14 braucht der Hintergrunddienst „Geräte in der Nähe“. Ohne diese
+Berechtigung läuft die Aufzeichnung nur, solange die App offen ist (die App sagt das).
+
 ### Simulator ausprobieren
 
 *Einstellungen → Entwickleroptionen:*
 1. „Socken verbinden“ (Live-Werte erscheinen),
 2. „Nacht abspielen“ (Zeitraffer wählen),
 3. „30 Demo-Nächte laden“ (danach unter *Nächte*),
-4. unter *Steuerung* heizen, dann hier „Sensorfehler links“ → Sicherheitsabschaltung.
+4. unter *Steuerung* heizen, dann hier „Sensorfehler links“ → Sicherheitsabschaltung,
+5. auf der Startseite „Nacht starten“, dann hier „Nacht abspielen“ (1200×): nach wenigen
+   Minuten erkennt die App den Schlaf und beendet die Nacht morgens selbst.
 
 Bis die Bluetooth-Anbindung steht (Phase 7), ist der Simulator Standard.
 

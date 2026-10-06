@@ -21,6 +21,8 @@ data class Night(
     val source: NightSource,
     val note: String?,
     val tags: List<Tag>,
+    /** Einschlafen/Aufwachen wurden von Hand korrigiert und werden nicht mehr automatisch überschrieben. */
+    val sleepWindowManual: Boolean = false,
 ) {
     val isRecording: Boolean get() = end == null
 

@@ -92,7 +92,6 @@
   <string name="action_connect_socks">Socken verbinden</string>
   <string name="action_disconnect_socks">Trennen</string>
   <string name="message_ble_not_ready">Die Bluetooth-Anbindung echter Socken folgt in einem späteren Update.</string>
-  <string name="message_night_recording_soon">Die Nachtaufzeichnung folgt im nächsten Update.</string>
 
   <!-- Nächte -->
   <string name="home_last_night_of">Letzte Nacht · %1$s</string>
@@ -266,4 +265,51 @@
   <string name="massage_type_sleep">Ausklingend</string>
 
   <string name="dev_sim_fault">Sensorfehler %1$s</string>
+  <!-- Nachtaufzeichnung -->
+  <string name="recording_channel_name">Nachtaufzeichnung</string>
+  <string name="recording_channel_description">Zeigt an, dass deine Nacht gerade aufgezeichnet wird.</string>
+  <string name="recording_notification_title">Nachtaufzeichnung läuft</string>
+  <string name="recording_notification_text">Seit %1$s · %2$s</string>
+  <string name="recording_starting">Aufzeichnung startet …</string>
+  <string name="recording_status_asleep">Schlaf erkannt</string>
+  <string name="recording_status_awake">wach</string>
+  <string name="recording_connection_lost">Verbindung zu %1$s unterbrochen</string>
+  <string name="recording_stop">Nacht beenden</string>
+  <string name="recording_card_title">Nachtaufzeichnung läuft</string>
+  <string name="recording_since">seit %1$s · %2$s</string>
+  <string name="recording_asleep_since">Schläft seit %1$s</string>
+  <string name="recording_awake">Wach</string>
+  <string name="recording_vitals">Puls %1$s · Fuß %2$s</string>
+  <string name="recording_night_mode">Nachtmodus</string>
+  <string name="recording_simulated">Simulierte Zeit</string>
+  <string name="recording_stop_confirm_title">Nacht beenden?</string>
+  <string name="recording_stop_confirm_body">Die Aufzeichnung wird gespeichert und ausgewertet.</string>
+  <string name="recording_saved">Nacht gespeichert.</string>
+  <string name="recording_saved_auto">Guten Morgen! Die Nacht wurde automatisch beendet und gespeichert.</string>
+  <string name="recording_discarded">Die Aufzeichnung war kürzer als 10 Minuten und wurde nicht gespeichert.</string>
+  <string name="recording_background_limited">Ohne „Geräte in der Nähe“ läuft die Aufzeichnung nur, solange die App offen ist.</string>
+
+  <!-- Start-Checkliste -->
+  <string name="start_sheet_title">Bereit für die Nacht?</string>
+  <string name="start_sheet_body">Damit die Aufzeichnung die ganze Nacht durchhält:</string>
+  <string name="start_check_socks">Socken verbunden</string>
+  <string name="start_check_socks_missing">Verbinde zuerst deine Socken.</string>
+  <string name="start_check_notifications">Benachrichtigungen</string>
+  <string name="start_check_notifications_body">Zeigt an, dass aufgezeichnet wird, und lässt dich die Nacht direkt beenden.</string>
+  <string name="start_check_nearby">Geräte in der Nähe</string>
+  <string name="start_check_nearby_body">Nötig, damit die App die Socken auch bei ausgeschaltetem Bildschirm verbunden hält.</string>
+  <string name="start_check_battery">Akku-Optimierung</string>
+  <string name="start_check_battery_body">Manche Handys beenden Apps nachts trotzdem. Nimm Zocks Zleep dort aus, falls Nächte abbrechen.</string>
+  <string name="start_check_allow">Erlauben</string>
+  <string name="start_check_open_settings">Einstellungen</string>
+  <string name="start_check_done">Erledigt</string>
+  <string name="start_sheet_start">Aufzeichnung starten</string>
+
+  <!-- Korrektur -->
+  <string name="night_edit_onset">Einschlafzeit ändern</string>
+  <string name="night_edit_wake">Aufwachzeit ändern</string>
+  <string name="night_window_manual">Von dir korrigiert</string>
+  <string name="night_window_reset">Automatisch</string>
+  <string name="night_window_invalid">Einschlafen muss vor dem Aufwachen und innerhalb der Aufzeichnung liegen.</string>
+  <string name="night_window_saved">Schlafzeit korrigiert.</string>
 </resources>

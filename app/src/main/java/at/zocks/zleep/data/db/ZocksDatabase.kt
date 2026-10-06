@@ -17,7 +17,7 @@ import at.zocks.zleep.domain.model.Tag
         NightTagCrossRef::class,
         MassageProgramEntity::class,
     ],
-    version = 2,
+    version = ZocksDatabase.VERSION,
     exportSchema = true,
 )
 abstract class ZocksDatabase : RoomDatabase() {
@@ -36,6 +36,7 @@ abstract class ZocksDatabase : RoomDatabase() {
 
     companion object {
         const val NAME = "zocks.db"
+        const val VERSION = 3
 
         /** Version 2: Tabelle für eigene Massageprogramme. */
         val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -49,6 +50,13 @@ abstract class ZocksDatabase : RoomDatabase() {
             }
         }
 
-        val ALL_MIGRATIONS = arrayOf(MIGRATION_1_2)
+        /** Version 3: Merker, ob das Schlaffenster von Hand korrigiert wurde. */
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `nights` ADD COLUMN `sleep_window_manual` INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
+        val ALL_MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3)
     }
 }

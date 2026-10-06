@@ -19,6 +19,7 @@ fun NightWithTags.toDomain(): Night = Night(
     source = night.source,
     note = night.note,
     tags = tags.map { it.toDomain() },
+    sleepWindowManual = night.sleepWindowManual,
 )
 
 fun Night.toEntity(): NightEntity = NightEntity(
@@ -29,6 +30,7 @@ fun Night.toEntity(): NightEntity = NightEntity(
     finalWakeMs = finalWake?.toEpochMilli(),
     source = source,
     note = note,
+    sleepWindowManual = sleepWindowManual,
 )
 
 fun TagEntity.toDomain(): Tag = Tag(id, key, label)

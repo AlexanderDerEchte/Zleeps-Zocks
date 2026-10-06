@@ -36,8 +36,19 @@ interface NightDao {
     @Query("UPDATE nights SET end_ms = :endMs WHERE id = :id")
     suspend fun setEnd(id: Long, endMs: Long)
 
-    @Query("UPDATE nights SET sleep_onset_ms = :onsetMs, final_wake_ms = :wakeMs WHERE id = :id")
-    suspend fun setSleepWindow(id: Long, onsetMs: Long?, wakeMs: Long?)
+    @Query("UPDATE nights SET sleep_onset_ms = :onsetMs, final_wake_ms = :wakeMs, sleep_window_manual = 1 WHERE id = :id")
+    suspend fun setSleepWindowManually(id: Long, onsetMs: Long?, wakeMs: Long?)
+
+    /** Automatische Werte nur, solange nicht von Hand korrigiert wurde. */
+    @Query("UPDATE nights SET sleep_onset_ms = :onsetMs, final_wake_ms = :wakeMs WHERE id = :id AND sleep_window_manual = 0")
+    suspend fun setSleepWindowAutomatically(id: Long, onsetMs: Long?, wakeMs: Long?)
+
+    @Query("UPDATE nights SET sleep_window_manual = 0 WHERE id = :id")
+    suspend fun clearSleepWindowManual(id: Long)
+
+    @Transaction
+    @Query("SELECT * FROM nights WHERE end_ms IS NULL ORDER BY start_ms DESC LIMIT 1")
+    suspend fun getRecordingNight(): NightWithTags?
 
     @Query("UPDATE nights SET note = :note WHERE id = :id")
     suspend fun setNote(id: Long, note: String?)

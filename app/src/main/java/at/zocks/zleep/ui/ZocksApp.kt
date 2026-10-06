@@ -45,6 +45,8 @@ import at.zocks.zleep.ui.navigation.DeveloperDestination
 import at.zocks.zleep.ui.navigation.HomeDestination
 import at.zocks.zleep.ui.navigation.NightDetailDestination
 import at.zocks.zleep.ui.navigation.NightsDestination
+import at.zocks.zleep.ui.navigation.RecordingDestination
+import at.zocks.zleep.ui.recording.RecordingRoute
 import at.zocks.zleep.ui.navigation.SettingsDestination
 import at.zocks.zleep.ui.navigation.TopLevelDestination
 import at.zocks.zleep.ui.nights.NightsRoute
@@ -64,7 +66,11 @@ fun ZocksApp(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = { HeatingBanner(appState.heatingRemaining, appViewModel::stopHeating) },
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        bottomBar = { ZocksBottomBar(navController) },
+        bottomBar = {
+            // Im Nachtmodus keine Leiste – möglichst wenig Licht und Ablenkung.
+            val entry by navController.currentBackStackEntryAsState()
+            if (entry?.destination?.hasRoute(RecordingDestination::class) != true) ZocksBottomBar(navController)
+        },
     ) { innerPadding ->
         NavHost(
             navController = navController,
@@ -80,6 +86,17 @@ fun ZocksApp(
                     onOpenHeat = { navController.navigateToTopLevel(ControlDestination(ControlSection.HEAT), restoreState = false) },
                     onOpenMassage = { navController.navigateToTopLevel(ControlDestination(ControlSection.MASSAGE), restoreState = false) },
                     onOpenNight = { id -> navController.navigate(NightDetailDestination(id)) },
+                    onOpenNightMode = { navController.navigate(RecordingDestination) { launchSingleTop = true } },
+                )
+            }
+            composable<RecordingDestination> {
+                RecordingRoute(
+                    onBack = navController::popBackStack,
+                    onFinished = { id ->
+                        navController.navigate(NightDetailDestination(id)) {
+                            popUpTo<RecordingDestination> { inclusive = true }
+                        }
+                    },
                 )
             }
             composable<NightsDestination> {

@@ -51,12 +51,20 @@ class RoomNightRepository @Inject constructor(
 
     override suspend fun finishNight(id: Long, end: Instant) = dao.setEnd(id, end.toEpochMilli())
 
-    override suspend fun updateSleepWindow(id: Long, sleepOnset: Instant?, finalWake: Instant?) {
+    override suspend fun updateSleepWindow(id: Long, sleepOnset: Instant?, finalWake: Instant?, manual: Boolean) {
         require(sleepOnset == null || finalWake == null || sleepOnset.isBefore(finalWake)) {
             "Einschlafen muss vor dem Aufwachen liegen"
         }
-        dao.setSleepWindow(id, sleepOnset?.toEpochMilli(), finalWake?.toEpochMilli())
+        if (manual) {
+            dao.setSleepWindowManually(id, sleepOnset?.toEpochMilli(), finalWake?.toEpochMilli())
+        } else {
+            dao.setSleepWindowAutomatically(id, sleepOnset?.toEpochMilli(), finalWake?.toEpochMilli())
+        }
     }
+
+    override suspend fun resetSleepWindowCorrection(id: Long) = dao.clearSleepWindowManual(id)
+
+    override suspend fun getRecordingNight(): Night? = dao.getRecordingNight()?.toDomain()
 
     override suspend fun setNote(id: Long, note: String?) = dao.setNote(id, note?.trim()?.takeIf { it.isNotEmpty() })
 

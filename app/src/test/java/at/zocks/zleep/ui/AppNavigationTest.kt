@@ -1,6 +1,7 @@
 package at.zocks.zleep.ui
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
@@ -71,12 +72,10 @@ class AppNavigationTest {
     }
 
     @Test
-    fun startNightWithoutSocksAsksToPairFirst() {
-        val message = composeRule.activity.getString(R.string.snackbar_pair_first)
+    fun startNightOpensTheChecklistAndNeedsConnectedSocks() {
         composeRule.onNodeWithTag("action_start_night").performScrollTo().performClick()
-        composeRule.waitUntil(UI_TIMEOUT_MS) { composeRule.onAllNodes(hasText(message)).fetchSemanticsNodes().isNotEmpty() }
-        composeRule.mainClock.advanceTimeBy(SNACKBAR_ANIMATION_MS)
-        composeRule.onNodeWithText(message).assertIsDisplayed()
+        composeRule.waitUntilDisplayed("night_start_sheet")
+        composeRule.onNodeWithTag("start_recording").performScrollTo().assertIsNotEnabled()
     }
 
     @Test
@@ -94,7 +93,4 @@ class AppNavigationTest {
         composeRule.waitUntilDisplayed("heat_panel")
     }
 
-    private companion object {
-        const val SNACKBAR_ANIMATION_MS = 1_000L
-    }
 }

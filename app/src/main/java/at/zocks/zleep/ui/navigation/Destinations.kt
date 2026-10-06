@@ -39,6 +39,10 @@ data class NightDetailDestination(val nightId: Long)
 @Serializable
 data object DeveloperDestination
 
+/** Nachtmodus während der Aufzeichnung (ohne untere Leiste). */
+@Serializable
+data object RecordingDestination
+
 /** Ziele der unteren Navigationsleiste. */
 enum class TopLevelDestination(
     val route: Any,
@@ -50,7 +54,15 @@ enum class TopLevelDestination(
     /** Unterseiten, bei denen dieser Reiter markiert bleibt. */
     val childRoutes: List<KClass<*>> = emptyList(),
 ) {
-    HOME(HomeDestination, HomeDestination::class, R.string.nav_home, Icons.Filled.Home, Icons.Outlined.Home, "nav_home"),
+    HOME(
+        HomeDestination,
+        HomeDestination::class,
+        R.string.nav_home,
+        Icons.Filled.Home,
+        Icons.Outlined.Home,
+        "nav_home",
+        childRoutes = listOf(RecordingDestination::class),
+    ),
     NIGHTS(
         NightsDestination,
         NightsDestination::class,
