@@ -3,6 +3,7 @@ package at.zocks.zleep.ui.control
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Spa
 import androidx.compose.material.icons.outlined.Whatshot
 import androidx.compose.material3.MaterialTheme
@@ -19,9 +20,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import at.zocks.zleep.R
 import at.zocks.zleep.ui.components.EmptyState
 import at.zocks.zleep.ui.components.ScreenColumn
+import at.zocks.zleep.ui.components.UserMessageEffect
 import at.zocks.zleep.ui.components.ZocksCard
 import at.zocks.zleep.ui.navigation.ControlSection
 import at.zocks.zleep.ui.theme.Dimens
@@ -29,8 +33,20 @@ import at.zocks.zleep.ui.theme.ZocksTheme
 import at.zocks.zleep.ui.theme.ZocksThemeExt
 
 @Composable
+fun ControlRoute(initialSection: ControlSection, viewModel: ControlViewModel = hiltViewModel()) {
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    UserMessageEffect(state.userMessage) { viewModel.onEvent(ControlEvent.MessageShown) }
+    ControlScreen(
+        initialSection = initialSection,
+        connected = state.pairStatus?.anyConnected == true,
+        onPairSocks = { viewModel.onEvent(ControlEvent.ConnectSocks) },
+    )
+}
+
+@Composable
 fun ControlScreen(
     initialSection: ControlSection,
+    connected: Boolean,
     onPairSocks: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -57,6 +73,16 @@ fun ControlScreen(
         }
 
         ZocksCard {
+            if (connected) {
+                // Heizen und Massage folgen in Phase 3.
+                EmptyState(
+                    icon = Icons.Outlined.CheckCircle,
+                    title = stringResource(R.string.control_connected_title),
+                    body = stringResource(R.string.control_connected_soon),
+                    modifier = Modifier.testTag("control_${section.name.lowercase()}_content"),
+                )
+                return@ZocksCard
+            }
             when (section) {
                 ControlSection.HEAT -> EmptyState(
                     icon = Icons.Outlined.Whatshot,
@@ -96,5 +122,5 @@ private fun ControlSection.accentContainer() = when (this) {
 @Preview
 @Composable
 private fun ControlScreenPreview() {
-    ZocksTheme { ControlScreen(ControlSection.HEAT, {}) }
+    ZocksTheme { ControlScreen(ControlSection.HEAT, connected = false, onPairSocks = {}) }
 }

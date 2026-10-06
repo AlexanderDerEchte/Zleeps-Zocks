@@ -14,9 +14,9 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -30,24 +30,27 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import at.zocks.zleep.R
-import at.zocks.zleep.ui.control.ControlScreen
-import at.zocks.zleep.ui.home.HomeScreen
-import at.zocks.zleep.ui.navigation.ControlRoute
+import at.zocks.zleep.ui.components.LocalSnackbarHostState
+import at.zocks.zleep.ui.control.ControlRoute
+import at.zocks.zleep.ui.developer.DeveloperRoute
+import at.zocks.zleep.ui.home.HomeRoute
+import at.zocks.zleep.ui.nightdetail.NightDetailRoute
+import at.zocks.zleep.ui.navigation.ControlDestination
 import at.zocks.zleep.ui.navigation.ControlSection
-import at.zocks.zleep.ui.navigation.HomeRoute
-import at.zocks.zleep.ui.navigation.NightsRoute
-import at.zocks.zleep.ui.navigation.SettingsRoute
+import at.zocks.zleep.ui.navigation.DeveloperDestination
+import at.zocks.zleep.ui.navigation.HomeDestination
+import at.zocks.zleep.ui.navigation.NightDetailDestination
+import at.zocks.zleep.ui.navigation.NightsDestination
+import at.zocks.zleep.ui.navigation.SettingsDestination
 import at.zocks.zleep.ui.navigation.TopLevelDestination
-import at.zocks.zleep.ui.nights.NightsScreen
+import at.zocks.zleep.ui.nights.NightsRoute
 import at.zocks.zleep.ui.settings.SettingsScreen
-import kotlinx.coroutines.launch
 
 @Composable
 fun ZocksApp(navController: NavHostController = rememberNavController()) {
     val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
-    val pairFirstMessage = stringResource(R.string.snackbar_pair_first)
 
+    CompositionLocalProvider(LocalSnackbarHostState provides snackbarHostState) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -55,30 +58,37 @@ fun ZocksApp(navController: NavHostController = rememberNavController()) {
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = HomeRoute,
+            startDestination = HomeDestination,
             modifier = Modifier
                 .padding(innerPadding)
                 .consumeWindowInsets(innerPadding),
             enterTransition = { fadeIn() },
             exitTransition = { fadeOut() },
         ) {
-            composable<HomeRoute> {
-                HomeScreen(
-                    onOpenHeat = { navController.navigateToTopLevel(ControlRoute(ControlSection.HEAT), restoreState = false) },
-                    onOpenMassage = { navController.navigateToTopLevel(ControlRoute(ControlSection.MASSAGE), restoreState = false) },
-                    onStartNight = { scope.launch { snackbarHostState.showSnackbar(pairFirstMessage) } },
-                    onPairSocks = { scope.launch { snackbarHostState.showSnackbar(pairFirstMessage) } },
+            composable<HomeDestination> {
+                HomeRoute(
+                    onOpenHeat = { navController.navigateToTopLevel(ControlDestination(ControlSection.HEAT), restoreState = false) },
+                    onOpenMassage = { navController.navigateToTopLevel(ControlDestination(ControlSection.MASSAGE), restoreState = false) },
+                    onOpenNight = { id -> navController.navigate(NightDetailDestination(id)) },
                 )
             }
-            composable<NightsRoute> { NightsScreen() }
-            composable<ControlRoute> { entry ->
-                ControlScreen(
-                    initialSection = entry.toRoute<ControlRoute>().section,
-                    onPairSocks = { scope.launch { snackbarHostState.showSnackbar(pairFirstMessage) } },
-                )
+            composable<NightsDestination> {
+                NightsRoute(onOpenNight = { id -> navController.navigate(NightDetailDestination(id)) })
             }
-            composable<SettingsRoute> { SettingsScreen() }
+            composable<NightDetailDestination> {
+                NightDetailRoute(onBack = navController::popBackStack)
+            }
+            composable<ControlDestination> { entry ->
+                ControlRoute(initialSection = entry.toRoute<ControlDestination>().section)
+            }
+            composable<SettingsDestination> {
+                SettingsScreen(onOpenDeveloperOptions = { navController.navigate(DeveloperDestination) })
+            }
+            composable<DeveloperDestination> {
+                DeveloperRoute(onBack = navController::popBackStack)
+            }
         }
+    }
     }
 }
 
@@ -89,7 +99,9 @@ private fun ZocksBottomBar(navController: NavHostController) {
 
     NavigationBar(containerColor = MaterialTheme.colorScheme.surfaceContainerLow) {
         TopLevelDestination.entries.forEach { destination ->
-            val selected = currentDestination?.hierarchy?.any { it.hasRoute(destination.routeClass) } == true
+            val selected = currentDestination?.hierarchy?.any { node ->
+                node.hasRoute(destination.routeClass) || destination.childRoutes.any { node.hasRoute(it) }
+            } == true
             NavigationBarItem(
                 selected = selected,
                 onClick = { navController.navigateToTopLevel(destination.route) },

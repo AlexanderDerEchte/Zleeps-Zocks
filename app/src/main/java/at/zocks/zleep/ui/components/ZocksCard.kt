@@ -19,19 +19,22 @@ import at.zocks.zleep.ui.theme.Dimens
 fun ZocksCard(
     modifier: Modifier = Modifier,
     title: String? = null,
+    onClick: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-    ) {
+    val colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+    val body: @Composable ColumnScope.() -> Unit = {
         Column(Modifier.padding(Dimens.CardPadding)) {
             if (title != null) {
                 SectionTitle(title, Modifier.padding(bottom = Dimens.SpaceM))
             }
             content()
         }
+    }
+    if (onClick != null) {
+        Card(onClick = onClick, modifier = modifier.fillMaxWidth(), shape = MaterialTheme.shapes.large, colors = colors, content = body)
+    } else {
+        Card(modifier = modifier.fillMaxWidth(), shape = MaterialTheme.shapes.large, colors = colors, content = body)
     }
 }
 

@@ -15,8 +15,9 @@ Tests und Lint als getrennte Gradle-Aufrufe starten (gemeinsam kann Lint an KSP-
 
 ## Architektur
 
-- Single-Activity, Compose, Material 3, Navigation Compose mit `@Serializable`-Routen
-  (`ui/navigation/Destinations.kt`).
+- Single-Activity, Compose, Material 3, Navigation Compose mit `@Serializable`-Zielen
+  `XxxDestination` (`ui/navigation/Destinations.kt`). `XxxRoute` ist dagegen die Composable,
+  die das ViewModel holt.
 - MVVM. Pakete: `ui` (Screens, ViewModels), `domain` (reines Kotlin), `data` (Room,
   DataStore, Repositories), `device` (SockDevice, Simulator, BLE), `di` (Hilt-Module).
 - Abhängigkeiten zeigen nach innen: `ui → domain ← data/device`. `domain` importiert nie
@@ -24,9 +25,22 @@ Tests und Lint als getrennte Gradle-Aufrufe starten (gemeinsam kann Lint an KSP-
 - ViewModels stellen genau einen `StateFlow<UiState>` bereit, Screens sind zustandslos
   (`XxxScreen(state, onEvent)`) plus eine dünne `XxxRoute`, die das ViewModel holt.
 - Coroutines + Flow, keine Callbacks nach außen. Dispatcher werden injiziert.
-- Alle Gerätefunktionen laufen über das Interface `SockDevice`; ein Paar (`left`/`right`)
-  wird standardmäßig gemeinsam gesteuert (`SockSide.BOTH`).
+- Alle Gerätefunktionen laufen über das Interface `SockDevice` (`domain/device`); ein Paar
+  (`SockPair`, `left`/`right`) wird standardmäßig gemeinsam gesteuert (`SockSide.BOTH`).
+  Das aktive Paar (Simulator oder BLE) liefert `SockPairProvider`.
+- Interfaces (Repositories, `SockDevice`, `SimulatorController`) liegen in `domain`,
+  Umsetzungen in `data` bzw. `device`, verdrahtet in `di`.
+- Einmalige Meldungen: `@StringRes userMessage` im UiState + `UserMessageEffect`.
+- Rechenintensives (z. B. Demo-Daten) auf dem injizierten `@DefaultDispatcher`.
 - BLE-UUIDs und Datenformat stehen ausschließlich in `device/ble/SockBleProtocol.kt`.
+
+## Daten
+
+- Room-Datenbank `zocks.db`, Schema versioniert unter `app/schemas/`. Bei Schemaänderungen
+  Version erhöhen und Migration schreiben (kein destruktiver Fallback).
+- Messwerte werden pro Socke auf 30-s-Epochen verdichtet (`EPOCH_LENGTH`), Zeitpunkte als
+  UTC-Millisekunden. Eine Nacht gehört zum Kalendertag ihres Beginns minus 12 h.
+- Einstellungen in DataStore (`DataStoreSettingsRepository`), unbekannte Werte → Standard.
 
 ## Messwerte und Sicherheit
 
@@ -63,10 +77,15 @@ Tests und Lint als getrennte Gradle-Aufrufe starten (gemeinsam kann Lint an KSP-
 
 ## Tests
 
-- Unit-Tests unter `app/src/test` (JUnit4, Truth, coroutines-test; Turbine ab Phase 2).
+- Unit-Tests unter `app/src/test` (JUnit4, Truth, coroutines-test, Turbine). Hilfen in
+  `testing/` (`MutableClock`, `FakeSockDevice`, `waitUntilDisplayed`).
+- Simulator-Tests laufen in virtueller Zeit (`runTest`, `backgroundScope` als App-Scope).
+- Room-Tests mit In-Memory-Datenbank unter Robolectric.
 - UI-Tests ebenfalls unter `app/src/test` mit Robolectric (`@HiltAndroidTest`,
   `@Config(application = HiltTestApplication::class)`), Compose-Test-API v2.
   Robolectric läuft mit SDK 36 (`src/test/resources/robolectric.properties`).
+  Nach Navigation nicht sofort `assertIsDisplayed`, sondern `waitUntilDisplayed(tag)`
+  (Übergangsanimation).
 - Algorithmen (Schlafphasen, Score, Routinen, Sicherheit) brauchen eigene Unit-Tests.
 
 ## Git

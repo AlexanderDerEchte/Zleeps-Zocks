@@ -1,30 +1,134 @@
 package at.zocks.zleep.ui.nights
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import at.zocks.zleep.R
+import at.zocks.zleep.domain.model.Night
+import at.zocks.zleep.domain.model.NightSource
 import at.zocks.zleep.ui.components.EmptyState
-import at.zocks.zleep.ui.components.ScreenColumn
-import at.zocks.zleep.ui.theme.ZocksTheme
+import at.zocks.zleep.ui.components.ErrorState
+import at.zocks.zleep.ui.components.InfoBadge
+import at.zocks.zleep.ui.components.LoadingState
+import at.zocks.zleep.ui.format.currentLocale
+import at.zocks.zleep.ui.format.formatDuration
+import at.zocks.zleep.ui.format.formatNightDate
+import at.zocks.zleep.ui.format.formatTime
+import at.zocks.zleep.ui.format.tagLabel
+import at.zocks.zleep.ui.theme.Dimens
+import java.time.ZoneId
 
 @Composable
-fun NightsScreen(modifier: Modifier = Modifier) {
-    ScreenColumn(title = stringResource(R.string.nav_nights), modifier = modifier.testTag("screen_nights")) {
-        EmptyState(
-            icon = Icons.Outlined.CalendarMonth,
-            title = stringResource(R.string.nights_empty_title),
-            body = stringResource(R.string.nights_empty_body),
-        )
+fun NightsRoute(onOpenNight: (Long) -> Unit, viewModel: NightsViewModel = hiltViewModel()) {
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    NightsScreen(state, onOpenNight)
+}
+
+@Composable
+fun NightsScreen(state: NightsUiState, onOpenNight: (Long) -> Unit, modifier: Modifier = Modifier) {
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .testTag("screen_nights"),
+        contentPadding = PaddingValues(horizontal = Dimens.ScreenPadding, vertical = Dimens.SpaceL),
+        verticalArrangement = Arrangement.spacedBy(Dimens.SpaceM),
+    ) {
+        item {
+            Text(
+                stringResource(R.string.nav_nights),
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier
+                    .padding(bottom = Dimens.SpaceS)
+                    .semantics { heading() },
+            )
+        }
+        when (state) {
+            NightsUiState.Loading -> item { LoadingState() }
+            NightsUiState.Error -> item { ErrorState(stringResource(R.string.error_generic), onRetry = {}) }
+            NightsUiState.Empty -> item {
+                EmptyState(
+                    icon = Icons.Outlined.CalendarMonth,
+                    title = stringResource(R.string.nights_empty_title),
+                    body = stringResource(R.string.nights_empty_body),
+                )
+            }
+            is NightsUiState.Content -> items(state.nights, key = { it.id }) { night ->
+                NightRow(night, state.use24HourClock, onClick = { onOpenNight(night.id) })
+            }
+        }
     }
 }
 
-@Preview
 @Composable
-private fun NightsScreenPreview() {
-    ZocksTheme { NightsScreen() }
+private fun NightRow(night: Night, use24h: Boolean, onClick: () -> Unit) {
+    val locale = currentLocale()
+    val zone = ZoneId.systemDefault()
+    val date = formatNightDate(night.nightOf(zone), locale)
+    val openLabel = stringResource(R.string.night_open_detail, date)
+    Card(
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = Dimens.ThumbTarget)
+            .clickable(onClickLabel = openLabel, onClick = onClick)
+            .testTag("night_item"),
+    ) {
+        Row(Modifier.padding(Dimens.CardPadding), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Dimens.SpaceXs)) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Dimens.SpaceS)) {
+                    Text(date, style = MaterialTheme.typography.titleMedium)
+                    if (night.source == NightSource.DEMO) InfoBadge(stringResource(R.string.badge_demo))
+                    if (night.isRecording) InfoBadge(stringResource(R.string.night_recording))
+                }
+                val window = night.sleepWindow
+                val from = night.sleepOnset ?: night.start
+                val to = night.finalWake ?: night.end
+                val times = to?.let { stringResource(R.string.time_range, formatTime(from, use24h, locale, zone), formatTime(it, use24h, locale, zone)) }
+                Text(
+                    listOfNotNull(window?.let { formatDuration(it) }, times).joinToString("  ·  "),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                if (night.tags.isNotEmpty()) {
+                    Text(
+                        night.tags.map { tagLabel(it) }.joinToString(", "),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
+            }
+            Icon(
+                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
 }

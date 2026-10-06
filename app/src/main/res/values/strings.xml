@@ -68,4 +68,105 @@
   <string name="state_loading">Wird geladen …</string>
   <string name="state_error_title">Etwas ist schiefgelaufen</string>
   <string name="action_retry">Erneut versuchen</string>
+  <!-- Allgemein -->
+  <string name="value_not_available">nicht verfügbar</string>
+  <string name="duration_hm">%1$d h %2$02d min</string>
+  <string name="duration_m">%1$d min</string>
+  <string name="time_range">%1$s – %2$s</string>
+  <string name="value_bpm">%1$d bpm</string>
+  <string name="value_ms">%1$d ms</string>
+  <string name="value_percent">%1$d %%</string>
+  <string name="value_temperature_c">%1$s °C</string>
+  <string name="value_temperature_f">%1$s °F</string>
+  <string name="action_back">Zurück</string>
+  <string name="badge_demo">Demo</string>
+  <string name="badge_simulator">Simulator</string>
+  <string name="error_generic">Das hat nicht geklappt. Bitte versuch es noch einmal.</string>
+
+  <!-- Verbindung -->
+  <string name="connection_connected">Verbunden</string>
+  <string name="connection_connecting">Verbinde …</string>
+  <string name="connection_reconnecting">Verbindung unterbrochen</string>
+  <string name="battery_level">Akku %1$d %%</string>
+  <string name="sock_heating">heizt</string>
+  <string name="action_connect_socks">Socken verbinden</string>
+  <string name="action_disconnect_socks">Trennen</string>
+  <string name="message_ble_not_ready">Die Bluetooth-Anbindung echter Socken folgt in einem späteren Update.</string>
+  <string name="message_night_recording_soon">Die Nachtaufzeichnung folgt im nächsten Update.</string>
+  <string name="control_connected_title">Socken verbunden</string>
+  <string name="control_connected_soon">Heizen und Massage lassen sich im nächsten Update steuern.</string>
+
+  <!-- Nächte -->
+  <string name="home_last_night_of">Letzte Nacht · %1$s</string>
+  <string name="night_sleep_duration">Schlafdauer</string>
+  <string name="night_open_detail">Details zur Nacht vom %1$s</string>
+  <string name="night_detail_title">Nacht</string>
+  <string name="night_not_found">Diese Nacht gibt es nicht mehr.</string>
+  <string name="night_sleep_onset">Eingeschlafen</string>
+  <string name="night_final_wake">Aufgewacht</string>
+  <string name="night_section_stages">Schlafphasen</string>
+  <string name="night_section_measurements">Messwerte im Schlaf</string>
+  <string name="night_section_events">Wärme und Massage</string>
+  <string name="night_section_tags">Tags und Notiz</string>
+  <string name="night_avg_heart_rate">Ø Puls</string>
+  <string name="night_avg_hrv">Ø HRV (RMSSD)</string>
+  <string name="night_avg_spo2">Ø Sauerstoffsättigung</string>
+  <string name="night_avg_skin_temperature">Ø Fußtemperatur</string>
+  <string name="night_gaps">Verbindungslücken: %1$s</string>
+  <string name="night_no_events">Keine Wärme oder Massage in dieser Nacht.</string>
+  <string name="night_no_tags">Keine Tags</string>
+  <string name="night_stage_share">%1$s · %2$d %%</string>
+  <string name="night_recording">Läuft</string>
+  <string name="event_heat">Wärme</string>
+  <string name="event_massage">Massage</string>
+  <string name="event_routine">Abendroutine</string>
+  <string name="event_alarm">Wecker</string>
+  <string name="event_safety_shutoff">Sicherheitsabschaltung</string>
+
+  <string name="stage_awake">Wach</string>
+  <string name="stage_light">Leicht</string>
+  <string name="stage_deep">Tief</string>
+  <string name="stage_rem">REM</string>
+
+  <string name="tag_caffeine">Koffein</string>
+  <string name="tag_sport">Sport</string>
+  <string name="tag_alcohol">Alkohol</string>
+  <string name="tag_stress">Stress</string>
+  <string name="tag_late_meal">Spätes Essen</string>
+  <string name="tag_screen_time">Bildschirmzeit</string>
+
+  <!-- Entwickleroptionen -->
+  <string name="dev_title">Entwickleroptionen</string>
+  <string name="dev_section_device">Geräteanbindung</string>
+  <string name="dev_mode_simulator">Simulator</string>
+  <string name="dev_mode_simulator_body">Realistische Messwerte ohne echte Socken.</string>
+  <string name="dev_mode_ble">Echte Socken (Bluetooth)</string>
+  <string name="dev_mode_ble_body">Die Bluetooth-Anbindung folgt in einem späteren Update.</string>
+  <string name="dev_section_simulator">Simulator</string>
+  <string name="dev_sim_play_night">Nacht abspielen</string>
+  <string name="dev_sim_stop">Stoppen</string>
+  <string name="dev_sim_speed">Zeitraffer</string>
+  <string name="dev_sim_speed_value">%1$d×</string>
+  <string name="dev_sim_mode_awake">Wach, Echtzeit</string>
+  <string name="dev_sim_mode_night">Nacht läuft · %1$s</string>
+  <string name="dev_sim_mode_finished">Nacht beendet · %1$s</string>
+  <string name="dev_sim_true_stage">Wahre Phase: %1$s</string>
+  <string name="dev_sim_dropout">Abbruch %1$s (30 s)</string>
+  <string name="dev_sim_connect_first">Verbinde die simulierten Socken, um Live-Werte zu sehen.</string>
+  <string name="dev_live_heart_rate">Puls</string>
+  <string name="dev_live_hrv">HRV</string>
+  <string name="dev_live_spo2">SpO2</string>
+  <string name="dev_live_skin">Haut</string>
+  <string name="dev_live_motion">Bewegung</string>
+  <string name="dev_live_battery">Akku</string>
+  <string name="dev_section_demo">Demo-Daten</string>
+  <plurals name="dev_demo_count">
+    <item quantity="one">%1$d Demo-Nacht gespeichert</item>
+    <item quantity="other">%1$d Demo-Nächte gespeichert</item>
+  </plurals>
+  <string name="dev_demo_load">30 Demo-Nächte laden</string>
+  <string name="dev_demo_loading">Lade Demo-Nächte …</string>
+  <string name="dev_demo_clear">Demo-Nächte löschen</string>
+  <string name="dev_demo_loaded">30 Demo-Nächte geladen.</string>
+  <string name="dev_demo_cleared">Demo-Nächte gelöscht.</string>
 </resources>

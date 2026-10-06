@@ -17,21 +17,27 @@ import kotlinx.serialization.Serializable
 import kotlin.reflect.KClass
 
 @Serializable
-data object HomeRoute
+data object HomeDestination
 
 @Serializable
-data object NightsRoute
+data object NightsDestination
 
 /** Steuerung; [section] wählt den Reiter (Heizen oder Massage) beim Öffnen. */
 @Serializable
-data class ControlRoute(val section: ControlSection = ControlSection.HEAT)
+data class ControlDestination(val section: ControlSection = ControlSection.HEAT)
 
 @Keep
 @Serializable
 enum class ControlSection { HEAT, MASSAGE }
 
 @Serializable
-data object SettingsRoute
+data object SettingsDestination
+
+@Serializable
+data class NightDetailDestination(val nightId: Long)
+
+@Serializable
+data object DeveloperDestination
 
 /** Ziele der unteren Navigationsleiste. */
 enum class TopLevelDestination(
@@ -41,16 +47,27 @@ enum class TopLevelDestination(
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector,
     val testTag: String,
+    /** Unterseiten, bei denen dieser Reiter markiert bleibt. */
+    val childRoutes: List<KClass<*>> = emptyList(),
 ) {
-    HOME(HomeRoute, HomeRoute::class, R.string.nav_home, Icons.Filled.Home, Icons.Outlined.Home, "nav_home"),
-    NIGHTS(NightsRoute, NightsRoute::class, R.string.nav_nights, Icons.Filled.Bedtime, Icons.Outlined.Bedtime, "nav_nights"),
-    CONTROL(ControlRoute(), ControlRoute::class, R.string.nav_control, Icons.Filled.Tune, Icons.Outlined.Tune, "nav_control"),
+    HOME(HomeDestination, HomeDestination::class, R.string.nav_home, Icons.Filled.Home, Icons.Outlined.Home, "nav_home"),
+    NIGHTS(
+        NightsDestination,
+        NightsDestination::class,
+        R.string.nav_nights,
+        Icons.Filled.Bedtime,
+        Icons.Outlined.Bedtime,
+        "nav_nights",
+        childRoutes = listOf(NightDetailDestination::class),
+    ),
+    CONTROL(ControlDestination(), ControlDestination::class, R.string.nav_control, Icons.Filled.Tune, Icons.Outlined.Tune, "nav_control"),
     SETTINGS(
-        SettingsRoute,
-        SettingsRoute::class,
+        SettingsDestination,
+        SettingsDestination::class,
         R.string.nav_settings,
         Icons.Filled.Settings,
         Icons.Outlined.Settings,
         "nav_settings",
+        childRoutes = listOf(DeveloperDestination::class),
     ),
 }

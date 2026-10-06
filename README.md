@@ -31,7 +31,7 @@ zeichnet die Nacht auf und zeigt eine übersichtliche Schlafanalyse.
 | Architektur | MVVM, Schichten `ui / domain / data / device` |
 | DI | Hilt |
 | Asynchronität | Coroutines + Flow |
-| Persistenz | Room (Messdaten, Nächte), DataStore (Einstellungen) *(ab Phase 2)* |
+| Persistenz | Room (Messdaten, Nächte), DataStore (Einstellungen) |
 | Diagramme | Vico *(ab Phase 5)* |
 | SDK | minSdk 26, targetSdk / compileSdk 37 |
 | Build | Gradle 9.8, AGP 9.4, Version Catalog `gradle/libs.versions.toml` |
@@ -47,9 +47,18 @@ app/src/main/java/at/zocks/zleep/
 │   ├── navigation/          typsichere Routen, Ziele der unteren Leiste
 │   ├── components/          Karten, große Aktionsknöpfe, Lade-/Leer-/Fehlerzustände
 │   ├── home/ nights/ control/ settings/
-├── domain/                  reines Kotlin: Modelle, Use Cases, Algorithmen
-├── data/                    Room, DataStore, Repositories            (ab Phase 2)
-└── device/                  SockDevice, Simulator, BLE               (ab Phase 2/7)
+│   ├── developer/           Entwickleroptionen (Simulator, Demo-Daten)
+│   ├── nightdetail/         Nachtdetail
+│   └── format/              Zahlen, Zeiten, Einheiten, Übersetzungen
+├── domain/                  reines Kotlin
+│   ├── model/               Nacht, Epochen, Schlafphasen, Geräte-Modelle, Einstellungen
+│   ├── device/              SockDevice, SockPair, SockPairProvider
+│   ├── repository/          Repository-Interfaces
+│   ├── simulator/           Steuerung von Simulator und Demo-Daten
+│   └── analysis/            Kennzahlen einer Nacht
+├── data/                    Room (db/), Repositories, DataStore (settings/)
+├── device/                  Simulator (simulator/), BLE (ble/, ab Phase 7)
+└── di/                      Hilt-Module
 ```
 
 Die Domain-Schicht darf nichts aus Android, `ui`, `data` oder `device` importieren.
@@ -81,7 +90,7 @@ Danach liegt die Debug-APK unter *Actions → letzter Lauf → Artifacts →
 | Phase | Inhalt | Stand |
 |---|---|---|
 | 1 | Projektgerüst, Theme, Navigation, CI | ✅ fertig |
-| 2 | Datenmodell, Room, Simulator mit Demo-Nächten | ⏳ offen |
+| 2 | Datenmodell, Room, Simulator mit Demo-Nächten | ✅ fertig |
 | 3 | Gerätesteuerung: Heizen und Massage | ⏳ offen |
 | 4 | Nachtaufzeichnung mit Foreground Service | ⏳ offen |
 | 5 | Analyse, Score, Diagramme, Trends | ⏳ offen |
@@ -103,6 +112,42 @@ Danach liegt die Debug-APK unter *Actions → letzter Lauf → Artifacts →
 - Keine Cloud-Backups (`data_extraction_rules.xml`)
 - Tests: Domain-Reinheit, Begrüßungslogik, Navigations-UI-Tests (Hilt + Robolectric)
 - CI mit Debug-APK als Artefakt
+
+### Phase 2 – enthalten
+
+- **Datenmodell:** Nächte, 30-s-Epochen je Socke (Puls, HRV, SpO2, Hauttemperatur,
+  Bewegung – jeweils `null`, wenn nicht gemessen), Schlafphasen, Ereignisse (Wärme,
+  Massage, Routine, Wecker, Sicherheitsabschaltung), Verbindungslücken, Tags, Notizen.
+- **Room** mit Schema-Export, eingebaute Tags (Koffein, Sport, Alkohol, Stress, spätes
+  Essen, Bildschirmzeit), **DataStore** für Einstellungen.
+- **Geräteschicht:** `SockDevice` je Socke, `SockPair` (gemeinsam oder getrennt),
+  `SockPairProvider` wählt Simulator oder echtes Gerät.
+- **Simulator:**
+  - Nachtgenerator mit Schlafzyklen von 85–110 min (Tiefschlaf früh, REM spät) und
+    phasentypischem Puls, HRV, SpO2, Fußtemperatur und Bewegung.
+  - `SimulationEngine` in Echtzeit oder als Zeitraffer-Nacht (60×, 300×, 1200×).
+  - `SimulatedSockDevice` reagiert auf Heizen (Heizelement und Haut erwärmen sich),
+    Massage (Vibration, sanftes Ausklingen), verbraucht Akku und simuliert Verbindungsabbrüche.
+- **Demo-Datensatz:** 30 Nächte mit Tags, Wärme- und Massage-Ereignissen und
+  gelegentlichen Lücken. Eingebaute Zusammenhänge (z. B. Koffein → längeres Einschlafen)
+  machen spätere Trends und Erkenntnisse sichtbar.
+- **UI:**
+  - Start zeigt die letzte Nacht und den echten Sockenstatus (Verbinden/Trennen).
+  - Nächte als Liste, einfache Nachtdetailseite mit Kennzahlen.
+  - Entwickleroptionen mit Simulator-Umschalter, Live-Werten, Zeitraffer-Nacht und
+    Demo-Daten.
+- **Tests (49):** Nachtgenerator, simulierte Socke, Engine, Demo-Daten, Room-Repository,
+  DataStore, Kennzahlen, `SockPair`, UI-Abläufe (Verbinden, Demo laden → Nacht öffnen,
+  Gerätemodus wechseln).
+
+### Simulator ausprobieren
+
+*Einstellungen → Entwickleroptionen:*
+1. „Socken verbinden“ (Live-Werte erscheinen),
+2. „Nacht abspielen“ (Zeitraffer wählen),
+3. „30 Demo-Nächte laden“ (danach unter *Nächte*).
+
+Bis die Bluetooth-Anbindung steht (Phase 7), ist der Simulator Standard.
 
 ## Hardware-Annahmen
 
