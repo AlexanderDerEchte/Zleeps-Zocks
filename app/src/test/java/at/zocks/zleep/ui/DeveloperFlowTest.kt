@@ -14,6 +14,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import at.zocks.zleep.MainActivity
 import at.zocks.zleep.R
 import at.zocks.zleep.testing.waitUntilDisplayed
+import at.zocks.zleep.testing.waitUntilLoaded
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
@@ -38,6 +39,7 @@ class DeveloperFlowTest {
     @Before
     fun setUp() {
         hiltRule.inject()
+        composeRule.waitUntilLoaded()
     }
 
     private fun waitForTag(tag: String) = composeRule.waitUntil(TIMEOUT_MS) {
@@ -49,6 +51,7 @@ class DeveloperFlowTest {
         composeRule.onNodeWithTag("nav_settings").performClick()
         composeRule.onNodeWithTag("settings_developer").performScrollTo().performClick()
         composeRule.waitUntilDisplayed("screen_developer")
+        composeRule.waitUntilLoaded()
         composeRule.onNodeWithTag("nav_settings").assertIsSelected()
 
         composeRule.onNodeWithTag("dev_demo_load").performScrollTo().performClick()

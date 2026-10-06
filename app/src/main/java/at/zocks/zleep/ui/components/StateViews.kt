@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
@@ -30,6 +31,9 @@ import androidx.compose.ui.unit.dp
 import at.zocks.zleep.R
 import at.zocks.zleep.ui.theme.Dimens
 
+/** Test-Tag des Ladezustands, damit Tests auf fertig geladene Inhalte warten können. */
+const val LOADING_TAG = "state_loading"
+
 @Composable
 fun LoadingState(modifier: Modifier = Modifier) {
     val label = stringResource(R.string.state_loading)
@@ -37,7 +41,8 @@ fun LoadingState(modifier: Modifier = Modifier) {
         modifier = modifier
             .fillMaxWidth()
             .padding(Dimens.SpaceXxl)
-            .semantics { liveRegion = LiveRegionMode.Polite },
+            .semantics { liveRegion = LiveRegionMode.Polite }
+            .testTag(LOADING_TAG),
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {

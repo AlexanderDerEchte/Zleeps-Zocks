@@ -85,7 +85,8 @@ Tests und Lint als getrennte Gradle-Aufrufe starten (gemeinsam kann Lint an KSP-
   `@Config(application = HiltTestApplication::class)`), Compose-Test-API v2.
   Robolectric läuft mit SDK 36 (`src/test/resources/robolectric.properties`).
   Nach Navigation nicht sofort `assertIsDisplayed`, sondern `waitUntilDisplayed(tag)`
-  (Übergangsanimation).
+  (Übergangsanimation). Vor dem ersten Klick `waitUntilLoaded()` (kein `state_loading`
+  mehr sichtbar). `waitUntil` immer mit `UI_TIMEOUT_MS` – CI-Runner sind langsam.
 - Algorithmen (Schlafphasen, Score, Routinen, Sicherheit) brauchen eigene Unit-Tests.
 
 ## Git
