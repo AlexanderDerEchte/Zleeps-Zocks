@@ -24,6 +24,7 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -115,6 +116,8 @@ class RoutineFlowTest {
         composeRule.waitUntilDisplayed("screen_recording")
 
         composeRule.waitUntil(UI_TIMEOUT_MS) { runner.state.value is RoutineState.Running }
-        assertThat(runBlocking { settings.settings.first() }.routineWithNight).isTrue()
+        // Gespeichert wird im Hintergrund; die Routine läuft schon vorher mit der gewählten Einstellung.
+        val stored = runBlocking { withTimeoutOrNull(UI_TIMEOUT_MS) { settings.settings.first { it.routineWithNight } } }
+        assertThat(stored).isNotNull()
     }
 }

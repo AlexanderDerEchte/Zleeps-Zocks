@@ -114,9 +114,9 @@ class HomeViewModel @Inject constructor(
             temperatureUnit = settings.temperatureUnit,
             recording = recording,
             showStartSheet = localState.showStartSheet,
-            routineWithNight = settings.routineWithNight,
+            routineWithNight = localState.routineWithNight ?: settings.routineWithNight,
             routineMinutes = settings.routine.totalMinutes,
-            alarmEnabled = settings.alarm.enabled,
+            alarmEnabled = localState.alarmEnabled ?: settings.alarm.enabled,
             wakeTime = settings.wakeTime,
             alarmWindowMinutes = settings.alarm.windowMinutes,
             armedWindow = (alarm as? AlarmState.Armed)?.window,
@@ -145,7 +145,16 @@ class HomeViewModel @Inject constructor(
 
     private fun message(@StringRes id: Int?) = local.update { it.copy(message = id) }
 
-    private data class LocalState(val showStartSheet: Boolean = false, @param:StringRes val message: Int? = null)
+    /**
+     * [routineWithNight] und [alarmEnabled]: die Wahl im Startblatt, bis sie gespeichert ist.
+     * So gilt ein eben umgelegter Schalter sofort – auch wenn direkt danach gestartet wird.
+     */
+    private data class LocalState(
+        val showStartSheet: Boolean = false,
+        @param:StringRes val message: Int? = null,
+        val routineWithNight: Boolean? = null,
+        val alarmEnabled: Boolean? = null,
+    )
 
     fun onEvent(event: HomeEvent) {
         when (event) {
@@ -155,22 +164,30 @@ class HomeViewModel @Inject constructor(
             HomeEvent.DismissStartSheet -> local.update { it.copy(showStartSheet = false) }
             HomeEvent.ConfirmStart -> {
                 if (uiState.value.pairStatus?.anyConnected == true) {
+                    val withRoutine = local.value.routineWithNight ?: uiState.value.routineWithNight
                     launcher.start()
                     local.update { it.copy(showStartSheet = false) }
-                    viewModelScope.launch {
-                        val settings = settingsRepository.settings.first()
-                        if (settings.routineWithNight) routineRunner.start(settings.routine)
+                    if (withRoutine) {
+                        viewModelScope.launch { routineRunner.start(settingsRepository.settings.first().routine) }
                     }
                 } else {
                     message(R.string.snackbar_pair_first)
                 }
             }
             HomeEvent.StopNight -> launcher.stop()
-            is HomeEvent.SetRoutineWithNight -> viewModelScope.launch {
-                settingsRepository.update { it.copy(routineWithNight = event.enabled) }
+            is HomeEvent.SetRoutineWithNight -> {
+                local.update { it.copy(routineWithNight = event.enabled) }
+                viewModelScope.launch {
+                    settingsRepository.update { it.copy(routineWithNight = event.enabled) }
+                    local.update { if (it.routineWithNight == event.enabled) it.copy(routineWithNight = null) else it }
+                }
             }
-            is HomeEvent.SetAlarmEnabled -> viewModelScope.launch {
-                settingsRepository.update { it.copy(alarm = it.alarm.copy(enabled = event.enabled)) }
+            is HomeEvent.SetAlarmEnabled -> {
+                local.update { it.copy(alarmEnabled = event.enabled) }
+                viewModelScope.launch {
+                    settingsRepository.update { it.copy(alarm = it.alarm.copy(enabled = event.enabled)) }
+                    local.update { if (it.alarmEnabled == event.enabled) it.copy(alarmEnabled = null) else it }
+                }
             }
             HomeEvent.MessageShown -> message(null)
         }
