@@ -7,6 +7,7 @@ import at.zocks.zleep.R
 import at.zocks.zleep.domain.device.PairStatus
 import at.zocks.zleep.domain.device.SockPairProvider
 import at.zocks.zleep.domain.model.DeviceMode
+import at.zocks.zleep.domain.model.needsPairing
 import at.zocks.zleep.domain.alarm.AlarmState
 import at.zocks.zleep.domain.alarm.SmartAlarmController
 import at.zocks.zleep.domain.alarm.WakeWindow
@@ -42,6 +43,7 @@ data class HomeUiState(
     val loading: Boolean = true,
     val pairStatus: PairStatus? = null,
     val deviceMode: DeviceMode = DeviceMode.SIMULATOR,
+    val needsPairing: Boolean = false,
     val lastNight: Night? = null,
     /** Kennzahlen der letzten Nacht, sobald sie berechnet sind. */
     val lastNightSummary: NightSummary? = null,
@@ -102,6 +104,7 @@ class HomeViewModel @Inject constructor(
             loading = false,
             pairStatus = status,
             deviceMode = settings.deviceMode,
+            needsPairing = settings.needsPairing,
             lastNight = lastNight,
             lastNightSummary = summary,
             lastNightScore = summary?.let {
@@ -174,10 +177,6 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun connect() {
-        if (uiState.value.deviceMode == DeviceMode.BLE) {
-            message(R.string.message_ble_not_ready)
-            return
-        }
         viewModelScope.launch {
             runCatching { pairProvider.pair.value.connect() }
                 .onFailure { message(R.string.error_generic) }

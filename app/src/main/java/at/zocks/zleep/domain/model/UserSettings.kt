@@ -11,7 +11,7 @@ enum class DeviceMode { SIMULATOR, BLE }
 enum class TemperatureUnit { CELSIUS, FAHRENHEIT }
 
 data class UserSettings(
-    /** Bis zur BLE-Umsetzung (Phase 7) ist der Simulator Standard. */
+    /** Standard hängt vom Build ab (`DefaultSettings`): Release echte Socken, Debug Simulator. */
     val deviceMode: DeviceMode = DeviceMode.SIMULATOR,
     val temperatureUnit: TemperatureUnit = TemperatureUnit.CELSIUS,
     val use24HourClock: Boolean = true,
@@ -29,7 +29,25 @@ data class UserSettings(
     val routineWithNight: Boolean = false,
     /** Abgeschlossene Nächte automatisch nach Health Connect übertragen. */
     val healthConnectAutoExport: Boolean = false,
+    /** Gekoppelte echte Socken (Bluetooth-Adressen). */
+    val pairedSocks: PairedSocks = PairedSocks(),
+    /** Entwickleroptionen sichtbar (in Release-Builds erst nach siebenmal Tippen auf die Version). */
+    val developerOptionsUnlocked: Boolean = false,
 )
+
+/** Bluetooth-Adressen der gekoppelten Socken; `null` = noch nicht gekoppelt. */
+/** Im BLE-Modus ohne gekoppelte Socke führt „Verbinden“ erst zum Koppeln. */
+val UserSettings.needsPairing: Boolean get() = deviceMode == DeviceMode.BLE && pairedSocks.isEmpty
+
+data class PairedSocks(val left: String? = null, val right: String? = null) {
+    val isComplete: Boolean get() = left != null && right != null
+    val isEmpty: Boolean get() = left == null && right == null
+
+    fun of(side: SockSide): String? = if (side == SockSide.RIGHT) right else left
+
+    fun with(side: SockSide, address: String?): PairedSocks =
+        if (side == SockSide.RIGHT) copy(right = address) else copy(left = address)
+}
 
 /** Smarter Wecker: weckt im Fenster vor [UserSettings.wakeTime] in leichtem Schlaf. */
 data class AlarmPreferences(

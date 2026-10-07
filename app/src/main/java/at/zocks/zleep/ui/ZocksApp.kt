@@ -50,6 +50,8 @@ import at.zocks.zleep.ui.navigation.DeveloperDestination
 import at.zocks.zleep.ui.navigation.HomeDestination
 import at.zocks.zleep.ui.navigation.NightDetailDestination
 import at.zocks.zleep.ui.navigation.NightsDestination
+import at.zocks.zleep.ui.navigation.PairingDestination
+import at.zocks.zleep.ui.pairing.PairingRoute
 import at.zocks.zleep.ui.navigation.RecordingDestination
 import at.zocks.zleep.ui.recording.RecordingRoute
 import at.zocks.zleep.ui.navigation.SettingsDestination
@@ -106,6 +108,7 @@ fun ZocksApp(
                     onOpenMassage = { navController.navigateToTopLevel(ControlDestination(ControlSection.MASSAGE), restoreState = false) },
                     onOpenNight = { id -> navController.navigate(NightDetailDestination(id)) },
                     onOpenNightMode = { navController.navigate(RecordingDestination) { launchSingleTop = true } },
+                    onOpenPairing = navController::openPairing,
                 )
             }
             composable<RecordingDestination> {
@@ -125,13 +128,19 @@ fun ZocksApp(
                 NightDetailRoute(onBack = navController::popBackStack)
             }
             composable<ControlDestination> { entry ->
-                ControlRoute(initialSection = entry.toRoute<ControlDestination>().section)
+                ControlRoute(initialSection = entry.toRoute<ControlDestination>().section, onOpenPairing = navController::openPairing)
             }
             composable<SettingsDestination> {
-                SettingsRoute(onOpenDeveloperOptions = { navController.navigate(DeveloperDestination) })
+                SettingsRoute(
+                    onOpenDeveloperOptions = { navController.navigate(DeveloperDestination) },
+                    onOpenPairing = navController::openPairing,
+                )
             }
             composable<DeveloperDestination> {
                 DeveloperRoute(onBack = navController::popBackStack)
+            }
+            composable<PairingDestination> {
+                PairingRoute(onBack = navController::popBackStack)
             }
         }
     }
@@ -172,6 +181,8 @@ private fun ZocksBottomBar(navController: NavHostController) {
         }
     }
 }
+
+private fun NavHostController.openPairing() = navigate(PairingDestination) { launchSingleTop = true }
 
 /**
  * Wechselt zu einem Ziel der unteren Leiste. [restoreState] = false, wenn ein Schnellzugriff

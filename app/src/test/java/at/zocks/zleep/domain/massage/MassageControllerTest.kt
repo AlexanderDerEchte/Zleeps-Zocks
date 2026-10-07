@@ -46,6 +46,16 @@ class MassageControllerTest {
     }
 
     @Test
+    fun `a sock that does not take the command is skipped`() = runTest {
+        val controller = controller()
+        left.failCommands = true
+        assertThat(controller.start(BuiltInMassagePrograms.WAVE, 50, 10)).isTrue()
+        assertThat(controller.state.value.skipped).containsExactly(SockSide.LEFT)
+        right.failCommands = true
+        assertThat(controller.start(BuiltInMassagePrograms.WAVE, 50, 10)).isFalse()
+    }
+
+    @Test
     fun `skips a disconnected sock and reports it`() = runTest {
         val controller = controller()
         right.disconnect()

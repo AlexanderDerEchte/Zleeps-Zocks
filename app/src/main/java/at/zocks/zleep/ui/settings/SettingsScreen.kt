@@ -20,6 +20,7 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.CloudOff
+import androidx.compose.material.icons.outlined.Bluetooth
 import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.FavoriteBorder
@@ -41,6 +42,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -66,6 +68,7 @@ import at.zocks.zleep.domain.alarm.AlarmMethod
 import at.zocks.zleep.domain.health.HealthAvailability
 import at.zocks.zleep.domain.model.AlarmPreferences
 import at.zocks.zleep.domain.model.DeviceMode
+import at.zocks.zleep.domain.model.needsPairing
 import at.zocks.zleep.domain.model.SockSide
 import at.zocks.zleep.domain.model.TemperatureUnit
 import at.zocks.zleep.ui.components.BigSegmentedChoice
@@ -85,7 +88,7 @@ import java.time.Duration
 import java.time.LocalDate
 
 @Composable
-fun SettingsRoute(onOpenDeveloperOptions: () -> Unit, viewModel: SettingsViewModel = hiltViewModel()) {
+fun SettingsRoute(onOpenDeveloperOptions: () -> Unit, onOpenPairing: () -> Unit, viewModel: SettingsViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     UserMessageEffect(state.userMessage) { viewModel.onEvent(SettingsEvent.MessageShown) }
@@ -107,7 +110,10 @@ fun SettingsRoute(onOpenDeveloperOptions: () -> Unit, viewModel: SettingsViewMod
     }
     SettingsScreen(
         state = state,
-        onEvent = viewModel::onEvent,
+        onEvent = { event ->
+            // Ohne gekoppelte Socke führt „Verbinden“ zuerst zum Koppeln.
+            if (event == SettingsEvent.ConnectSocks && state.settings.needsPairing) onOpenPairing() else viewModel.onEvent(event)
+        },
         actions = SettingsActions(
             exportNights = { exportNights.launch("zocks-zleep-naechte-${LocalDate.now()}.csv") },
             exportMeasurements = { exportMeasurements.launch("zocks-zleep-messwerte-${LocalDate.now()}.csv") },
@@ -116,6 +122,7 @@ fun SettingsRoute(onOpenDeveloperOptions: () -> Unit, viewModel: SettingsViewMod
             allowExactAlarms = { context.openExactAlarmSettings() },
             openNotificationSettings = { context.openNotificationSettings() },
             openDeveloperOptions = onOpenDeveloperOptions,
+            openPairing = onOpenPairing,
         ),
     )
 }
@@ -129,6 +136,7 @@ data class SettingsActions(
     val allowExactAlarms: () -> Unit = {},
     val openNotificationSettings: () -> Unit = {},
     val openDeveloperOptions: () -> Unit = {},
+    val openPairing: () -> Unit = {},
 )
 
 @Composable
@@ -142,7 +150,7 @@ fun SettingsScreen(state: SettingsUiState, onEvent: (SettingsEvent) -> Unit, act
         AlarmCard(state, onEvent, actions)
         DevicesCard(state, onEvent, actions)
         DataCard(state, onEvent, actions)
-        AboutCard(onEvent, actions)
+        AboutCard(state, onEvent, actions)
         WellnessNotice()
     }
 }
@@ -280,7 +288,24 @@ private fun DevicesCard(state: SettingsUiState, onEvent: (SettingsEvent) -> Unit
                 .heightIn(min = Dimens.ThumbTarget)
                 .testTag(if (connected) "settings_disconnect" else "settings_connect"),
         ) {
-            Text(stringResource(if (connected) R.string.action_disconnect_socks else R.string.action_connect_socks))
+            Text(
+                stringResource(
+                    when {
+                        connected -> R.string.action_disconnect_socks
+                        state.settings.needsPairing -> R.string.action_pair_socks
+                        else -> R.string.action_connect_socks
+                    },
+                ),
+            )
+        }
+        if (state.settings.deviceMode == DeviceMode.BLE) {
+            SettingsRow(
+                Icons.Outlined.Bluetooth,
+                stringResource(R.string.settings_pair_socks),
+                stringResource(R.string.settings_pair_socks_value),
+                onClick = actions.openPairing,
+                testTag = "settings_pair",
+            )
         }
         SettingsRow(
             Icons.Outlined.Code,
@@ -288,7 +313,7 @@ private fun DevicesCard(state: SettingsUiState, onEvent: (SettingsEvent) -> Unit
             stringResource(
                 if (state.settings.deviceMode == DeviceMode.SIMULATOR) R.string.settings_device_mode_simulator else R.string.settings_device_mode_ble,
             ),
-            onClick = actions.openDeveloperOptions,
+            onClick = actions.openDeveloperOptions.takeIf { state.developerOptionsVisible },
         )
     }
 }
@@ -379,9 +404,25 @@ private fun HealthConnectSection(state: SettingsUiState, onEvent: (SettingsEvent
 }
 
 @Composable
-private fun AboutCard(onEvent: (SettingsEvent) -> Unit, actions: SettingsActions) {
+private fun AboutCard(state: SettingsUiState, onEvent: (SettingsEvent) -> Unit, actions: SettingsActions) {
+    // Wie bei Android: siebenmal auf die Version tippen schaltet die Entwickleroptionen frei.
+    var versionTaps by rememberSaveable { mutableIntStateOf(0) }
     ZocksCard(title = stringResource(R.string.settings_section_about)) {
-        SettingsRow(Icons.Outlined.Info, stringResource(R.string.settings_version), BuildConfig.VERSION_NAME)
+        SettingsRow(
+            Icons.Outlined.Info,
+            stringResource(R.string.settings_version),
+            BuildConfig.VERSION_NAME,
+            onClick = if (state.developerOptionsVisible) {
+                null
+            } else {
+                {
+                    versionTaps++
+                    if (versionTaps >= DEVELOPER_TAPS) onEvent(SettingsEvent.UnlockDeveloperOptions)
+                }
+            },
+            showArrow = false,
+            testTag = "settings_version",
+        )
         SettingsRow(
             Icons.Outlined.Replay,
             stringResource(R.string.settings_onboarding_again),
@@ -389,13 +430,15 @@ private fun AboutCard(onEvent: (SettingsEvent) -> Unit, actions: SettingsActions
             onClick = { onEvent(SettingsEvent.ShowOnboardingAgain) },
             testTag = "settings_onboarding_again",
         )
-        SettingsRow(
-            Icons.Outlined.Code,
-            stringResource(R.string.settings_developer),
-            stringResource(R.string.dev_mode_simulator_body),
-            onClick = actions.openDeveloperOptions,
-            testTag = "settings_developer",
-        )
+        if (state.developerOptionsVisible) {
+            SettingsRow(
+                Icons.Outlined.Code,
+                stringResource(R.string.settings_developer),
+                stringResource(R.string.dev_mode_simulator_body),
+                onClick = actions.openDeveloperOptions,
+                testTag = "settings_developer",
+            )
+        }
     }
 }
 
@@ -407,14 +450,17 @@ private fun SettingsRow(
     iconTint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     onClick: (() -> Unit)? = null,
     testTag: String? = null,
+    showArrow: Boolean = onClick != null,
 ) {
     val base = if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier
     ListItem(
         headlineContent = { Text(title, style = MaterialTheme.typography.bodyLarge) },
         supportingContent = value?.let { { Text(it, color = MaterialTheme.colorScheme.onSurfaceVariant) } },
         leadingContent = { Icon(icon, contentDescription = null, tint = iconTint) },
-        trailingContent = onClick?.let {
+        trailingContent = if (showArrow) {
             { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) }
+        } else {
+            null
         },
         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
         modifier = base
@@ -453,6 +499,7 @@ private fun WellnessNotice() {
 }
 
 private const val CSV = "text/csv"
+private const val DEVELOPER_TAPS = 7
 private const val GOAL_STEP = 15
 private const val HEALTH_CONNECT_PACKAGE = "com.google.android.apps.healthdata"
 

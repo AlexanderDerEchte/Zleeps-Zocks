@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import at.zocks.zleep.R
+import at.zocks.zleep.domain.model.DeviceMode
 import at.zocks.zleep.domain.model.SockSide
 import at.zocks.zleep.ui.components.BigActionButton
 import at.zocks.zleep.ui.components.BigStepper
@@ -49,6 +50,7 @@ import at.zocks.zleep.ui.components.SwitchRow
 import at.zocks.zleep.ui.components.TimeSettingRow
 import at.zocks.zleep.ui.components.UserMessageEffect
 import at.zocks.zleep.ui.components.ZocksCard
+import at.zocks.zleep.ui.pairing.PairingPanel
 import at.zocks.zleep.ui.components.ZocksLogo
 import at.zocks.zleep.ui.format.currentLocale
 import at.zocks.zleep.ui.format.formatDuration
@@ -63,14 +65,18 @@ fun OnboardingRoute(viewModel: OnboardingViewModel = hiltViewModel()) {
     val snackbar = remember { SnackbarHostState() }
     CompositionLocalProvider(LocalSnackbarHostState provides snackbar) {
         UserMessageEffect(state.userMessage) { viewModel.onEvent(OnboardingEvent.MessageShown) }
-        OnboardingScreen(state, viewModel::onEvent)
+        OnboardingScreen(state, viewModel::onEvent, pairingContent = { PairingPanel() })
         SnackbarHost(snackbar)
     }
 }
 
 /** Einrichtung beim ersten Start: Erklärung, Socken koppeln, Schlafzeiten. Jeder Schritt lässt sich überspringen. */
 @Composable
-fun OnboardingScreen(state: OnboardingUiState, onEvent: (OnboardingEvent) -> Unit) {
+fun OnboardingScreen(
+    state: OnboardingUiState,
+    onEvent: (OnboardingEvent) -> Unit,
+    pairingContent: @Composable () -> Unit = {},
+) {
     val steps = OnboardingStep.entries
     val isLast = state.step == steps.last()
     // Liegt außerhalb des Scaffolds: Surface setzt Hintergrund und Textfarbe.
@@ -106,7 +112,7 @@ fun OnboardingScreen(state: OnboardingUiState, onEvent: (OnboardingEvent) -> Uni
         ) {
             when (state.step) {
                 OnboardingStep.WELCOME -> WelcomeStep()
-                OnboardingStep.PAIR -> PairStep(state, onEvent)
+                OnboardingStep.PAIR -> PairStep(state, onEvent, pairingContent)
                 OnboardingStep.TIMES -> TimesStep(state, onEvent)
             }
         }
@@ -168,7 +174,13 @@ private fun Feature(icon: ImageVector, tint: Color, text: String) {
 }
 
 @Composable
-private fun PairStep(state: OnboardingUiState, onEvent: (OnboardingEvent) -> Unit) {
+private fun PairStep(state: OnboardingUiState, onEvent: (OnboardingEvent) -> Unit, pairingContent: @Composable () -> Unit) {
+    // Echte Socken: suchen und links/rechts zuordnen – derselbe Ablauf wie in den Einstellungen.
+    if (state.settings.deviceMode == DeviceMode.BLE) {
+        StepTitle(stringResource(R.string.onboarding_pair_title), stringResource(R.string.onboarding_pair_body_ble))
+        pairingContent()
+        return
+    }
     StepTitle(stringResource(R.string.onboarding_pair_title), stringResource(R.string.onboarding_pair_body))
     ZocksCard {
         Row(horizontalArrangement = Arrangement.spacedBy(Dimens.SpaceM)) {

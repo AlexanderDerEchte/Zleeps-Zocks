@@ -16,6 +16,7 @@ import at.zocks.zleep.domain.model.NightSource
 import at.zocks.zleep.domain.model.SleepStage
 import at.zocks.zleep.domain.model.StageEpoch
 import at.zocks.zleep.domain.repository.NightRepository
+import at.zocks.zleep.testing.SNACKBAR_GONE_MS
 import at.zocks.zleep.testing.UI_TIMEOUT_MS
 import at.zocks.zleep.testing.waitUntilDisplayed
 import at.zocks.zleep.testing.waitUntilLoaded
@@ -85,8 +86,9 @@ class NightCorrectionTest {
         val manual = composeRule.activity.getString(R.string.night_window_manual)
         composeRule.waitUntil(UI_TIMEOUT_MS) { composeRule.onAllNodes(hasText(manual)).fetchSemanticsNodes().isNotEmpty() }
 
-        // Die Bestätigung liegt als Snackbar über dem unteren Rand – erst verschwinden lassen.
+        // Die Bestätigung liegt als Snackbar über dem unteren Rand – Uhr vorstellen, bis sie verschwindet.
         val saved = composeRule.activity.getString(R.string.night_window_saved)
+        composeRule.mainClock.advanceTimeBy(SNACKBAR_GONE_MS)
         composeRule.waitUntil(UI_TIMEOUT_MS) { composeRule.onAllNodes(hasText(saved)).fetchSemanticsNodes().isEmpty() }
         composeRule.onNodeWithTag("reset_window").performScrollTo().performClick()
         composeRule.waitUntil(UI_TIMEOUT_MS) { composeRule.onAllNodes(hasText(manual)).fetchSemanticsNodes().isEmpty() }

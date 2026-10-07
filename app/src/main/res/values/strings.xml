@@ -85,7 +85,6 @@
   <string name="sock_heating">heizt</string>
   <string name="action_connect_socks">Socken verbinden</string>
   <string name="action_disconnect_socks">Trennen</string>
-  <string name="message_ble_not_ready">Die Bluetooth-Anbindung echter Socken folgt in einem späteren Update.</string>
 
   <!-- Nächte -->
   <string name="home_last_night_of">Letzte Nacht · %1$s</string>
@@ -131,7 +130,7 @@
   <string name="dev_mode_simulator">Simulator</string>
   <string name="dev_mode_simulator_body">Realistische Messwerte ohne echte Socken.</string>
   <string name="dev_mode_ble">Echte Socken (Bluetooth)</string>
-  <string name="dev_mode_ble_body">Die Bluetooth-Anbindung folgt in einem späteren Update.</string>
+  <string name="dev_mode_ble_body">Echte Socken über Bluetooth. Koppeln kannst du sie in den Einstellungen.</string>
   <string name="dev_section_simulator">Simulator</string>
   <string name="dev_sim_play_night">Nacht abspielen</string>
   <string name="dev_sim_stop">Stoppen</string>
@@ -555,6 +554,7 @@
   <string name="onboarding_feature_sleep">Schlafanalyse mit Score, Trends und smartem Wecker</string>
   <string name="onboarding_pair_title">Socken koppeln</string>
   <string name="onboarding_pair_body">Zieh die Socken an und schalte sie ein. Im Simulator klappt das auch ohne Socken.</string>
+  <string name="onboarding_pair_body_ble">Schalte die Socken ein und leg sie neben das Handy. Das geht auch später in den Einstellungen.</string>
   <string name="onboarding_pair_done">Beide Socken verbunden.</string>
   <string name="onboarding_times_title">Deine Schlafzeiten</string>
   <string name="onboarding_times_body">Daraus ergeben sich Schlafziel und Weckzeit. Du kannst alles später in den Einstellungen ändern.</string>
@@ -563,4 +563,35 @@
   <string name="onboarding_later">Später</string>
   <string name="onboarding_finish">Los geht\'s</string>
   <string name="onboarding_step">Schritt %1$d/%2$d</string>
+  <!-- Koppeln -->
+  <string name="pairing_title">Socken koppeln</string>
+  <string name="pairing_permission_title">Geräte in der Nähe</string>
+  <string name="pairing_permission_body">Damit die App deine Socken findet und mit ihnen spricht, braucht sie die Erlaubnis „Geräte in der Nähe“. Deinen Standort verwendet sie nicht.</string>
+  <string name="pairing_permission_body_location">Bis Android 11 verlangt das System für die Bluetooth-Suche die Standortfreigabe. Die App verwendet deinen Standort nicht.</string>
+  <string name="pairing_permission_denied">Du hast die Erlaubnis abgelehnt. Du kannst sie in den App-Einstellungen erteilen.</string>
+  <string name="action_open_app_settings">App-Einstellungen öffnen</string>
+  <string name="pairing_bluetooth_off_title">Bluetooth ist aus</string>
+  <string name="pairing_bluetooth_off_body">Schalte Bluetooth ein, damit die App deine Socken findet.</string>
+  <string name="action_enable_bluetooth">Bluetooth einschalten</string>
+  <string name="pairing_unsupported_title">Kein Bluetooth Low Energy</string>
+  <string name="pairing_unsupported_body">Dieses Handy unterstützt kein Bluetooth Low Energy. Das brauchen die Socken, um sich zu verbinden.</string>
+  <string name="pairing_paired_title">Deine Socken</string>
+  <string name="pairing_not_paired">Noch nicht gekoppelt</string>
+  <string name="action_unpair">Lösen</string>
+  <string name="pairing_nearby_title">In der Nähe</string>
+  <string name="pairing_scanning">Suche Socken …</string>
+  <string name="pairing_assign_hint">Wähle für jede Socke den Fuß, an dem sie sitzt.</string>
+  <string name="pairing_none_title">Keine Socken gefunden</string>
+  <string name="pairing_none_body">Schalte die Socken ein und leg sie neben das Handy.</string>
+  <string name="action_scan_again">Erneut suchen</string>
+  <string name="pairing_scan_failed">Die Suche hat nicht geklappt. Schalte Bluetooth aus und wieder ein und versuch es noch einmal.</string>
+  <string name="pairing_sock_unnamed">Zocks-Socke</string>
+  <string name="pairing_reports_side">Seite: %1$s</string>
+  <string name="pairing_signal_strong">Signal stark</string>
+  <string name="pairing_signal_medium">Signal mittel</string>
+  <string name="pairing_signal_weak">Signal schwach</string>
+  <string name="pairing_assign_description">%1$s als %2$s koppeln</string>
+  <string name="settings_pair_socks">Socken koppeln</string>
+  <string name="settings_pair_socks_value">Socken suchen und links/rechts zuordnen</string>
+  <string name="settings_developer_unlocked">Entwickleroptionen sind jetzt sichtbar.</string>
 </resources>

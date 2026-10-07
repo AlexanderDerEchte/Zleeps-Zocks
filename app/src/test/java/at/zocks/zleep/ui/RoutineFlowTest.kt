@@ -14,6 +14,7 @@ import at.zocks.zleep.domain.recording.NightRecorder
 import at.zocks.zleep.domain.repository.SettingsRepository
 import at.zocks.zleep.domain.routine.RoutineRunner
 import at.zocks.zleep.domain.routine.RoutineState
+import at.zocks.zleep.testing.SNACKBAR_GONE_MS
 import at.zocks.zleep.testing.UI_TIMEOUT_MS
 import at.zocks.zleep.testing.waitUntilDisplayed
 import at.zocks.zleep.testing.waitUntilLoaded
@@ -92,6 +93,7 @@ class RoutineFlowTest {
         runBlocking { pairs.pair.value.connect() }
         // Hinweis unter dem Knopf verschwindet mit der Verbindung, die Snackbar nach kurzer Zeit –
         // erst dann ist der Knopf frei.
+        composeRule.mainClock.advanceTimeBy(SNACKBAR_GONE_MS)
         composeRule.waitUntil(UI_TIMEOUT_MS) { composeRule.onAllNodes(hasText(pairFirst)).fetchSemanticsNodes().isEmpty() }
         composeRule.onNodeWithTag("routine_start").performScrollTo().performClick()
         waitForTag("routine_running")

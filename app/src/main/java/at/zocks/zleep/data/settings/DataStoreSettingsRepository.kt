@@ -10,9 +10,11 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
+import at.zocks.zleep.di.DefaultSettings
 import at.zocks.zleep.domain.model.AlarmPreferences
 import at.zocks.zleep.domain.model.HeatPreferences
 import at.zocks.zleep.domain.model.MassagePreferences
+import at.zocks.zleep.domain.model.PairedSocks
 import at.zocks.zleep.domain.model.UserSettings
 import at.zocks.zleep.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
@@ -28,6 +30,8 @@ import javax.inject.Singleton
 @Singleton
 class DataStoreSettingsRepository @Inject constructor(
     private val dataStore: DataStore<Preferences>,
+    /** Standardwerte (Release: echte Socken, Debug: Simulator). */
+    @param:DefaultSettings private val defaults: UserSettings = UserSettings(),
 ) : SettingsRepository {
 
     override val settings: Flow<UserSettings> = dataStore.data
@@ -43,7 +47,6 @@ class DataStoreSettingsRepository @Inject constructor(
     }
 
     private fun Preferences.toSettings(): UserSettings {
-        val defaults = UserSettings()
         return UserSettings(
             deviceMode = enumOr(this[Keys.DEVICE_MODE], defaults.deviceMode),
             temperatureUnit = enumOr(this[Keys.TEMPERATURE_UNIT], defaults.temperatureUnit),
@@ -80,6 +83,8 @@ class DataStoreSettingsRepository @Inject constructor(
             routine = RoutineJson.decode(this[Keys.ROUTINE]),
             routineWithNight = this[Keys.ROUTINE_WITH_NIGHT] ?: defaults.routineWithNight,
             healthConnectAutoExport = this[Keys.HEALTH_AUTO_EXPORT] ?: defaults.healthConnectAutoExport,
+            pairedSocks = PairedSocks(left = this[Keys.SOCK_LEFT], right = this[Keys.SOCK_RIGHT]),
+            developerOptionsUnlocked = this[Keys.DEVELOPER_UNLOCKED] ?: defaults.developerOptionsUnlocked,
         )
     }
 
@@ -116,6 +121,9 @@ class DataStoreSettingsRepository @Inject constructor(
         this[Keys.ROUTINE] = RoutineJson.encode(settings.routine)
         this[Keys.ROUTINE_WITH_NIGHT] = settings.routineWithNight
         this[Keys.HEALTH_AUTO_EXPORT] = settings.healthConnectAutoExport
+        settings.pairedSocks.left?.let { this[Keys.SOCK_LEFT] = it } ?: remove(Keys.SOCK_LEFT)
+        settings.pairedSocks.right?.let { this[Keys.SOCK_RIGHT] = it } ?: remove(Keys.SOCK_RIGHT)
+        this[Keys.DEVELOPER_UNLOCKED] = settings.developerOptionsUnlocked
     }
 
     private inline fun <reified E : Enum<E>> enumOr(value: String?, default: E): E =
@@ -153,5 +161,8 @@ class DataStoreSettingsRepository @Inject constructor(
         val ROUTINE = stringPreferencesKey("evening_routine")
         val ROUTINE_WITH_NIGHT = booleanPreferencesKey("routine_with_night")
         val HEALTH_AUTO_EXPORT = booleanPreferencesKey("health_connect_auto_export")
+        val SOCK_LEFT = stringPreferencesKey("paired_sock_left")
+        val SOCK_RIGHT = stringPreferencesKey("paired_sock_right")
+        val DEVELOPER_UNLOCKED = booleanPreferencesKey("developer_options_unlocked")
     }
 }

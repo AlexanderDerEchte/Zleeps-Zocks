@@ -14,3 +14,8 @@ annotation class IoDispatcher
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class DefaultDispatcher
+
+/** Standard-Einstellungen, abhängig vom Build (Release: echte Socken, Debug: Simulator). */
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class DefaultSettings

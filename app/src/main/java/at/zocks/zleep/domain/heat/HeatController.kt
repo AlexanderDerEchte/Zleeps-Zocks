@@ -89,7 +89,12 @@ class HeatController(
             }
             val target = if (request.mode == HeatMode.TARGET) guard.clampTarget(request.targetTemperatureC) else null
             val level = request.level.coerceIn(1, device.capabilities.heatLevels.coerceAtLeast(1))
-            device.setHeat(HeatCommand(level, target))
+            // Kommt der Befehl nicht an (z. B. Verbindung gerade abgerissen), gibt es keinen Plan.
+            if (runCatching { device.setHeat(HeatCommand(level, target)) }.isFailure) {
+                rejections[side] = HeatRejection.NOT_CONNECTED
+                _state.update { it.copy(notice = HeatNotice.Rejected(side, HeatRejection.NOT_CONNECTED)) }
+                continue
+            }
             mutex.withLock { guard.onHeatingStarted(side, now) }
             val plan = SideHeatPlan(level, target, now, now.plus(duration), preheat)
             _state.update {

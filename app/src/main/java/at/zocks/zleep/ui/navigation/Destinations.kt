@@ -39,6 +39,10 @@ data class NightDetailDestination(val nightId: Long)
 @Serializable
 data object DeveloperDestination
 
+/** Socken suchen und links/rechts zuordnen. */
+@Serializable
+data object PairingDestination
+
 /** Nachtmodus während der Aufzeichnung (ohne untere Leiste). */
 @Serializable
 data object RecordingDestination
@@ -80,6 +84,6 @@ enum class TopLevelDestination(
         Icons.Filled.Settings,
         Icons.Outlined.Settings,
         "nav_settings",
-        childRoutes = listOf(DeveloperDestination::class),
+        childRoutes = listOf(DeveloperDestination::class, PairingDestination::class),
     ),
 }

@@ -45,7 +45,7 @@ class MassageController(
 
     private var timer: Job? = null
 
-    /** Startet [program]; liefert `false`, wenn keine der gewählten Socken verbunden ist. */
+    /** Startet [program]; liefert `false`, wenn keine der gewählten Socken verbunden ist oder den Befehl annimmt. */
     suspend fun start(program: MassageProgram, intensity: Int, durationMinutes: Int, side: SockSide = SockSide.BOTH): Boolean {
         val pair = pairProvider.pair.value
         val devices = pair.devices(side)
@@ -54,14 +54,17 @@ class MassageController(
 
         timer?.cancel()
         val level = intensity.coerceIn(MIN_INTENSITY, 100)
-        connected.forEach { device -> device.startMassage(MassageCommand(MassagePatterns.patternFor(program, device.side), level)) }
+        val started = connected.filter { device ->
+            runCatching { device.startMassage(MassageCommand(MassagePatterns.patternFor(program, device.side), level)) }.isSuccess
+        }
+        if (started.isEmpty()) return false
 
         val duration = Duration.ofMinutes(durationMinutes.coerceIn(1, MAX_MINUTES).toLong())
         val fade = fadeFor(program, duration)
         val now = clock.instant()
         _state.value = MassageControlState(
             session = MassageSession(program, side, level, now, now.plus(duration), fadingOut = false),
-            skipped = (devices - connected.toSet()).map { it.side }.toSet(),
+            skipped = (devices - started.toSet()).map { it.side }.toSet(),
         )
         timer = scope.launch {
             delay(duration.minus(fade).toMillis())
@@ -77,7 +80,7 @@ class MassageController(
         val level = intensity.coerceIn(MIN_INTENSITY, 100)
         pairProvider.pair.value.devices(session.side)
             .filter { it.connectionState.value == ConnectionState.CONNECTED }
-            .forEach { it.startMassage(MassageCommand(MassagePatterns.patternFor(session.program, it.side), level)) }
+            .forEach { runCatching { it.startMassage(MassageCommand(MassagePatterns.patternFor(session.program, it.side), level)) } }
         _state.update { it.copy(session = session.copy(intensity = level)) }
     }
 

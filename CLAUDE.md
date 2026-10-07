@@ -45,6 +45,15 @@ Tests und Lint als getrennte Gradle-Aufrufe starten (gemeinsam kann Lint an KSP-
 - Schlafphasen nur über das Interface `SleepStageClassifier`; Änderungen an der Heuristik
   mit `ClassifierEvaluation` gegen den Simulator prüfen und Doku im KDoc anpassen.
 - BLE-UUIDs und Datenformat stehen ausschließlich in `device/ble/SockBleProtocol.kt`.
+  `BleSockDevice` spricht nur über `GattConnection` (Android: `AndroidGattConnection`, ein
+  Vorgang zur Zeit, Zeitlimit, `SecurityException` an jeder Aufrufstelle abfangen). Befehle,
+  die nicht ankommen, werfen `SockCommandException`; Regler werten das als „nicht verbunden“.
+- Gekoppelte Socken stehen in `UserSettings.pairedSocks`; `DefaultSockPairProvider` baut daraus
+  das Paar (nicht gekoppelte Seite = `UnavailableSockDevice`). Suche nur über `SockScanner`,
+  Koppeln-UI unter `ui/pairing`. „Verbinden“ ohne gekoppelte Socke führt zum Koppeln
+  (`needsPairing`), nie zu einer stillen Fehlermeldung.
+- Standardwerte der Einstellungen kommen aus `@DefaultSettings`: Release startet mit BLE,
+  Debug mit dem Simulator. Entwickleroptionen sind im Release versteckt (7× auf die Version).
 - Auswertung: Kennzahlen einer Nacht nur über `NightSummarizer`, Score nur über
   `SleepScoreCalculator` (Schwellen im KDoc und README pflegen). Gespeicherte Kennzahlen
   (`night_summaries`) aktualisiert ausschließlich `NightSummaryUpdater`; wer das Schlaffenster
@@ -116,6 +125,10 @@ Tests und Lint als getrennte Gradle-Aufrufe starten (gemeinsam kann Lint an KSP-
 - Room-Tests mit In-Memory-Datenbank unter Robolectric. Jede neue Migration bekommt einen
   Fall in `MigrationTest` (alte DB wird aus `app/schemas/…/N.json` erzeugt).
 - Regler-Tests mit `FakeSockDevice`/`FakePairProvider` und `SchedulerClock` (virtuelle Zeit).
+- BLE-Tests gegen `FakeSockFirmware` (spricht das echte Protokoll). UI-Tests ersetzen `BleModule`
+  durch `TestBleModule` (`FakeBleWorld`: Suche + zwei Socken). Arbeit im `backgroundScope` mit
+  `runCurrent()`/`advanceTimeBy` vorantreiben – `advanceUntilIdle` wartet nicht darauf.
+- Snackbars in UI-Tests nicht in Echtzeit abwarten, sondern `mainClock.advanceTimeBy(SNACKBAR_GONE_MS)`.
 - UI-Tests ebenfalls unter `app/src/test` mit Robolectric (`@HiltAndroidTest`,
   `@Config(application = HiltTestApplication::class)`), Compose-Test-API v2.
   Robolectric läuft mit SDK 36 (`src/test/resources/robolectric.properties`).

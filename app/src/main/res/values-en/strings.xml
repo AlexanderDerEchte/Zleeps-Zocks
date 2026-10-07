@@ -72,7 +72,6 @@
   <string name="sock_heating">heating</string>
   <string name="action_connect_socks">Connect socks</string>
   <string name="action_disconnect_socks">Disconnect</string>
-  <string name="message_ble_not_ready">Bluetooth support for real socks will follow in a later update.</string>
 
   <string name="home_last_night_of">Last night · %1$s</string>
   <string name="night_sleep_duration">Sleep duration</string>
@@ -116,7 +115,7 @@
   <string name="dev_mode_simulator">Simulator</string>
   <string name="dev_mode_simulator_body">Realistic readings without real socks.</string>
   <string name="dev_mode_ble">Real socks (Bluetooth)</string>
-  <string name="dev_mode_ble_body">Bluetooth support will follow in a later update.</string>
+  <string name="dev_mode_ble_body">Real socks via Bluetooth. You can pair them in the settings.</string>
   <string name="dev_section_simulator">Simulator</string>
   <string name="dev_sim_play_night">Play night</string>
   <string name="dev_sim_stop">Stop</string>
@@ -535,6 +534,7 @@
   <string name="onboarding_feature_sleep">Sleep analysis with score, trends and smart alarm</string>
   <string name="onboarding_pair_title">Pair your socks</string>
   <string name="onboarding_pair_body">Put on the socks and switch them on. In the simulator this works without socks.</string>
+  <string name="onboarding_pair_body_ble">Turn on the socks and place them next to your phone. You can also do this later in the settings.</string>
   <string name="onboarding_pair_done">Both socks connected.</string>
   <string name="onboarding_times_title">Your sleep times</string>
   <string name="onboarding_times_body">They set your sleep goal and wake time. You can change everything later in the settings.</string>
@@ -543,4 +543,35 @@
   <string name="onboarding_later">Later</string>
   <string name="onboarding_finish">Let\'s go</string>
   <string name="onboarding_step">Step %1$d/%2$d</string>
+  <!-- Pairing -->
+  <string name="pairing_title">Pair socks</string>
+  <string name="pairing_permission_title">Nearby devices</string>
+  <string name="pairing_permission_body">To find your socks and talk to them, the app needs the “Nearby devices” permission. It does not use your location.</string>
+  <string name="pairing_permission_body_location">Up to Android 11 the system requires location access for Bluetooth scanning. The app does not use your location.</string>
+  <string name="pairing_permission_denied">You declined the permission. You can grant it in the app settings.</string>
+  <string name="action_open_app_settings">Open app settings</string>
+  <string name="pairing_bluetooth_off_title">Bluetooth is off</string>
+  <string name="pairing_bluetooth_off_body">Turn on Bluetooth so the app can find your socks.</string>
+  <string name="action_enable_bluetooth">Turn on Bluetooth</string>
+  <string name="pairing_unsupported_title">No Bluetooth Low Energy</string>
+  <string name="pairing_unsupported_body">This phone does not support Bluetooth Low Energy, which the socks need to connect.</string>
+  <string name="pairing_paired_title">Your socks</string>
+  <string name="pairing_not_paired">Not paired yet</string>
+  <string name="action_unpair">Unpair</string>
+  <string name="pairing_nearby_title">Nearby</string>
+  <string name="pairing_scanning">Looking for socks …</string>
+  <string name="pairing_assign_hint">Choose the foot each sock is on.</string>
+  <string name="pairing_none_title">No socks found</string>
+  <string name="pairing_none_body">Turn on the socks and place them next to your phone.</string>
+  <string name="action_scan_again">Search again</string>
+  <string name="pairing_scan_failed">The search did not work. Turn Bluetooth off and on again and try once more.</string>
+  <string name="pairing_sock_unnamed">Zocks sock</string>
+  <string name="pairing_reports_side">Side: %1$s</string>
+  <string name="pairing_signal_strong">Strong signal</string>
+  <string name="pairing_signal_medium">Medium signal</string>
+  <string name="pairing_signal_weak">Weak signal</string>
+  <string name="pairing_assign_description">Pair %1$s as %2$s</string>
+  <string name="settings_pair_socks">Pair socks</string>
+  <string name="settings_pair_socks_value">Find socks and assign left/right</string>
+  <string name="settings_developer_unlocked">Developer options are now visible.</string>
 </resources>

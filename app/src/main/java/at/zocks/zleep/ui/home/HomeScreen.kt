@@ -68,13 +68,18 @@ fun HomeRoute(
     onOpenMassage: () -> Unit,
     onOpenNight: (Long) -> Unit,
     onOpenNightMode: () -> Unit,
+    onOpenPairing: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     UserMessageEffect(state.userMessage) { viewModel.onEvent(HomeEvent.MessageShown) }
+    // Ohne gekoppelte Socke führt „Verbinden“ zuerst zum Koppeln.
+    val onEvent: (HomeEvent) -> Unit = { event ->
+        if (event == HomeEvent.ConnectSocks && state.needsPairing) onOpenPairing() else viewModel.onEvent(event)
+    }
     HomeScreen(
         state = state,
-        onEvent = viewModel::onEvent,
+        onEvent = onEvent,
         onOpenHeat = onOpenHeat,
         onOpenMassage = onOpenMassage,
         onOpenNight = onOpenNight,
@@ -93,7 +98,7 @@ fun HomeRoute(
             ),
             onRoutineWithNight = { viewModel.onEvent(HomeEvent.SetRoutineWithNight(it)) },
             onAlarmEnabled = { viewModel.onEvent(HomeEvent.SetAlarmEnabled(it)) },
-            onConnectSocks = { viewModel.onEvent(HomeEvent.ConnectSocks) },
+            onConnectSocks = { onEvent(HomeEvent.ConnectSocks) },
             onStart = {
                 viewModel.onEvent(HomeEvent.ConfirmStart)
                 if (state.pairStatus?.anyConnected == true) onOpenNightMode()
@@ -275,7 +280,13 @@ private fun SocksCard(state: HomeUiState, onEvent: (HomeEvent) -> Unit) {
                 .testTag(if (connected) "action_disconnect_socks" else "action_connect_socks"),
         ) {
             Text(
-                stringResource(if (connected) R.string.action_disconnect_socks else R.string.action_connect_socks),
+                stringResource(
+                    when {
+                        connected -> R.string.action_disconnect_socks
+                        state.needsPairing -> R.string.action_pair_socks
+                        else -> R.string.action_connect_socks
+                    },
+                ),
                 style = MaterialTheme.typography.labelLarge,
             )
         }

@@ -48,13 +48,14 @@ app/src/main/java/at/zocks/zleep/
 │   ├── components/          Karten, große Aktionsknöpfe, Lade-/Leer-/Fehlerzustände
 │   ├── home/ nights/ control/ settings/ routine/
 │   ├── onboarding/          Einrichtung beim ersten Start
+│   ├── pairing/             Socken suchen, links/rechts zuordnen, Berechtigungen
 │   ├── alarm/               Vollbild des klingelnden Weckers
 │   ├── developer/           Entwickleroptionen (Simulator, Demo-Daten)
 │   ├── nightdetail/         Nachtdetail
 │   └── format/              Zahlen, Zeiten, Einheiten, Übersetzungen
 ├── domain/                  reines Kotlin
 │   ├── model/               Nacht, Epochen, Schlafphasen, Geräte-Modelle, Einstellungen
-│   ├── device/              SockDevice, SockPair, SockPairProvider
+│   ├── device/              SockDevice, SockPair, SockPairProvider, SockScanner
 │   ├── repository/          Repository-Interfaces
 │   ├── simulator/           Steuerung von Simulator und Demo-Daten
 │   ├── heat/                HeatSafetyGuard, HeatController, Vorwärmen
@@ -70,7 +71,7 @@ app/src/main/java/at/zocks/zleep/
 ├── data/                    Room (db/), Repositories, DataStore (settings/), Vorwärmen (schedule/),
 │                            Health Connect (health/), Dateiexport (export/)
 ├── device/                  Simulator (simulator/), Aufzeichnungsdienst (recording/), Wecker (alarm/),
-│                            BLE (ble/, ab Phase 7)
+│                            BLE (ble/: Protokoll, GATT, BleSockDevice, Suche)
 └── di/                      Hilt-Module
 ```
 
@@ -108,7 +109,7 @@ Danach liegt die Debug-APK unter *Actions → letzter Lauf → Artifacts →
 | 4 | Nachtaufzeichnung mit Foreground Service | ✅ fertig |
 | 5 | Analyse, Score, Diagramme, Trends | ✅ fertig |
 | 6 | Abendroutine, smarter Wecker, Health Connect, Export | ✅ fertig |
-| 7 | BLE-Implementierung, Feinschliff, Tests | ⏳ offen |
+| 7 | BLE-Implementierung, Feinschliff, Tests | ✅ fertig |
 
 ### Phase 1 – enthalten
 
@@ -247,6 +248,50 @@ Berechtigung läuft die Aufzeichnung nur, solange die App offen ist (die App sag
 - **Start:** letzte Nacht mit Score, Dauer und Phasenbalken.
 - Farben der Schlafphasen neu gewählt und für Farbsehschwächen geprüft (hell und dunkel).
 
+### Phase 7 – enthalten
+
+- **Bluetooth-Anbindung** (`device/ble/`): jede Socke ist ein eigenes BLE-Gerät
+  (`BleSockDevice`). Verbinden, MTU aushandeln, Fähigkeiten, Zustand und Akku lesen,
+  Messwerte und Zustand per Notify. Android erlaubt nur einen GATT-Vorgang gleichzeitig –
+  `AndroidGattConnection` reiht alle Vorgänge ein und bricht jeden nach 10 s ab (Verbinden
+  20 s). Reißt die Verbindung ab, verbindet die App neu, mit wachsendem Abstand
+  (2, 5, 10, 30, 60 s), bis du trennst. Befehle, die nicht ankommen, werten Heiz- und
+  Massageregler als „nicht verbunden“ statt still weiterzulaufen. Kopplung (Bonding) ist
+  vorbereitet und per Schalter im Protokoll aktivierbar.
+- **Protokoll** (`device/ble/SockBleProtocol.kt`): alle UUIDs und das Datenformat an genau
+  einer Stelle – Platzhalter, bis die Firmware feststeht. Fehlende Sensorwerte haben eigene
+  Kennwerte und werden `null`, nie geschätzt. Befehle, die nicht in ein Paket passen, werden
+  in nummerierte Rahmen zerlegt.
+
+  | Merkmal | UUID | Inhalt |
+  |---|---|---|
+  | Dienst | `7a0c1000-…` | wird in der Werbung gesendet (Filter der Suche) |
+  | Messwerte | `7a0c1001-…` | Notify: Puls, RMSSD, SpO2, Haut-/Heiztemperatur, Bewegung, RR |
+  | Zustand | `7a0c1002-…` | Read + Notify: Heizen, Stufe, Ziel, Massage, Fehler-Bits |
+  | Befehle | `7a0c1003-…` | Write: Heizen (`0x01`/`0x02`), Massage (`0x10`/`0x11`) |
+  | Fähigkeiten | `7a0c1004-…` | Read: Sensoren, Massagezonen, Heizstufen |
+  | Akku | `180f` / `2a19` | Standard-Battery-Service |
+
+- **Koppeln** (Einstellungen → Socken koppeln, auch aus Start, Steuerung und der
+  Einrichtung): erklärt und erfragt die Berechtigung „Geräte in der Nähe“ (Android 12+;
+  bis Android 11 Standort), bietet bei ausgeschaltetem Bluetooth das Einschalten an, sucht
+  30 s nach Socken (Seite und Akku aus der Werbung, Signalstärke) und ordnet sie links bzw.
+  rechts zu. Abgelehnte Berechtigung → Weg in die App-Einstellungen. Leer-, Fehler- und
+  Ladezustand wie überall.
+- **Release-Builds** starten mit echten Socken; die Entwickleroptionen (Simulator,
+  Demo-Daten) sind dort versteckt und erscheinen nach siebenmaligem Tippen auf die Version.
+  Debug-Builds und die CI-APK starten weiterhin im Simulator.
+- **Tests:** Protokoll (Parser, Grenzwerte, Rahmen), `BleSockDevice` gegen eine
+  Firmware-Attrappe (`FakeSockFirmware`: Neuverbinden, Abbrüche, fehlende Fähigkeiten,
+  Überhitzungsschutz), Paarauswahl, Kopplungs-ViewModel und UI-Abläufe für Koppeln,
+  Lösen und fehlende Berechtigung (zusätzlich zu Nacht starten und Nacht ansehen).
+
+**Grenzen:** Das Protokoll ist ein Entwurf ohne echte Firmware – getestet ist die App gegen die
+Attrappe, nicht gegen echte Socken. Die Firmware muss beim Verbindungsabbruch selbst aufhören
+zu heizen; die App schaltet zusätzlich ab, wenn länger als 30 s kein Messwert kommt.
+Die Hersteller-ID `0xFFFF` ist die Test-ID der Bluetooth SIG und muss vor dem Store-Start
+ersetzt werden.
+
 ### Phase 6 – enthalten
 
 - **Einrichtung** beim ersten Start: kurze Erklärung (mit Hinweis „kein Medizinprodukt“),
@@ -280,7 +325,7 @@ Benachrichtigung; ohne Erlaubnis für Benachrichtigungen nur, solange die App of
 
 ### Simulator ausprobieren
 
-*Einstellungen → Entwickleroptionen:*
+*Einstellungen → Entwickleroptionen* (im Release-Build erst nach siebenmaligem Tippen auf die Version):
 1. „Socken verbinden“ (Live-Werte erscheinen),
 2. „Nacht abspielen“ (Zeitraffer wählen),
 3. „30 Demo-Nächte laden“ (danach unter *Nächte*),
@@ -288,7 +333,8 @@ Benachrichtigung; ohne Erlaubnis für Benachrichtigungen nur, solange die App of
 5. auf der Startseite „Nacht starten“, dann hier „Nacht abspielen“ (1200×): nach wenigen
    Minuten erkennt die App den Schlaf und beendet die Nacht morgens selbst.
 
-Bis die Bluetooth-Anbindung steht (Phase 7), ist der Simulator Standard.
+In Debug-Builds ist der Simulator Standard; unter *Entwickleroptionen → Verbindung* lässt
+sich auf echte Socken umstellen.
 
 ## Hardware-Annahmen
 

@@ -28,6 +28,11 @@ class FakeSockDevice(
 
     val commands = mutableListOf<String>()
 
+    /** Simuliert eine abgerissene Verbindung: Befehle kommen nicht an. */
+    var failCommands = false
+
+    private fun deliver() = check(!failCommands) { "Befehl nicht zugestellt" }
+
     override suspend fun connect() {
         commands += "connect"
         connectionState.value = ConnectionState.CONNECTED
@@ -39,6 +44,7 @@ class FakeSockDevice(
     }
 
     override suspend fun setHeat(command: HeatCommand) {
+        deliver()
         commands += "heat ${command.level}"
         heatState.value = HeatState(true, command.level, command.targetTemperatureC)
     }
@@ -51,6 +57,7 @@ class FakeSockDevice(
     val massageCommands = mutableListOf<MassageCommand>()
 
     override suspend fun startMassage(command: MassageCommand) {
+        deliver()
         massageCommands += command
         commands += "massage ${command.pattern.id} ${command.intensity}"
         massageState.value = MassageState(true, command.pattern.id, command.intensity)

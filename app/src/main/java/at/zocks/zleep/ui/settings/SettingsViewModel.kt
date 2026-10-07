@@ -2,6 +2,7 @@ package at.zocks.zleep.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import at.zocks.zleep.BuildConfig
 import at.zocks.zleep.R
 import at.zocks.zleep.domain.alarm.AlarmMethod
 import at.zocks.zleep.domain.alarm.WakeAlarmScheduler
@@ -47,6 +48,8 @@ data class SettingsUiState(
     val healthGranted: Boolean = false,
     val healthPermissions: Set<String> = emptySet(),
     val busy: Boolean = false,
+    /** Debug-Builds zeigen sie immer, Release-Builds erst nach siebenmaligem Tippen auf die Version. */
+    val developerOptionsVisible: Boolean = BuildConfig.DEBUG,
     val userMessage: UiText? = null,
 )
 
@@ -66,6 +69,7 @@ sealed interface SettingsEvent {
     data object ExportToHealthConnect : SettingsEvent
     data object DeleteAllNights : SettingsEvent
     data object ShowOnboardingAgain : SettingsEvent
+    data object UnlockDeveloperOptions : SettingsEvent
 
     /** Nach Rückkehr aus Systemdialogen: Freigaben neu prüfen. */
     data object Refresh : SettingsEvent
@@ -110,6 +114,7 @@ class SettingsViewModel @Inject constructor(
             healthGranted = l.healthGranted,
             healthPermissions = health.requiredPermissions,
             busy = l.busy,
+            developerOptionsVisible = BuildConfig.DEBUG || settings.developerOptionsUnlocked,
             userMessage = l.message,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
@@ -141,6 +146,10 @@ class SettingsViewModel @Inject constructor(
                 message(UiText.of(R.string.delete_done))
             }
             SettingsEvent.ShowOnboardingAgain -> update { it.copy(onboardingCompleted = false) }
+            SettingsEvent.UnlockDeveloperOptions -> {
+                update { it.copy(developerOptionsUnlocked = true) }
+                message(UiText.of(R.string.settings_developer_unlocked))
+            }
             SettingsEvent.Refresh -> refresh()
             SettingsEvent.MessageShown -> local.update { it.copy(message = null) }
         }
@@ -169,10 +178,6 @@ class SettingsViewModel @Inject constructor(
     }
 
     private fun connect() {
-        if (uiState.value.settings.deviceMode == DeviceMode.BLE) {
-            message(UiText.of(R.string.message_ble_not_ready))
-            return
-        }
         viewModelScope.launch {
             runCatching { pairProvider.pair.value.connect() }.onFailure { message(UiText.of(R.string.error_generic)) }
         }

@@ -79,10 +79,6 @@ class OnboardingViewModel @Inject constructor(
     }
 
     private fun connect() {
-        if (uiState.value.settings.deviceMode == DeviceMode.BLE) {
-            local.update { it.copy(message = R.string.message_ble_not_ready) }
-            return
-        }
         viewModelScope.launch {
             runCatching { pairProvider.pair.value.connect() }.onFailure { local.update { it.copy(message = R.string.error_generic) } }
         }

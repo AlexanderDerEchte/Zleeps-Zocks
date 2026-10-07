@@ -15,8 +15,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emptyFlow
 
 /**
- * Platzhalter für das echte Gerät, bis die BLE-Anbindung (Phase 7) steht.
- * Verbindet sich nie und liefert keine Messwerte – es werden keine Werte erfunden.
+ * Eine noch nicht gekoppelte Seite im BLE-Modus. Verbindet sich nie und liefert keine
+ * Messwerte – es werden keine Werte erfunden. Befehle werden abgelehnt ([SockCommandException]).
  */
 class UnavailableSockDevice(override val side: SockSide) : SockDevice {
     override val capabilities = DeviceCapabilities.None
@@ -28,8 +28,8 @@ class UnavailableSockDevice(override val side: SockSide) : SockDevice {
 
     override suspend fun connect() = Unit
     override suspend fun disconnect() = Unit
-    override suspend fun setHeat(command: HeatCommand) = Unit
+    override suspend fun setHeat(command: HeatCommand): Unit = throw SockCommandException("Nicht gekoppelt")
     override suspend fun stopHeat() = Unit
-    override suspend fun startMassage(command: MassageCommand) = Unit
+    override suspend fun startMassage(command: MassageCommand): Unit = throw SockCommandException("Nicht gekoppelt")
     override suspend fun stopMassage(fadeOutMs: Long) = Unit
 }

@@ -35,13 +35,13 @@ import at.zocks.zleep.ui.theme.ZocksTheme
 import at.zocks.zleep.ui.theme.ZocksThemeExt
 
 @Composable
-fun ControlRoute(initialSection: ControlSection, viewModel: ControlViewModel = hiltViewModel()) {
+fun ControlRoute(initialSection: ControlSection, onOpenPairing: () -> Unit, viewModel: ControlViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     UserMessageEffect(state.userMessage) { viewModel.onEvent(ControlEvent.MessageShown) }
     ControlScreen(
         initialSection = initialSection,
         connected = state.pairStatus?.anyConnected == true,
-        onPairSocks = { viewModel.onEvent(ControlEvent.ConnectSocks) },
+        onPairSocks = { if (state.needsPairing) onOpenPairing() else viewModel.onEvent(ControlEvent.ConnectSocks) },
         heatContent = { HeatRoute() },
         massageContent = { MassageRoute() },
         routineContent = { RoutineRoute() },

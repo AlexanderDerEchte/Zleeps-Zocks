@@ -39,6 +39,15 @@ class HeatControllerTest {
     }
 
     @Test
+    fun `a command that does not arrive is reported and leaves no plan`() = runTest {
+        val (controller, _) = controller()
+        right.failCommands = true
+        val rejected = controller.start(HeatRequest())
+        assertThat(rejected).containsExactly(SockSide.RIGHT, HeatRejection.NOT_CONNECTED)
+        assertThat(controller.state.value.plans.keys).containsExactly(SockSide.LEFT)
+    }
+
+    @Test
     fun `a start right after creation keeps its plan`() = runTest {
         left.connect()
         right.connect()

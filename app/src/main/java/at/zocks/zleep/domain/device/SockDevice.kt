@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 /**
  * Eine einzelne Socke (jede hat ihr eigenes Elektronikmodul). Umgesetzt vom
- * Simulator und – ab Phase 7 – von der echten BLE-Anbindung.
+ * Simulator (`SimulatedSockDevice`) und von der echten BLE-Anbindung (`BleSockDevice`).
  *
  * Heizbefehle dürfen nur über den HeatSafetyGuard an ein Gerät gehen (Phase 3).
  */

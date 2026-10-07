@@ -1,6 +1,9 @@
 package at.zocks.zleep.di
 
 import android.content.Context
+import at.zocks.zleep.BuildConfig
+import at.zocks.zleep.domain.model.DeviceMode
+import at.zocks.zleep.domain.model.UserSettings
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
@@ -57,6 +60,12 @@ object DatabaseModule {
 
     @Provides
     fun massageProgramDao(database: ZocksDatabase): MassageProgramDao = database.massageProgramDao()
+
+    /** Release-Builds sprechen mit echten Socken, Debug-Builds (und die CI-APK) starten im Simulator. */
+    @Provides
+    @DefaultSettings
+    fun defaultSettings(): UserSettings =
+        UserSettings(deviceMode = if (BuildConfig.DEBUG) DeviceMode.SIMULATOR else DeviceMode.BLE)
 
     @Provides
     @Singleton
