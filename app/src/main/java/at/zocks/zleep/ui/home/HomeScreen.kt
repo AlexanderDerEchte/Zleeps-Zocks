@@ -44,6 +44,10 @@ import at.zocks.zleep.ui.components.SockStatusView
 import at.zocks.zleep.ui.components.UserMessageEffect
 import at.zocks.zleep.ui.components.ZocksCard
 import at.zocks.zleep.ui.components.ZocksLogo
+import at.zocks.zleep.ui.components.ScoreHero
+import at.zocks.zleep.ui.components.charts.StageBar
+import at.zocks.zleep.ui.components.charts.StageOrder
+import at.zocks.zleep.ui.format.stageLabel
 import at.zocks.zleep.ui.format.currentLocale
 import at.zocks.zleep.ui.format.formatDuration
 import at.zocks.zleep.ui.format.formatShortDate
@@ -51,7 +55,6 @@ import at.zocks.zleep.ui.format.formatTime
 import at.zocks.zleep.ui.recording.NightStartSheet
 import at.zocks.zleep.ui.recording.RecordingCard
 import at.zocks.zleep.ui.theme.Dimens
-import at.zocks.zleep.ui.theme.MetricTextStyle
 import at.zocks.zleep.ui.theme.ZocksTheme
 import at.zocks.zleep.ui.theme.ZocksThemeExt
 import java.time.Instant
@@ -133,7 +136,7 @@ fun HomeScreen(
 
         when {
             state.loading -> ZocksCard { LoadingState() }
-            state.lastNight != null -> LastNightCard(state.lastNight, state.use24HourClock, onOpenNight)
+            state.lastNight != null -> LastNightCard(state, state.lastNight, onOpenNight)
             else -> ZocksCard(title = stringResource(R.string.home_last_night)) {
                 EmptyState(
                     icon = Icons.Outlined.NightsStay,
@@ -182,7 +185,9 @@ fun HomeScreen(
 }
 
 @Composable
-private fun LastNightCard(night: Night, use24h: Boolean, onOpenNight: (Long) -> Unit) {
+private fun LastNightCard(state: HomeUiState, night: Night, onOpenNight: (Long) -> Unit) {
+    val use24h = state.use24HourClock
+    val summary = state.lastNightSummary
     val locale = currentLocale()
     val zone = ZoneId.systemDefault()
     val date = formatShortDate(night.nightOf(zone), locale)
@@ -192,17 +197,28 @@ private fun LastNightCard(night: Night, use24h: Boolean, onOpenNight: (Long) -> 
         modifier = Modifier.testTag("card_last_night"),
     ) {
         Row(verticalAlignment = Alignment.Bottom) {
+            if (state.lastNightScore != null) {
+                Column(Modifier.padding(end = Dimens.SpaceXl)) {
+                    Text(
+                        stringResource(R.string.score_title),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    ScoreHero(state.lastNightScore, Modifier.testTag("home_score"))
+                }
+            }
             Column(Modifier.weight(1f)) {
                 Text(
                     stringResource(R.string.night_sleep_duration),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                val window = night.sleepWindow
+                val duration = summary?.totalSleep ?: night.sleepWindow
                 Text(
-                    text = if (window != null) formatDuration(window) else stringResource(R.string.value_not_available),
-                    style = MetricTextStyle,
-                    color = ZocksThemeExt.colors.sleep,
+                    text = if (duration != null) formatDuration(duration) else stringResource(R.string.value_not_available),
+                    style = MaterialTheme.typography.headlineSmall,
+                    maxLines = 1,
+                    modifier = Modifier.padding(bottom = Dimens.SpaceS),
                 )
                 val from = night.sleepOnset ?: night.start
                 val to = night.finalWake ?: night.end
@@ -215,6 +231,13 @@ private fun LastNightCard(night: Night, use24h: Boolean, onOpenNight: (Long) -> 
                 }
             }
             if (night.source == NightSource.DEMO) InfoBadge(stringResource(R.string.badge_demo))
+        }
+        val stages = summary?.stageMinutes.orEmpty()
+        if (stages.isNotEmpty()) {
+            val description = StageOrder.filter { (stages[it] ?: 0) > 0 }
+                .map { stage -> stringResource(R.string.night_stage_share, stageLabel(stage), summary?.stageShare(stage) ?: 0) }
+                .joinToString(", ")
+            StageBar(stages, Modifier.padding(top = Dimens.SpaceL), height = 10.dp, contentDescription = description)
         }
     }
 }

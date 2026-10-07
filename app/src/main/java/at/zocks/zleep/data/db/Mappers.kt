@@ -4,9 +4,13 @@ import at.zocks.zleep.domain.model.ConnectionGap
 import at.zocks.zleep.domain.model.EpochMeasurement
 import at.zocks.zleep.domain.model.Night
 import at.zocks.zleep.domain.model.NightEvent
+import at.zocks.zleep.domain.model.NightSummary
+import at.zocks.zleep.domain.model.SleepStage
 import at.zocks.zleep.domain.model.StageEpoch
 import at.zocks.zleep.domain.model.Tag
+import java.time.Duration
 import java.time.Instant
+import java.time.LocalDate
 
 private fun Long.toInstant(): Instant = Instant.ofEpochMilli(this)
 
@@ -72,3 +76,59 @@ fun ConnectionGapEntity.toDomain(): ConnectionGap = ConnectionGap(id, side, star
 
 fun ConnectionGap.toEntity(nightId: Long): ConnectionGapEntity =
     ConnectionGapEntity(id, nightId, side, start.toEpochMilli(), end?.toEpochMilli())
+
+fun NightSummaryEntity.toDomain(): NightSummary = NightSummary(
+    nightId = nightId,
+    nightDate = LocalDate.ofEpochDay(nightDate),
+    start = startMs.toInstant(),
+    end = endMs?.toInstant(),
+    sleepOnset = sleepOnsetMs?.toInstant(),
+    finalWake = finalWakeMs?.toInstant(),
+    timeInBed = Duration.ofSeconds(timeInBedSeconds),
+    totalSleep = totalSleepSeconds?.let(Duration::ofSeconds),
+    sleepLatency = sleepLatencySeconds?.let(Duration::ofSeconds),
+    efficiency = efficiency,
+    wakeAfterOnset = wakeAfterOnsetSeconds?.let(Duration::ofSeconds),
+    awakenings = awakenings,
+    stageMinutes = mapOf(
+        SleepStage.AWAKE to awakeMinutes,
+        SleepStage.LIGHT to lightMinutes,
+        SleepStage.DEEP to deepMinutes,
+        SleepStage.REM to remMinutes,
+    ).filterValues { it > 0 },
+    restingHeartRateBpm = restingHeartRate,
+    avgHeartRateBpm = avgHeartRate,
+    avgHrvRmssdMs = avgHrvRmssd,
+    avgSpo2Percent = avgSpo2,
+    avgSkinTemperatureC = avgSkinTemperature,
+    heatUsed = heatUsed,
+    massageUsed = massageUsed,
+    gapDuration = Duration.ofSeconds(gapSeconds),
+)
+
+fun NightSummary.toEntity(): NightSummaryEntity = NightSummaryEntity(
+    nightId = nightId,
+    nightDate = nightDate.toEpochDay(),
+    startMs = start.toEpochMilli(),
+    endMs = end?.toEpochMilli(),
+    sleepOnsetMs = sleepOnset?.toEpochMilli(),
+    finalWakeMs = finalWake?.toEpochMilli(),
+    timeInBedSeconds = timeInBed.seconds,
+    totalSleepSeconds = totalSleep?.seconds,
+    sleepLatencySeconds = sleepLatency?.seconds,
+    efficiency = efficiency,
+    wakeAfterOnsetSeconds = wakeAfterOnset?.seconds,
+    awakenings = awakenings,
+    awakeMinutes = stageMinutes[SleepStage.AWAKE] ?: 0,
+    lightMinutes = stageMinutes[SleepStage.LIGHT] ?: 0,
+    deepMinutes = stageMinutes[SleepStage.DEEP] ?: 0,
+    remMinutes = stageMinutes[SleepStage.REM] ?: 0,
+    restingHeartRate = restingHeartRateBpm,
+    avgHeartRate = avgHeartRateBpm,
+    avgHrvRmssd = avgHrvRmssdMs,
+    avgSpo2 = avgSpo2Percent,
+    avgSkinTemperature = avgSkinTemperatureC,
+    heatUsed = heatUsed,
+    massageUsed = massageUsed,
+    gapSeconds = gapDuration.seconds,
+)

@@ -3,6 +3,7 @@ package at.zocks.zleep.di
 import at.zocks.zleep.device.recording.DefaultDeviceClock
 import at.zocks.zleep.device.recording.ServiceRecordingLauncher
 import at.zocks.zleep.domain.analysis.HeuristicSleepStageClassifier
+import at.zocks.zleep.domain.analysis.NightSummaryUpdater
 import at.zocks.zleep.domain.analysis.SleepStageClassifier
 import at.zocks.zleep.domain.device.SockPairProvider
 import at.zocks.zleep.domain.heat.HeatController
@@ -12,6 +13,7 @@ import at.zocks.zleep.domain.recording.NightAnalyzer
 import at.zocks.zleep.domain.recording.NightRecorder
 import at.zocks.zleep.domain.recording.RecordingLauncher
 import at.zocks.zleep.domain.repository.NightRepository
+import at.zocks.zleep.domain.repository.NightSummaryRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -19,6 +21,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import java.time.Clock
 import javax.inject.Singleton
 
 @Module
@@ -30,11 +33,22 @@ object RecordingModule {
 
     @Provides
     @Singleton
+    fun nightSummaryUpdater(
+        nights: NightRepository,
+        summaries: NightSummaryRepository,
+        clock: Clock,
+        @DefaultDispatcher dispatcher: CoroutineDispatcher,
+        @ApplicationScope scope: CoroutineScope,
+    ) = NightSummaryUpdater(nights, summaries, clock, dispatcher, scope)
+
+    @Provides
+    @Singleton
     fun nightAnalyzer(
         nights: NightRepository,
         classifier: SleepStageClassifier,
+        summaryUpdater: NightSummaryUpdater,
         @DefaultDispatcher dispatcher: CoroutineDispatcher,
-    ) = NightAnalyzer(nights, classifier, dispatcher)
+    ) = NightAnalyzer(nights, classifier, summaryUpdater, dispatcher)
 
     @Provides
     @Singleton

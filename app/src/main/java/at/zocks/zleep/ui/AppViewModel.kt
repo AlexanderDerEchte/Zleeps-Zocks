@@ -3,6 +3,7 @@ package at.zocks.zleep.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import at.zocks.zleep.R
+import at.zocks.zleep.domain.analysis.NightSummaryUpdater
 import at.zocks.zleep.domain.heat.HeatController
 import at.zocks.zleep.domain.heat.HeatNotice
 import at.zocks.zleep.domain.model.SockSide
@@ -42,11 +43,14 @@ class AppViewModel @Inject constructor(
     private val heatController: HeatController,
     private val clock: Clock,
     launcher: RecordingLauncher,
+    summaryUpdater: NightSummaryUpdater,
 ) : ViewModel() {
 
     init {
         // Eine offene Nacht (z. B. nach Absturz oder Update) weiter aufzeichnen.
         launcher.resumeIfNeeded()
+        // Kennzahlen für Nächte nachtragen, die noch keine haben (z. B. nach einem Update).
+        summaryUpdater.start()
     }
 
     private val ticker = heatController.state.map { it.isHeating }.distinctUntilChanged().flatMapLatest { heating ->

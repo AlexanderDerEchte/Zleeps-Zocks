@@ -25,13 +25,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import at.zocks.zleep.R
-import at.zocks.zleep.domain.model.Night
 import at.zocks.zleep.domain.model.NightSource
+import at.zocks.zleep.ui.components.BigSegmentedChoice
 import at.zocks.zleep.ui.components.EmptyState
 import at.zocks.zleep.ui.components.ErrorState
 import at.zocks.zleep.ui.components.InfoBadge
@@ -42,16 +43,22 @@ import at.zocks.zleep.ui.format.formatNightDate
 import at.zocks.zleep.ui.format.formatTime
 import at.zocks.zleep.ui.format.tagLabel
 import at.zocks.zleep.ui.theme.Dimens
+import at.zocks.zleep.ui.theme.ZocksThemeExt
 import java.time.ZoneId
 
 @Composable
 fun NightsRoute(onOpenNight: (Long) -> Unit, viewModel: NightsViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    NightsScreen(state, onOpenNight)
+    NightsScreen(state, viewModel::onEvent, onOpenNight)
 }
 
 @Composable
-fun NightsScreen(state: NightsUiState, onOpenNight: (Long) -> Unit, modifier: Modifier = Modifier) {
+fun NightsScreen(
+    state: NightsUiState,
+    onEvent: (NightsEvent) -> Unit,
+    onOpenNight: (Long) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
@@ -78,18 +85,43 @@ fun NightsScreen(state: NightsUiState, onOpenNight: (Long) -> Unit, modifier: Mo
                     body = stringResource(R.string.nights_empty_body),
                 )
             }
-            is NightsUiState.Content -> items(state.nights, key = { it.id }) { night ->
-                NightRow(night, state.use24HourClock, onClick = { onOpenNight(night.id) })
+            is NightsUiState.Content -> {
+                item {
+                    BigSegmentedChoice(
+                        options = NightsView.entries,
+                        selected = state.view,
+                        label = { viewLabel(it) },
+                        onSelect = { onEvent(NightsEvent.SelectView(it)) },
+                        testTagPrefix = "nights_view",
+                    )
+                }
+                when (state.view) {
+                    NightsView.LIST -> items(state.items, key = { it.night.id }) { item ->
+                        NightRow(item, state.use24HourClock, onClick = { onOpenNight(item.night.id) })
+                    }
+                    NightsView.CALENDAR -> item { NightsCalendar(state, onEvent, onOpenNight) }
+                    NightsView.TRENDS -> trendItems(state, onEvent)
+                }
             }
         }
     }
 }
 
 @Composable
-private fun NightRow(night: Night, use24h: Boolean, onClick: () -> Unit) {
+private fun viewLabel(view: NightsView): String = stringResource(
+    when (view) {
+        NightsView.LIST -> R.string.nights_view_list
+        NightsView.CALENDAR -> R.string.nights_view_calendar
+        NightsView.TRENDS -> R.string.nights_view_trends
+    },
+)
+
+@Composable
+private fun NightRow(item: NightListItem, use24h: Boolean, onClick: () -> Unit) {
+    val night = item.night
     val locale = currentLocale()
     val zone = ZoneId.systemDefault()
-    val date = formatNightDate(night.nightOf(zone), locale)
+    val date = formatNightDate(item.nightDate, locale)
     val openLabel = stringResource(R.string.night_open_detail, date)
     Card(
         shape = MaterialTheme.shapes.large,
@@ -107,12 +139,12 @@ private fun NightRow(night: Night, use24h: Boolean, onClick: () -> Unit) {
                     if (night.source == NightSource.DEMO) InfoBadge(stringResource(R.string.badge_demo))
                     if (night.isRecording) InfoBadge(stringResource(R.string.night_recording))
                 }
-                val window = night.sleepWindow
+                val duration = item.totalSleep ?: night.sleepWindow
                 val from = night.sleepOnset ?: night.start
                 val to = night.finalWake ?: night.end
                 val times = to?.let { stringResource(R.string.time_range, formatTime(from, use24h, locale, zone), formatTime(it, use24h, locale, zone)) }
                 Text(
-                    listOfNotNull(window?.let { formatDuration(it) }, times).joinToString("  ·  "),
+                    listOfNotNull(duration?.let { formatDuration(it) }, times).joinToString("  ·  "),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -120,9 +152,20 @@ private fun NightRow(night: Night, use24h: Boolean, onClick: () -> Unit) {
                     Text(
                         night.tags.map { tagLabel(it) }.joinToString(", "),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
+            }
+            if (item.score != null) {
+                val scoreLabel = stringResource(R.string.nights_score, item.score)
+                Text(
+                    item.score.toString(),
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = ZocksThemeExt.colors.sleep,
+                    modifier = Modifier
+                        .padding(horizontal = Dimens.SpaceS)
+                        .semantics { contentDescription = scoreLabel },
+                )
             }
             Icon(
                 Icons.AutoMirrored.Filled.KeyboardArrowRight,

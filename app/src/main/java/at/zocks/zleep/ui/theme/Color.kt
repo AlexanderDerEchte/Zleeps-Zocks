@@ -41,11 +41,12 @@ internal val Error300 = Color(0xFFFFB4AB)
 internal val Error800 = Color(0xFF8C1D18)
 internal val Error950 = Color(0xFF410002)
 
-// Schlafphasen (Hypnogramm)
-internal val StageAwake = Color(0xFFFFB38A)
-internal val StageRem = Color(0xFFB9A3FF)
-internal val StageLight = Color(0xFF6FA8FF)
-internal val StageDeep = Color(0xFF2F5BD3)
+// Schlafphasen (Hypnogramm). Mit dem Paletten-Prüfskript gegen die Kartenfläche geprüft
+// (Farbsehschwächen, Abstand, Kontrast). Wach ist bewusst kein Orange – Orange heißt Wärme.
+internal val StageAwake = Color(0xFFD55181)
+internal val StageRem = Color(0xFF9085E9)
+internal val StageLight = Color(0xFF1A9FB0)
+internal val StageDeep = Color(0xFF3D5FD0)
 
 // Helles Schema (optional, nicht Standard)
 internal val Day50 = Color(0xFFF7F9FD)

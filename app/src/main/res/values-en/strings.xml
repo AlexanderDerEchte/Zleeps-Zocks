@@ -97,7 +97,6 @@
   <string name="night_avg_skin_temperature">Avg foot temperature</string>
   <string name="night_gaps">Connection gaps: %1$s</string>
   <string name="night_no_events">No heat or massage this night.</string>
-  <string name="night_no_tags">No tags</string>
   <string name="night_stage_share">%1$s · %2$d %%</string>
   <string name="night_recording">Recording</string>
   <string name="event_heat">Heat</string>
@@ -292,4 +291,138 @@
   <string name="night_window_reset">Automatic</string>
   <string name="night_window_invalid">Falling asleep must be before waking up and within the recording.</string>
   <string name="night_window_saved">Sleep time corrected.</string>
+  <!-- Phase 5: analysis -->
+  <string name="score_title">Sleep score</string>
+  <string name="score_value">%1$d</string>
+  <string name="score_of_100">out of 100</string>
+  <plurals name="score_description">
+    <item quantity="one">Sleep score %1$d out of 100</item>
+    <item quantity="other">Sleep score %1$d out of 100</item>
+  </plurals>
+  <string name="score_not_available">A score needs your sleep duration.</string>
+  <string name="score_breakdown">How your score adds up</string>
+  <string name="score_points">%1$d/%2$d</string>
+  <plurals name="score_part_description">
+    <item quantity="one">%1$s: %2$d of %3$d point. %4$s</item>
+    <item quantity="other">%1$s: %2$d of %3$d points. %4$s</item>
+  </plurals>
+  <string name="score_part_missing_description">%1$s: not available</string>
+  <string name="score_duration">Duration</string>
+  <string name="score_efficiency">Efficiency</string>
+  <string name="score_restorative">Deep and REM sleep</string>
+  <string name="score_latency">Falling asleep</string>
+  <string name="score_continuity">Sleeping through</string>
+  <string name="score_detail_duration">%1$s of %2$s goal</string>
+  <string name="score_detail_efficiency">Asleep %1$d %% of your time in bed</string>
+  <string name="score_detail_restorative">%1$d %% of your sleep</string>
+  <string name="score_detail_latency">Fell asleep in %1$s</string>
+  <string name="score_detail_continuity">%1$s awake after falling asleep</string>
+  <string name="score_lever">Most room to grow: %1$s</string>
+  <string name="score_explanation">Each part has a maximum. If readings for a part are missing, it is left out and the rest is scaled up.</string>
+
+  <string name="night_section_metrics">Key figures</string>
+  <string name="metric_latency">Time to fall asleep</string>
+  <string name="metric_efficiency">Sleep efficiency</string>
+  <string name="metric_awakenings">Awakenings</string>
+  <string name="metric_awakenings_detail">%1$s awake</string>
+  <string name="metric_resting_hr">Resting pulse</string>
+  <string name="metric_time_in_bed">In bed: %1$s</string>
+
+  <string name="night_section_timeline">Night timeline</string>
+  <string name="chart_vital_heart_rate">Pulse</string>
+  <string name="chart_vital_skin_temperature_short">Temp.</string>
+  <string name="chart_vital_hrv">HRV</string>
+  <string name="chart_vital_skin_temperature">Foot temperature</string>
+  <string name="chart_legend_heat">Warmth</string>
+  <string name="chart_legend_massage">Massage</string>
+  <string name="chart_legend_gap">No connection</string>
+  <string name="chart_hint">Tap or swipe across the timeline to read values.</string>
+  <string name="chart_description">Night timeline with sleep stages and %1$s. The values are also available as a table.</string>
+  <string name="chart_readout">%1$s · %2$s · %3$s</string>
+  <string name="chart_no_vitals">There are no readings in the timeline for this night.</string>
+  <string name="chart_show_table">Show as table</string>
+  <string name="chart_hide_table">Hide table</string>
+  <string name="table_time">Time</string>
+  <string name="table_stage">Stage</string>
+  <string name="table_heart_rate">Pulse</string>
+  <string name="table_hrv">HRV</string>
+  <string name="table_skin_temperature">Foot</string>
+  <string name="table_dash">–</string>
+
+  <string name="tags_add">Own tag</string>
+  <string name="tags_add_title">Create your own tag</string>
+  <string name="tags_add_label">Name</string>
+  <string name="note_label">Note</string>
+  <string name="note_placeholder">How was your evening?</string>
+  <string name="note_saved">Note saved.</string>
+
+  <string name="nights_view_list">List</string>
+  <string name="nights_view_calendar">Calendar</string>
+  <string name="nights_view_trends">Trends</string>
+  <string name="nights_score">Score %1$d</string>
+  <string name="calendar_previous">Previous month</string>
+  <string name="calendar_next">Next month</string>
+  <string name="calendar_day_with_score">%1$s, score %2$d</string>
+  <string name="calendar_day_without_score">%1$s, night without score</string>
+  <string name="calendar_day_empty">%1$s, no night</string>
+  <string name="calendar_legend">Score: lighter is lower, stronger is higher</string>
+  <string name="calendar_no_nights">There are no nights in this month.</string>
+
+  <string name="trend_week">Week</string>
+  <string name="trend_month">Month</string>
+  <string name="trend_year">Year</string>
+  <string name="trend_avg_score">Avg. score</string>
+  <string name="trend_avg_sleep">Avg. sleep</string>
+  <string name="trend_avg_resting_hr">Avg. resting pulse</string>
+  <string name="trend_regularity">Regularity</string>
+  <string name="trend_regularity_very">Very regular</string>
+  <string name="trend_regularity_fairly">Fairly regular</string>
+  <string name="trend_regularity_irregular">Irregular</string>
+  <string name="trend_regularity_detail">Asleep avg. %1$s ± %2$s, awake avg. %3$s ± %4$s</string>
+  <string name="trend_regularity_missing">From 5 nights in the period</string>
+  <string name="trend_chart_score">Sleep score</string>
+  <string name="trend_chart_sleep">Sleep duration in hours</string>
+  <string name="trend_goal_line">Goal %1$s</string>
+  <string name="trend_no_data">There are no nights in this period yet.</string>
+  <string name="trend_chart_description">%1$s for %2$s. The values are also available as a table.</string>
+  <string name="trend_table_date">Date</string>
+  <string name="trend_table_score">Score</string>
+  <string name="trend_table_sleep">Sleep</string>
+
+  <string name="insights_title">Insights</string>
+  <string name="insights_not_enough_title">Not enough nights yet</string>
+  <string name="insights_not_enough_body">Insights appear after 14 analysed nights. Tag your evenings so that patterns can show up.</string>
+  <string name="insights_none">So far there are no clear differences between nights with and without tags, warmth or massage.</string>
+  <string name="insights_disclaimer">These are patterns in your data, not causes. Other factors can play a part.</string>
+  <string name="insight_factor_heat">Warmth</string>
+  <string name="insight_factor_massage">Massage</string>
+  <plurals name="insight_score_higher">
+    <item quantity="one">Sleep score %1$d point higher on average than on nights without.</item>
+    <item quantity="other">Sleep score %1$d points higher on average than on nights without.</item>
+  </plurals>
+  <plurals name="insight_score_lower">
+    <item quantity="one">Sleep score %1$d point lower on average than on nights without.</item>
+    <item quantity="other">Sleep score %1$d points lower on average than on nights without.</item>
+  </plurals>
+  <string name="insight_latency_shorter">Fell asleep %1$s faster on average than on nights without.</string>
+  <string name="insight_latency_longer">Took %1$s longer to fall asleep on average than on nights without.</string>
+  <string name="insight_sleep_longer">Slept %1$s longer on average than on nights without.</string>
+  <string name="insight_sleep_shorter">Slept %1$s less on average than on nights without.</string>
+  <plurals name="insight_restorative_higher">
+    <item quantity="one">%1$d percentage point more deep and REM sleep on average than on nights without.</item>
+    <item quantity="other">%1$d percentage points more deep and REM sleep on average than on nights without.</item>
+  </plurals>
+  <plurals name="insight_restorative_lower">
+    <item quantity="one">%1$d percentage point less deep and REM sleep on average than on nights without.</item>
+    <item quantity="other">%1$d percentage points less deep and REM sleep on average than on nights without.</item>
+  </plurals>
+  <string name="insight_basis">Based on: %1$s, %2$s</string>
+  <plurals name="insight_nights_with">
+    <item quantity="one">%1$d night with</item>
+    <item quantity="other">%1$d nights with</item>
+  </plurals>
+  <plurals name="insight_nights_without">
+    <item quantity="one">%1$d without</item>
+    <item quantity="other">%1$d without</item>
+  </plurals>
 </resources>

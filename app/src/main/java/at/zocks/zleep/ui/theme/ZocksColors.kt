@@ -48,10 +48,10 @@ internal val LightZocksColors = ZocksColors(
     massage = Color(0xFF5B48A8),
     onMassage = Color.White,
     massageContainer = Color(0xFFE7DEFF),
-    stageAwake = Color(0xFFE0682E),
-    stageRem = Color(0xFF7B61D9),
-    stageLight = Color(0xFF4C8DFF),
-    stageDeep = Color(0xFF1C3A8F),
+    stageAwake = Color(0xFFC43C6E),
+    stageRem = Color(0xFF6F5FD6),
+    stageLight = Color(0xFF00899C),
+    stageDeep = Color(0xFF2A4FC0),
 )
 
 val LocalZocksColors = staticCompositionLocalOf { DarkZocksColors }

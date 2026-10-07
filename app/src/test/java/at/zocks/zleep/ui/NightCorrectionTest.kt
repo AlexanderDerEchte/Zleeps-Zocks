@@ -5,6 +5,7 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import at.zocks.zleep.MainActivity
 import at.zocks.zleep.R
@@ -78,13 +79,16 @@ class NightCorrectionTest {
         waitForTag("edit_onset")
 
         // Uhr-Dialog öffnet mit der bisherigen Zeit; Speichern übernimmt sie als Korrektur.
-        composeRule.onNodeWithTag("edit_onset").performClick()
+        composeRule.onNodeWithTag("edit_onset").performScrollTo().performClick()
         waitForTag("confirm_time")
         composeRule.onNodeWithTag("confirm_time").performClick()
         val manual = composeRule.activity.getString(R.string.night_window_manual)
         composeRule.waitUntil(UI_TIMEOUT_MS) { composeRule.onAllNodes(hasText(manual)).fetchSemanticsNodes().isNotEmpty() }
 
-        composeRule.onNodeWithTag("reset_window").performClick()
+        // Die Bestätigung liegt als Snackbar über dem unteren Rand – erst verschwinden lassen.
+        val saved = composeRule.activity.getString(R.string.night_window_saved)
+        composeRule.waitUntil(UI_TIMEOUT_MS) { composeRule.onAllNodes(hasText(saved)).fetchSemanticsNodes().isEmpty() }
+        composeRule.onNodeWithTag("reset_window").performScrollTo().performClick()
         composeRule.waitUntil(UI_TIMEOUT_MS) { composeRule.onAllNodes(hasText(manual)).fetchSemanticsNodes().isEmpty() }
     }
 }

@@ -45,6 +45,12 @@ Tests und Lint als getrennte Gradle-Aufrufe starten (gemeinsam kann Lint an KSP-
 - Schlafphasen nur über das Interface `SleepStageClassifier`; Änderungen an der Heuristik
   mit `ClassifierEvaluation` gegen den Simulator prüfen und Doku im KDoc anpassen.
 - BLE-UUIDs und Datenformat stehen ausschließlich in `device/ble/SockBleProtocol.kt`.
+- Auswertung: Kennzahlen einer Nacht nur über `NightSummarizer`, Score nur über
+  `SleepScoreCalculator` (Schwellen im KDoc und README pflegen). Gespeicherte Kennzahlen
+  (`night_summaries`) aktualisiert ausschließlich `NightSummaryUpdater`; wer das Schlaffenster
+  oder die Phasen einer abgeschlossenen Nacht ändert, ruft danach `refresh(nightId)` auf.
+- Erkenntnisse (`InsightEngine`) nur mit Mindestdatenmenge und immer als Zusammenhang
+  („im Schnitt … als in Nächten ohne“), nie als Ursache oder Empfehlung.
 
 ## Daten
 
@@ -73,6 +79,12 @@ Tests und Lint als getrennte Gradle-Aufrufe starten (gemeinsam kann Lint an KSP-
   `ZocksThemeExt.colors` (heat, sleep, massage, stage*), keine Hex-Werte in Screens.
 - Wärme-Orange nur für Wärme. `secondary` ist bewusst neutral (Material nutzt es für viele
   Standardelemente).
+- Diagramme: eine Achse pro Diagramm (Messwerte umschaltbar statt zweiter Skala), Hilfslinien
+  durchgezogen und zurückhaltend (`outlineVariant`, Vicos gestrichelte Standardlinie ersetzen),
+  Säulen oben 4 dp rund, Linien 2 dp, Text nie in Datenfarbe, ab zwei Reihen eine Legende,
+  immer eine Tabellenansicht als Alternative. Trends mit Vico, Nachtverlauf als eigenes Canvas.
+- Neue Datenfarben vorher mit dem Paletten-Prüfskript (Farbsehschwächen, Kontrast) gegen
+  hell und dunkel prüfen. Fehlende Werte bleiben Lücken, nie verbinden oder auffüllen.
 - Bedienelemente für Heizen/Massage mindestens `Dimens.ThumbTarget` (64 dp).
 - Jeder Screen hat Lade-, Leer- und Fehlerzustand (`ui/components/StateViews.kt`).
 - Dekorative Icons: `contentDescription = null`. Bedeutungstragende Gruppen mit
@@ -105,7 +117,12 @@ Tests und Lint als getrennte Gradle-Aufrufe starten (gemeinsam kann Lint an KSP-
   Nach Navigation nicht sofort `assertIsDisplayed`, sondern `waitUntilDisplayed(tag)`
   (Übergangsanimation). Vor dem ersten Klick `waitUntilLoaded()` (kein `state_loading`
   mehr sichtbar). `waitUntil` immer mit `UI_TIMEOUT_MS` – CI-Runner sind langsam.
-  Vor Klicks auf Elemente, die weggescrollt sein können, `performScrollTo()`.
+  Vor Klicks auf Elemente, die weggescrollt sein können, `performScrollTo()` (in `LazyColumn`
+  vorher `performScrollToNode`). Snackbars können untere Elemente verdecken – erst abwarten.
+  In `waitUntil` keine blockierenden Datenbankabfragen (`runBlocking`), sondern auf die
+  Oberfläche warten; das blockiert sonst den Main-Thread. Teile anklickbarer Karten sind nur im
+  ungemergten Baum (`useUnmergedTree = true`) per Test-Tag zu finden; `testTag` vor
+  `clearAndSetSemantics` setzen.
   Zeitkritische UI-Tests auch mit `taskset -c 0` (ein Kern) prüfen – so zeigen sich
   Wettläufe, die auf langsamen CI-Runnern auftreten.
 - Algorithmen (Schlafphasen, Score, Routinen, Sicherheit) brauchen eigene Unit-Tests.

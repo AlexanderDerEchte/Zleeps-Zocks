@@ -15,6 +15,7 @@ kotlinxCoroutines = "1.11.0"
 kotlinxSerialization = "1.11.0"
 room = "2.8.5"
 datastore = "1.2.1"
+vico = "3.3.1"
 turbine = "1.2.1"
 junit = "4.13.2"
 robolectric = "4.17"
@@ -39,6 +40,7 @@ compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
 compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
 compose-material3 = { module = "androidx.compose.material3:material3" }
 compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "composeMaterialIcons" }
+vico-compose = { module = "com.patrykandpatrick.vico:compose", version.ref = "vico" }
 
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hilt-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }

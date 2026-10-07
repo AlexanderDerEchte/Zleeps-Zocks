@@ -2,6 +2,7 @@ package at.zocks.zleep.device.simulator
 
 import at.zocks.zleep.di.ApplicationScope
 import at.zocks.zleep.di.DefaultDispatcher
+import at.zocks.zleep.domain.analysis.NightSummaryUpdater
 import at.zocks.zleep.domain.model.NightSource
 import at.zocks.zleep.domain.model.Tag
 import at.zocks.zleep.domain.repository.NightRepository
@@ -26,6 +27,7 @@ class DemoDataSeeder @Inject constructor(
     private val nightRepository: NightRepository,
     private val tagRepository: TagRepository,
     private val generator: DemoNightsGenerator,
+    private val summaryUpdater: NightSummaryUpdater,
     private val clock: Clock,
     @param:DefaultDispatcher private val computeDispatcher: CoroutineDispatcher,
     @ApplicationScope scope: CoroutineScope,
@@ -53,7 +55,8 @@ class DemoDataSeeder @Inject constructor(
                 generator.generate(lastNight, DEMO_NIGHTS, zone, tags, seed = clock.millis())
             }
             nights.forEachIndexed { index, night ->
-                nightRepository.insertCompleteNight(night)
+                val id = nightRepository.insertCompleteNight(night)
+                summaryUpdater.save(night.copy(night = night.night.copy(id = id)))
                 loading.update { it.copy(progress = (index + 1f) / nights.size) }
             }
         } finally {

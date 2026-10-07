@@ -6,6 +6,7 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import at.zocks.zleep.R
+import at.zocks.zleep.domain.analysis.ScoreComponent
 import at.zocks.zleep.domain.model.NightEventType
 import at.zocks.zleep.domain.model.SleepStage
 import at.zocks.zleep.domain.model.Tag
@@ -13,6 +14,7 @@ import at.zocks.zleep.domain.model.TemperatureUnit
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -101,3 +103,18 @@ fun tagLabel(tag: Tag): String = when (tag.key) {
     null -> tag.label.orEmpty()
     else -> tag.label ?: tag.key
 }
+
+@Composable
+fun scoreComponentLabel(component: ScoreComponent): String = stringResource(
+    when (component) {
+        ScoreComponent.DURATION -> R.string.score_duration
+        ScoreComponent.EFFICIENCY -> R.string.score_efficiency
+        ScoreComponent.RESTORATIVE -> R.string.score_restorative
+        ScoreComponent.LATENCY -> R.string.score_latency
+        ScoreComponent.CONTINUITY -> R.string.score_continuity
+    },
+)
+
+/** Uhrzeit ohne Datum, z. B. „23:40“ oder „11:40 PM“. */
+fun formatLocalTime(time: LocalTime, use24h: Boolean, locale: Locale): String =
+    DateTimeFormatter.ofPattern(if (use24h) "HH:mm" else "h:mm a", locale).format(time)

@@ -1,6 +1,7 @@
 package at.zocks.zleep.domain.recording
 
 import at.zocks.zleep.domain.analysis.HeuristicSleepStageClassifier
+import at.zocks.zleep.domain.analysis.NightSummaryUpdater
 import at.zocks.zleep.domain.heat.HeatController
 import at.zocks.zleep.domain.heat.HeatRequest
 import at.zocks.zleep.domain.massage.BuiltInMassagePrograms
@@ -12,6 +13,7 @@ import at.zocks.zleep.domain.model.SensorSample
 import at.zocks.zleep.domain.model.SleepStage
 import at.zocks.zleep.domain.model.SockSide
 import at.zocks.zleep.testing.FakeNightRepository
+import at.zocks.zleep.testing.FakeNightSummaryRepository
 import at.zocks.zleep.testing.FakePairProvider
 import at.zocks.zleep.testing.FakeSockDevice
 import at.zocks.zleep.testing.FullCapabilities
@@ -26,7 +28,9 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import java.time.Duration
+import java.time.Clock
 import java.time.Instant
+import java.time.ZoneOffset
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class NightRecorderTest {
@@ -40,6 +44,7 @@ class NightRecorderTest {
     private val left = FakeSockDevice(SockSide.LEFT, FullCapabilities)
     private val right = FakeSockDevice(SockSide.RIGHT, FullCapabilities)
     private val nights = FakeNightRepository()
+    private val summaries = FakeNightSummaryRepository(nights)
     private val clock = TestDeviceClock(Instant.parse("2026-10-05T20:30:00Z"))
 
     private class Setup(val recorder: NightRecorder, val heat: HeatController, val massage: MassageController)
@@ -50,7 +55,9 @@ class NightRecorderTest {
         val pairs = FakePairProvider(left, right)
         val heat = HeatController(pairs, backgroundScope, SchedulerClock(testScheduler))
         val massage = MassageController(pairs, backgroundScope, SchedulerClock(testScheduler))
-        val analyzer = NightAnalyzer(nights, HeuristicSleepStageClassifier(), StandardTestDispatcher(testScheduler))
+        val dispatcher = StandardTestDispatcher(testScheduler)
+        val updater = NightSummaryUpdater(nights, summaries, Clock.fixed(clock.now, ZoneOffset.UTC), dispatcher, backgroundScope)
+        val analyzer = NightAnalyzer(nights, HeuristicSleepStageClassifier(), updater, dispatcher)
         return Setup(NightRecorder(pairs, nights, analyzer, heat, massage, clock, backgroundScope), heat, massage)
     }
 
@@ -168,6 +175,12 @@ class NightRecorderTest {
         assertThat(Duration.between(start, night.sleepOnset).toMinutes()).isIn(Range.closed(18L, 23L))
         assertThat(Duration.between(start, night.finalWake).toMinutes()).isIn(Range.closed(258L, 263L))
         assertThat(nights.stages[id]!!.count { it.stage != SleepStage.AWAKE }).isAtLeast(4 * 60 * 2 - 10)
+
+        // Nach dem Ende liegen die Kennzahlen der Nacht bereit.
+        val summary = summaries.summaries.value[id]!!
+        assertThat(summary.sleepOnset).isEqualTo(night.sleepOnset)
+        assertThat(summary.totalSleep!!.toMinutes()).isIn(Range.closed(230L, 245L))
+        assertThat(summary.restingHeartRateBpm).isWithin(1.0).of(55.0)
     }
 
     @Test

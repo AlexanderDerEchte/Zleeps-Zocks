@@ -27,3 +27,9 @@ val MetricTextStyle: TextStyle = Base.displayMedium.copy(
     fontWeight = FontWeight.Light,
     fontFeatureSettings = TabularNumbers,
 )
+
+/**
+ * Einzelne große Zahl, die sich nicht laufend ändert (z. B. Schlafscore). Proportionale
+ * Ziffern wirken als Blickfang ruhiger als gleich breite.
+ */
+val HeroNumberStyle: TextStyle = Base.displayLarge.copy(fontWeight = FontWeight.Light)

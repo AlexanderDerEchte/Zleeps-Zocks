@@ -32,7 +32,7 @@ zeichnet die Nacht auf und zeigt eine übersichtliche Schlafanalyse.
 | DI | Hilt |
 | Asynchronität | Coroutines + Flow |
 | Persistenz | Room (Messdaten, Nächte), DataStore (Einstellungen) |
-| Diagramme | Vico *(ab Phase 5)* |
+| Diagramme | Vico (Trends), eigenes Compose-Canvas (Nachtverlauf, Hypnogramm) |
 | SDK | minSdk 26, targetSdk / compileSdk 37 |
 | Build | Gradle 9.8, AGP 9.4, Version Catalog `gradle/libs.versions.toml` |
 
@@ -98,7 +98,7 @@ Danach liegt die Debug-APK unter *Actions → letzter Lauf → Artifacts →
 | 2 | Datenmodell, Room, Simulator mit Demo-Nächten | ✅ fertig |
 | 3 | Gerätesteuerung: Heizen und Massage | ✅ fertig |
 | 4 | Nachtaufzeichnung mit Foreground Service | ✅ fertig |
-| 5 | Analyse, Score, Diagramme, Trends | ⏳ offen |
+| 5 | Analyse, Score, Diagramme, Trends | ✅ fertig |
 | 6 | Abendroutine, smarter Wecker, Health Connect, Export | ⏳ offen |
 | 7 | BLE-Implementierung, Feinschliff, Tests | ⏳ offen |
 
@@ -204,6 +204,40 @@ Danach liegt die Debug-APK unter *Actions → letzter Lauf → Artifacts →
 
 **Grenzen:** Ab Android 14 braucht der Hintergrunddienst „Geräte in der Nähe“. Ohne diese
 Berechtigung läuft die Aufzeichnung nur, solange die App offen ist (die App sagt das).
+
+### Phase 5 – enthalten
+
+- **Schlafscore 0–100** aus fünf nachvollziehbaren Teilen, jeweils linear zwischen zwei
+  Schwellen (`SleepScoreCalculator`):
+
+  | Teil | Punkte | 0 Punkte | volle Punkte |
+  |---|---|---|---|
+  | Dauer | 35 | ≤ 50 % des Schlafziels | ≥ 100 % |
+  | Effizienz | 25 | ≤ 65 % der Zeit im Bett | ≥ 90 % |
+  | Tief- + REM-Schlaf | 20 | ≤ 15 % des Schlafs | ≥ 40 % |
+  | Einschlafen | 10 | ≥ 60 min | ≤ 15 min |
+  | Durchschlafen | 10 | ≥ 60 min wach | ≤ 10 min wach |
+
+  Fehlen Messwerte für einen Teil, wird er weggelassen und der Rest hochgerechnet. Die
+  Nachtansicht zeigt jeden Teil mit Punkten, Balken und dem zugrunde liegenden Wert.
+- **Kennzahlen** je Nacht (`NightSummarizer`): Einschlafdauer, Schlafeffizienz, Wachphasen
+  (ab 1 min) und Wachzeit, Ruhepuls (ruhigster 5-Minuten-Abschnitt im Schlaf, beide Socken
+  gemittelt), Phasenanteile, Durchschnittswerte. Fehlende Werte bleiben „nicht verfügbar“.
+  Sie werden in `night_summaries` zwischengespeichert (Schema v4) und nach Auswertung,
+  Korrektur und Demo-Import aktualisiert; fehlende werden beim Start nachgetragen.
+- **Nachtverlauf:** Hypnogramm in vier Bahnen, darunter wahlweise Puls, HRV oder
+  Fußtemperatur (nie zwei Skalen gleichzeitig), Wärme- und Massage-Streifen,
+  Verbindungslücken hinterlegt. Antippen/Wischen zeigt die Werte zum Zeitpunkt; alles auch
+  als Tabelle (30-Minuten-Schritte).
+- **Nächte-Tab:** Liste mit Score, Monatskalender (Score als Zahl plus Farbstufe),
+  Trends für Woche, Monat und Jahr (Ø Score, Ø Schlafdauer, Ø Ruhepuls, Regelmäßigkeit der
+  Einschlaf- und Aufwachzeiten) mit Säulendiagrammen (Vico) und Ziellinie.
+- **Erkenntnisse** (`InsightEngine`): Vergleich von Nächten mit und ohne Wärme, Massage oder
+  Tag – erst ab 14 ausgewerteten Nächten und mindestens 5 je Gruppe, nur deutliche
+  Unterschiede, formuliert als Zusammenhang („im Schnitt … als in Nächten ohne“).
+- **Tags und Notiz** in der Nachtansicht bearbeiten, eigene Tags anlegen.
+- **Start:** letzte Nacht mit Score, Dauer und Phasenbalken.
+- Farben der Schlafphasen neu gewählt und für Farbsehschwächen geprüft (hell und dunkel).
 
 ### Simulator ausprobieren
 

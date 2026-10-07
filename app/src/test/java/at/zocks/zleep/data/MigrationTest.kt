@@ -85,6 +85,33 @@ class MigrationTest {
         }
     }
 
+    @Test
+    fun `migrate 3 to 4 keeps nights and lets missing summaries be filled`() = runTest {
+        createDatabaseFromSchema(version = 3).use { db ->
+            db.execSQL(
+                "INSERT INTO nights (id, start_ms, end_ms, sleep_onset_ms, final_wake_ms, source, note, sleep_window_manual) " +
+                    "VALUES (3, 1000, 2000, 1100, 1900, 'DEVICE', NULL, 1)",
+            )
+            db.execSQL(
+                "INSERT INTO nights (id, start_ms, end_ms, sleep_onset_ms, final_wake_ms, source, note, sleep_window_manual) " +
+                    "VALUES (4, 3000, NULL, NULL, NULL, 'DEVICE', NULL, 0)",
+            )
+        }
+        val database = Room.databaseBuilder(context, ZocksDatabase::class.java, DB)
+            .addMigrations(*ZocksDatabase.ALL_MIGRATIONS)
+            .allowMainThreadQueries()
+            .build()
+        try {
+            assertThat(database.nightDao().getNight(3)!!.night.sleepWindowManual).isTrue()
+            assertThat(database.nightSummaryDao().observeAll().first()).isEmpty()
+            // Nur die abgeschlossene Nacht braucht eine Zusammenfassung.
+            assertThat(database.nightSummaryDao().nightsWithoutSummary()).containsExactly(3L)
+        } finally {
+            database.close()
+            context.deleteDatabase(DB)
+        }
+    }
+
     /** Legt eine leere Datenbank genau nach dem exportierten Schema der Version [version] an. */
     private fun createDatabaseFromSchema(version: Int): SupportSQLiteDatabase {
         val schema = Json.parseToJsonElement(File(SCHEMA_DIR, "$version.json").readText()).jsonObject.getValue("database").jsonObject

@@ -8,16 +8,19 @@ import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
 import at.zocks.zleep.data.db.MassageProgramDao
 import at.zocks.zleep.data.db.NightDao
+import at.zocks.zleep.data.db.NightSummaryDao
 import at.zocks.zleep.data.db.TagDao
 import at.zocks.zleep.data.db.ZocksDatabase
 import at.zocks.zleep.data.repository.RoomMassageProgramRepository
 import at.zocks.zleep.data.repository.RoomNightRepository
+import at.zocks.zleep.data.repository.RoomNightSummaryRepository
 import at.zocks.zleep.data.schedule.AlarmPreheatScheduler
 import at.zocks.zleep.data.repository.RoomTagRepository
 import at.zocks.zleep.data.settings.DataStoreSettingsRepository
 import at.zocks.zleep.domain.heat.PreheatScheduler
 import at.zocks.zleep.domain.repository.MassageProgramRepository
 import at.zocks.zleep.domain.repository.NightRepository
+import at.zocks.zleep.domain.repository.NightSummaryRepository
 import at.zocks.zleep.domain.repository.SettingsRepository
 import at.zocks.zleep.domain.repository.TagRepository
 import dagger.Binds
@@ -47,6 +50,9 @@ object DatabaseModule {
     fun nightDao(database: ZocksDatabase): NightDao = database.nightDao()
 
     @Provides
+    fun nightSummaryDao(database: ZocksDatabase): NightSummaryDao = database.nightSummaryDao()
+
+    @Provides
     fun tagDao(database: ZocksDatabase): TagDao = database.tagDao()
 
     @Provides
@@ -68,6 +74,9 @@ object DatabaseModule {
 abstract class RepositoryModule {
     @Binds
     abstract fun nightRepository(impl: RoomNightRepository): NightRepository
+
+    @Binds
+    abstract fun nightSummaryRepository(impl: RoomNightSummaryRepository): NightSummaryRepository
 
     @Binds
     abstract fun tagRepository(impl: RoomTagRepository): TagRepository

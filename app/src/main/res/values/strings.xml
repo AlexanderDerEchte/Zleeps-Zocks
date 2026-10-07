@@ -111,7 +111,6 @@
   <string name="night_avg_skin_temperature">Ø Fußtemperatur</string>
   <string name="night_gaps">Verbindungslücken: %1$s</string>
   <string name="night_no_events">Keine Wärme oder Massage in dieser Nacht.</string>
-  <string name="night_no_tags">Keine Tags</string>
   <string name="night_stage_share">%1$s · %2$d %%</string>
   <string name="night_recording">Läuft</string>
   <string name="event_heat">Wärme</string>
@@ -312,4 +311,138 @@
   <string name="night_window_reset">Automatisch</string>
   <string name="night_window_invalid">Einschlafen muss vor dem Aufwachen und innerhalb der Aufzeichnung liegen.</string>
   <string name="night_window_saved">Schlafzeit korrigiert.</string>
+  <!-- Phase 5: Auswertung -->
+  <string name="score_title">Schlafscore</string>
+  <string name="score_value">%1$d</string>
+  <string name="score_of_100">von 100</string>
+  <plurals name="score_description">
+    <item quantity="one">Schlafscore %1$d von 100</item>
+    <item quantity="other">Schlafscore %1$d von 100</item>
+  </plurals>
+  <string name="score_not_available">Für einen Score fehlt die Schlafdauer.</string>
+  <string name="score_breakdown">So setzt sich dein Score zusammen</string>
+  <string name="score_points">%1$d/%2$d</string>
+  <plurals name="score_part_description">
+    <item quantity="one">%1$s: %2$d von %3$d Punkt. %4$s</item>
+    <item quantity="other">%1$s: %2$d von %3$d Punkten. %4$s</item>
+  </plurals>
+  <string name="score_part_missing_description">%1$s: nicht verfügbar</string>
+  <string name="score_duration">Dauer</string>
+  <string name="score_efficiency">Effizienz</string>
+  <string name="score_restorative">Tief- und REM-Schlaf</string>
+  <string name="score_latency">Einschlafen</string>
+  <string name="score_continuity">Durchschlafen</string>
+  <string name="score_detail_duration">%1$s von %2$s Ziel</string>
+  <string name="score_detail_efficiency">%1$d %% der Zeit im Bett geschlafen</string>
+  <string name="score_detail_restorative">%1$d %% deines Schlafs</string>
+  <string name="score_detail_latency">In %1$s eingeschlafen</string>
+  <string name="score_detail_continuity">%1$s wach nach dem Einschlafen</string>
+  <string name="score_lever">Am meisten Luft nach oben: %1$s</string>
+  <string name="score_explanation">Jeder Teil hat eine Höchstpunktzahl. Fehlen Messwerte für einen Teil, wird er weggelassen und der Rest hochgerechnet.</string>
+
+  <string name="night_section_metrics">Kennzahlen</string>
+  <string name="metric_latency">Einschlafdauer</string>
+  <string name="metric_efficiency">Schlafeffizienz</string>
+  <string name="metric_awakenings">Wachphasen</string>
+  <string name="metric_awakenings_detail">%1$s wach</string>
+  <string name="metric_resting_hr">Ruhepuls</string>
+  <string name="metric_time_in_bed">Im Bett: %1$s</string>
+
+  <string name="night_section_timeline">Verlauf der Nacht</string>
+  <string name="chart_vital_heart_rate">Puls</string>
+  <string name="chart_vital_skin_temperature_short">Temperatur</string>
+  <string name="chart_vital_hrv">HRV</string>
+  <string name="chart_vital_skin_temperature">Fußtemperatur</string>
+  <string name="chart_legend_heat">Wärme</string>
+  <string name="chart_legend_massage">Massage</string>
+  <string name="chart_legend_gap">Keine Verbindung</string>
+  <string name="chart_hint">Tippe oder wische über den Verlauf, um Werte abzulesen.</string>
+  <string name="chart_description">Verlauf der Nacht mit Schlafphasen und %1$s. Die Werte gibt es auch als Tabelle.</string>
+  <string name="chart_readout">%1$s · %2$s · %3$s</string>
+  <string name="chart_no_vitals">Für diese Nacht gibt es keine Messwerte im Verlauf.</string>
+  <string name="chart_show_table">Als Tabelle anzeigen</string>
+  <string name="chart_hide_table">Tabelle ausblenden</string>
+  <string name="table_time">Zeit</string>
+  <string name="table_stage">Phase</string>
+  <string name="table_heart_rate">Puls</string>
+  <string name="table_hrv">HRV</string>
+  <string name="table_skin_temperature">Fuß</string>
+  <string name="table_dash">–</string>
+
+  <string name="tags_add">Eigener Tag</string>
+  <string name="tags_add_title">Eigenen Tag anlegen</string>
+  <string name="tags_add_label">Name</string>
+  <string name="note_label">Notiz</string>
+  <string name="note_placeholder">Wie war dein Abend?</string>
+  <string name="note_saved">Notiz gespeichert.</string>
+
+  <string name="nights_view_list">Liste</string>
+  <string name="nights_view_calendar">Kalender</string>
+  <string name="nights_view_trends">Trends</string>
+  <string name="nights_score">Score %1$d</string>
+  <string name="calendar_previous">Vorheriger Monat</string>
+  <string name="calendar_next">Nächster Monat</string>
+  <string name="calendar_day_with_score">%1$s, Score %2$d</string>
+  <string name="calendar_day_without_score">%1$s, Nacht ohne Score</string>
+  <string name="calendar_day_empty">%1$s, keine Nacht</string>
+  <string name="calendar_legend">Score: heller niedriger, kräftiger höher</string>
+  <string name="calendar_no_nights">In diesem Monat gibt es keine Nächte.</string>
+
+  <string name="trend_week">Woche</string>
+  <string name="trend_month">Monat</string>
+  <string name="trend_year">Jahr</string>
+  <string name="trend_avg_score">Ø Score</string>
+  <string name="trend_avg_sleep">Ø Schlafdauer</string>
+  <string name="trend_avg_resting_hr">Ø Ruhepuls</string>
+  <string name="trend_regularity">Regelmäßigkeit</string>
+  <string name="trend_regularity_very">Sehr regelmäßig</string>
+  <string name="trend_regularity_fairly">Recht regelmäßig</string>
+  <string name="trend_regularity_irregular">Unregelmäßig</string>
+  <string name="trend_regularity_detail">Einschlafen Ø %1$s ± %2$s, Aufwachen Ø %3$s ± %4$s</string>
+  <string name="trend_regularity_missing">Ab 5 Nächten im Zeitraum</string>
+  <string name="trend_chart_score">Schlafscore</string>
+  <string name="trend_chart_sleep">Schlafdauer in Stunden</string>
+  <string name="trend_goal_line">Ziel %1$s</string>
+  <string name="trend_no_data">Im gewählten Zeitraum gibt es noch keine Nächte.</string>
+  <string name="trend_chart_description">%1$s für %2$s. Die Werte gibt es auch als Tabelle.</string>
+  <string name="trend_table_date">Datum</string>
+  <string name="trend_table_score">Score</string>
+  <string name="trend_table_sleep">Schlaf</string>
+
+  <string name="insights_title">Erkenntnisse</string>
+  <string name="insights_not_enough_title">Noch zu wenige Nächte</string>
+  <string name="insights_not_enough_body">Erkenntnisse erscheinen ab 14 ausgewerteten Nächten. Markiere deine Abende mit Tags, damit sich Zusammenhänge zeigen können.</string>
+  <string name="insights_none">Zwischen Nächten mit und ohne Tags, Wärme oder Massage gibt es bisher keine deutlichen Unterschiede.</string>
+  <string name="insights_disclaimer">Das sind Zusammenhänge in deinen Daten, keine Ursachen. Andere Einflüsse können eine Rolle spielen.</string>
+  <string name="insight_factor_heat">Wärme</string>
+  <string name="insight_factor_massage">Massage</string>
+  <plurals name="insight_score_higher">
+    <item quantity="one">Schlafscore im Schnitt %1$d Punkt höher als in Nächten ohne.</item>
+    <item quantity="other">Schlafscore im Schnitt %1$d Punkte höher als in Nächten ohne.</item>
+  </plurals>
+  <plurals name="insight_score_lower">
+    <item quantity="one">Schlafscore im Schnitt %1$d Punkt niedriger als in Nächten ohne.</item>
+    <item quantity="other">Schlafscore im Schnitt %1$d Punkte niedriger als in Nächten ohne.</item>
+  </plurals>
+  <string name="insight_latency_shorter">Im Schnitt %1$s schneller eingeschlafen als in Nächten ohne.</string>
+  <string name="insight_latency_longer">Im Schnitt %1$s länger zum Einschlafen gebraucht als in Nächten ohne.</string>
+  <string name="insight_sleep_longer">Im Schnitt %1$s länger geschlafen als in Nächten ohne.</string>
+  <string name="insight_sleep_shorter">Im Schnitt %1$s kürzer geschlafen als in Nächten ohne.</string>
+  <plurals name="insight_restorative_higher">
+    <item quantity="one">Im Schnitt %1$d Prozentpunkt mehr Tief- und REM-Schlaf als in Nächten ohne.</item>
+    <item quantity="other">Im Schnitt %1$d Prozentpunkte mehr Tief- und REM-Schlaf als in Nächten ohne.</item>
+  </plurals>
+  <plurals name="insight_restorative_lower">
+    <item quantity="one">Im Schnitt %1$d Prozentpunkt weniger Tief- und REM-Schlaf als in Nächten ohne.</item>
+    <item quantity="other">Im Schnitt %1$d Prozentpunkte weniger Tief- und REM-Schlaf als in Nächten ohne.</item>
+  </plurals>
+  <string name="insight_basis">Grundlage: %1$s, %2$s</string>
+  <plurals name="insight_nights_with">
+    <item quantity="one">%1$d Nacht mit</item>
+    <item quantity="other">%1$d Nächte mit</item>
+  </plurals>
+  <plurals name="insight_nights_without">
+    <item quantity="one">%1$d ohne</item>
+    <item quantity="other">%1$d ohne</item>
+  </plurals>
 </resources>

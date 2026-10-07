@@ -1,0 +1,671 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 4,
+    "identityHash": "1d64127bbb9202ae3afb6eb1e07d5449",
+    "entities": [
+      {
+        "tableName": "nights",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `start_ms` INTEGER NOT NULL, `end_ms` INTEGER, `sleep_onset_ms` INTEGER, `final_wake_ms` INTEGER, `source` TEXT NOT NULL, `note` TEXT, `sleep_window_manual` INTEGER NOT NULL DEFAULT 0)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startMs",
+            "columnName": "start_ms",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "endMs",
+            "columnName": "end_ms",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "sleepOnsetMs",
+            "columnName": "sleep_onset_ms",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "finalWakeMs",
+            "columnName": "final_wake_ms",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "source",
+            "columnName": "source",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "note",
+            "columnName": "note",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "sleepWindowManual",
+            "columnName": "sleep_window_manual",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_nights_start_ms",
+            "unique": false,
+            "columnNames": [
+              "start_ms"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_nights_start_ms` ON `${TABLE_NAME}` (`start_ms`)"
+          },
+          {
+            "name": "index_nights_source",
+            "unique": false,
+            "columnNames": [
+              "source"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_nights_source` ON `${TABLE_NAME}` (`source`)"
+          }
+        ]
+      },
+      {
+        "tableName": "epoch_measurements",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`night_id` INTEGER NOT NULL, `side` TEXT NOT NULL, `start_ms` INTEGER NOT NULL, `heart_rate` REAL, `hrv_rmssd` REAL, `spo2` REAL, `skin_temperature` REAL, `motion` REAL, `sample_count` INTEGER NOT NULL, PRIMARY KEY(`night_id`, `side`, `start_ms`), FOREIGN KEY(`night_id`) REFERENCES `nights`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "nightId",
+            "columnName": "night_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "side",
+            "columnName": "side",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startMs",
+            "columnName": "start_ms",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "heartRate",
+            "columnName": "heart_rate",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "hrvRmssd",
+            "columnName": "hrv_rmssd",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "spo2",
+            "columnName": "spo2",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "skinTemperature",
+            "columnName": "skin_temperature",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "motion",
+            "columnName": "motion",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "sampleCount",
+            "columnName": "sample_count",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "night_id",
+            "side",
+            "start_ms"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "nights",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "night_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "sleep_stages",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`night_id` INTEGER NOT NULL, `start_ms` INTEGER NOT NULL, `stage` TEXT NOT NULL, PRIMARY KEY(`night_id`, `start_ms`), FOREIGN KEY(`night_id`) REFERENCES `nights`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "nightId",
+            "columnName": "night_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startMs",
+            "columnName": "start_ms",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stage",
+            "columnName": "stage",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "night_id",
+            "start_ms"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "nights",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "night_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "night_events",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `night_id` INTEGER NOT NULL, `type` TEXT NOT NULL, `side` TEXT NOT NULL, `start_ms` INTEGER NOT NULL, `end_ms` INTEGER, `detail` TEXT, FOREIGN KEY(`night_id`) REFERENCES `nights`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nightId",
+            "columnName": "night_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "side",
+            "columnName": "side",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startMs",
+            "columnName": "start_ms",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "endMs",
+            "columnName": "end_ms",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "detail",
+            "columnName": "detail",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_night_events_night_id",
+            "unique": false,
+            "columnNames": [
+              "night_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_night_events_night_id` ON `${TABLE_NAME}` (`night_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "nights",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "night_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "connection_gaps",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `night_id` INTEGER NOT NULL, `side` TEXT NOT NULL, `start_ms` INTEGER NOT NULL, `end_ms` INTEGER, FOREIGN KEY(`night_id`) REFERENCES `nights`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nightId",
+            "columnName": "night_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "side",
+            "columnName": "side",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startMs",
+            "columnName": "start_ms",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "endMs",
+            "columnName": "end_ms",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_connection_gaps_night_id",
+            "unique": false,
+            "columnNames": [
+              "night_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_connection_gaps_night_id` ON `${TABLE_NAME}` (`night_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "nights",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "night_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "tags",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `key` TEXT, `label` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "key",
+            "columnName": "key",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "label",
+            "columnName": "label",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_tags_key",
+            "unique": true,
+            "columnNames": [
+              "key"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_tags_key` ON `${TABLE_NAME}` (`key`)"
+          }
+        ]
+      },
+      {
+        "tableName": "night_tags",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`night_id` INTEGER NOT NULL, `tag_id` INTEGER NOT NULL, PRIMARY KEY(`night_id`, `tag_id`), FOREIGN KEY(`night_id`) REFERENCES `nights`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`tag_id`) REFERENCES `tags`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "nightId",
+            "columnName": "night_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tagId",
+            "columnName": "tag_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "night_id",
+            "tag_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_night_tags_tag_id",
+            "unique": false,
+            "columnNames": [
+              "tag_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_night_tags_tag_id` ON `${TABLE_NAME}` (`tag_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "nights",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "night_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "tags",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "tag_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "massage_programs",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `type` TEXT NOT NULL, `intensity` INTEGER NOT NULL, `duration_minutes` INTEGER NOT NULL, `tempo` TEXT NOT NULL, `zones` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "intensity",
+            "columnName": "intensity",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "durationMinutes",
+            "columnName": "duration_minutes",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tempo",
+            "columnName": "tempo",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "zones",
+            "columnName": "zones",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "night_summaries",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`night_id` INTEGER NOT NULL, `night_date` INTEGER NOT NULL, `start_ms` INTEGER NOT NULL, `end_ms` INTEGER, `sleep_onset_ms` INTEGER, `final_wake_ms` INTEGER, `time_in_bed_s` INTEGER NOT NULL, `total_sleep_s` INTEGER, `sleep_latency_s` INTEGER, `efficiency` REAL, `wake_after_onset_s` INTEGER, `awakenings` INTEGER, `awake_minutes` INTEGER NOT NULL, `light_minutes` INTEGER NOT NULL, `deep_minutes` INTEGER NOT NULL, `rem_minutes` INTEGER NOT NULL, `resting_heart_rate` REAL, `avg_heart_rate` REAL, `avg_hrv_rmssd` REAL, `avg_spo2` REAL, `avg_skin_temperature` REAL, `heat_used` INTEGER NOT NULL, `massage_used` INTEGER NOT NULL, `gap_s` INTEGER NOT NULL, PRIMARY KEY(`night_id`), FOREIGN KEY(`night_id`) REFERENCES `nights`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "nightId",
+            "columnName": "night_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nightDate",
+            "columnName": "night_date",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startMs",
+            "columnName": "start_ms",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "endMs",
+            "columnName": "end_ms",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "sleepOnsetMs",
+            "columnName": "sleep_onset_ms",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "finalWakeMs",
+            "columnName": "final_wake_ms",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "timeInBedSeconds",
+            "columnName": "time_in_bed_s",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "totalSleepSeconds",
+            "columnName": "total_sleep_s",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "sleepLatencySeconds",
+            "columnName": "sleep_latency_s",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "efficiency",
+            "columnName": "efficiency",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "wakeAfterOnsetSeconds",
+            "columnName": "wake_after_onset_s",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "awakenings",
+            "columnName": "awakenings",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "awakeMinutes",
+            "columnName": "awake_minutes",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lightMinutes",
+            "columnName": "light_minutes",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deepMinutes",
+            "columnName": "deep_minutes",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "remMinutes",
+            "columnName": "rem_minutes",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "restingHeartRate",
+            "columnName": "resting_heart_rate",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "avgHeartRate",
+            "columnName": "avg_heart_rate",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "avgHrvRmssd",
+            "columnName": "avg_hrv_rmssd",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "avgSpo2",
+            "columnName": "avg_spo2",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "avgSkinTemperature",
+            "columnName": "avg_skin_temperature",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "heatUsed",
+            "columnName": "heat_used",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "massageUsed",
+            "columnName": "massage_used",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gapSeconds",
+            "columnName": "gap_s",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "night_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_night_summaries_night_date",
+            "unique": false,
+            "columnNames": [
+              "night_date"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_night_summaries_night_date` ON `${TABLE_NAME}` (`night_date`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "nights",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "night_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1d64127bbb9202ae3afb6eb1e07d5449')"
+    ]
+  }
+}

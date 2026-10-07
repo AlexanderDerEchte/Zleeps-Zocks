@@ -7,12 +7,15 @@ import at.zocks.zleep.R
 import at.zocks.zleep.domain.device.PairStatus
 import at.zocks.zleep.domain.device.SockPairProvider
 import at.zocks.zleep.domain.model.DeviceMode
+import at.zocks.zleep.domain.analysis.SleepScoreCalculator
 import at.zocks.zleep.domain.model.Night
+import at.zocks.zleep.domain.model.NightSummary
 import at.zocks.zleep.domain.model.TemperatureUnit
 import at.zocks.zleep.domain.recording.NightRecorder
 import at.zocks.zleep.domain.recording.RecordingLauncher
 import at.zocks.zleep.domain.recording.RecordingState
 import at.zocks.zleep.domain.repository.NightRepository
+import at.zocks.zleep.domain.repository.NightSummaryRepository
 import at.zocks.zleep.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -21,9 +24,12 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.Duration
 import javax.inject.Inject
 
 data class HomeUiState(
@@ -31,6 +37,9 @@ data class HomeUiState(
     val pairStatus: PairStatus? = null,
     val deviceMode: DeviceMode = DeviceMode.SIMULATOR,
     val lastNight: Night? = null,
+    /** Kennzahlen der letzten Nacht, sobald sie berechnet sind. */
+    val lastNightSummary: NightSummary? = null,
+    val lastNightScore: Int? = null,
     val use24HourClock: Boolean = true,
     val temperatureUnit: TemperatureUnit = TemperatureUnit.CELSIUS,
     val recording: RecordingState = RecordingState.Idle(),
@@ -55,6 +64,7 @@ sealed interface HomeEvent {
 class HomeViewModel @Inject constructor(
     private val pairProvider: SockPairProvider,
     nightRepository: NightRepository,
+    summaryRepository: NightSummaryRepository,
     settingsRepository: SettingsRepository,
     recorder: NightRecorder,
     private val launcher: RecordingLauncher,
@@ -64,16 +74,22 @@ class HomeViewModel @Inject constructor(
 
     val uiState: StateFlow<HomeUiState> = combine(
         pairProvider.pair.flatMapLatest { it.status },
-        nightRepository.observeLatestCompletedNight(),
+        nightRepository.observeLatestCompletedNight().flatMapLatest { night ->
+            if (night == null) flowOf(null to null) else summaryRepository.observeSummary(night.id).map { night to it }
+        },
         settingsRepository.settings,
         recorder.state,
         local,
-    ) { status, lastNight, settings, recording, localState ->
+    ) { status, (lastNight, summary), settings, recording, localState ->
         HomeUiState(
             loading = false,
             pairStatus = status,
             deviceMode = settings.deviceMode,
             lastNight = lastNight,
+            lastNightSummary = summary,
+            lastNightScore = summary?.let {
+                SleepScoreCalculator.calculate(it, Duration.ofMinutes(settings.sleepGoalMinutes.toLong()))?.value
+            },
             use24HourClock = settings.use24HourClock,
             temperatureUnit = settings.temperatureUnit,
             recording = recording,
