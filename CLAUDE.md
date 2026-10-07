@@ -49,6 +49,11 @@ Tests und Lint als getrennte Gradle-Aufrufe starten (gemeinsam kann Lint an KSP-
   `SleepScoreCalculator` (Schwellen im KDoc und README pflegen). Gespeicherte Kennzahlen
   (`night_summaries`) aktualisiert ausschließlich `NightSummaryUpdater`; wer das Schlaffenster
   oder die Phasen einer abgeschlossenen Nacht ändert, ruft danach `refresh(nightId)` auf.
+- Abendroutine nur über `RoutineRunner` (Wärme über `HeatController`, Massage über
+  `MassageController`), Wecker nur über `SmartAlarmController` (Recorder-Zugriff über
+  `LiveRecording`, Systemwecker über `WakeAlarmScheduler`, Anzeige über `AlarmNotifier`).
+  Beide sowie `HealthExporter` werden in `ZocksApplication` und `AppViewModel` gestartet.
+- Nach Health Connect nur echte Nächte (`NightSource.DEVICE`), nie Demo- oder Simulator-Daten.
 - Erkenntnisse (`InsightEngine`) nur mit Mindestdatenmenge und immer als Zusammenhang
   („im Schnitt … als in Nächten ohne“), nie als Ursache oder Empfehlung.
 
@@ -122,7 +127,11 @@ Tests und Lint als getrennte Gradle-Aufrufe starten (gemeinsam kann Lint an KSP-
   In `waitUntil` keine blockierenden Datenbankabfragen (`runBlocking`), sondern auf die
   Oberfläche warten; das blockiert sonst den Main-Thread. Teile anklickbarer Karten sind nur im
   ungemergten Baum (`useUnmergedTree = true`) per Test-Tag zu finden; `testTag` vor
-  `clearAndSetSemantics` setzen.
+  `clearAndSetSemantics` setzen. Gespeichertes erst prüfen, wenn die Oberfläche es zeigt.
+- UI-Tests starten ohne Einrichtung (`TestUiModule` ersetzt `UiModule`); wer sie braucht,
+  setzt `TestOnboarding.enabled` in einer Regel vor dem Start der Activity.
+- Bildschirme außerhalb des Scaffolds (Einrichtung, Wecker) in eine `Surface` legen, sonst
+  fehlt die Textfarbe.
   Zeitkritische UI-Tests auch mit `taskset -c 0` (ein Kern) prüfen – so zeigen sich
   Wettläufe, die auf langsamen CI-Runnern auftreten.
 - Algorithmen (Schlafphasen, Score, Routinen, Sicherheit) brauchen eigene Unit-Tests.

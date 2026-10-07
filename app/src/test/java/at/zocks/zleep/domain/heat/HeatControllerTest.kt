@@ -1,5 +1,6 @@
 package at.zocks.zleep.domain.heat
 
+import at.zocks.zleep.domain.device.SockPair
 import at.zocks.zleep.domain.model.ConnectionState
 import at.zocks.zleep.domain.model.DeviceCapabilities
 import at.zocks.zleep.domain.model.SensorSample
@@ -35,6 +36,29 @@ class HeatControllerTest {
     private suspend fun TestScope.emit(device: FakeSockDevice, clock: SchedulerClock, skin: Double?, motion: Double = 0.3) {
         device.sensorData.emit(SensorSample(device.side, clock.instant(), 60, 40.0, 97, skin, motion, null))
         runCurrent()
+    }
+
+    @Test
+    fun `a start right after creation keeps its plan`() = runTest {
+        left.connect()
+        right.connect()
+        val controller = HeatController(FakePairProvider(left, right), backgroundScope, SchedulerClock(testScheduler))
+        controller.start(HeatRequest())
+        runCurrent()
+        assertThat(controller.state.value.plans.keys).containsExactly(SockSide.LEFT, SockSide.RIGHT)
+    }
+
+    @Test
+    fun `switching to another pair forgets the old plans`() = runTest {
+        left.connect()
+        right.connect()
+        val provider = FakePairProvider(left, right)
+        val controller = HeatController(provider, backgroundScope, SchedulerClock(testScheduler))
+        runCurrent()
+        controller.start(HeatRequest())
+        provider.pair.value = SockPair(FakeSockDevice(SockSide.LEFT, FullCapabilities), FakeSockDevice(SockSide.RIGHT, FullCapabilities))
+        runCurrent()
+        assertThat(controller.state.value.plans).isEmpty()
     }
 
     @Test

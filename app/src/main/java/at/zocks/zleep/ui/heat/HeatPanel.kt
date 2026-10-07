@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Whatshot
 import androidx.compose.material.icons.outlined.Shield
@@ -18,7 +17,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
@@ -32,7 +30,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -43,6 +40,8 @@ import at.zocks.zleep.domain.heat.HeatMode
 import at.zocks.zleep.domain.heat.HeatSafetyGuard
 import at.zocks.zleep.domain.model.SockSide
 import at.zocks.zleep.domain.model.TemperatureUnit
+import at.zocks.zleep.ui.components.Labeled
+import at.zocks.zleep.ui.components.SwitchRow
 import at.zocks.zleep.ui.components.BigActionButton
 import at.zocks.zleep.ui.components.BigSegmentedChoice
 import at.zocks.zleep.ui.components.BigStepper
@@ -331,34 +330,6 @@ private fun SafetyInfo(unit: TemperatureUnit) {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(start = Dimens.SpaceS),
         )
-    }
-}
-
-@Composable
-internal fun Labeled(label: String, content: @Composable () -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(Dimens.SpaceS)) {
-        Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        content()
-    }
-}
-
-@Composable
-internal fun SwitchRow(title: String, body: String?, checked: Boolean, onCheckedChange: (Boolean) -> Unit, testTag: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = Dimens.ThumbTarget)
-            .toggleable(value = checked, role = Role.Switch, onValueChange = onCheckedChange)
-            .testTag(testTag),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Column(Modifier.weight(1f)) {
-            Text(title, style = MaterialTheme.typography.bodyLarge)
-            if (body != null) {
-                Text(body, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-        }
-        Switch(checked = checked, onCheckedChange = null, modifier = Modifier.padding(start = Dimens.SpaceM))
     }
 }
 

@@ -2,13 +2,20 @@ package at.zocks.zleep.data
 
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import at.zocks.zleep.data.settings.DataStoreSettingsRepository
+import at.zocks.zleep.domain.alarm.AlarmMethod
 import at.zocks.zleep.domain.heat.HeatMode
+import at.zocks.zleep.domain.model.AlarmPreferences
 import at.zocks.zleep.domain.model.DeviceMode
 import at.zocks.zleep.domain.model.SockSide
 import at.zocks.zleep.domain.model.TemperatureUnit
 import at.zocks.zleep.domain.model.UserSettings
+import at.zocks.zleep.domain.routine.EveningRoutine
+import at.zocks.zleep.domain.routine.RoutineHeat
+import at.zocks.zleep.domain.routine.RoutineMassage
+import at.zocks.zleep.domain.routine.RoutineStep
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestScope
@@ -93,5 +100,45 @@ class DataStoreSettingsRepositoryTest {
         val settings = DataStoreSettingsRepository(store).settings.first()
         assertThat(settings.deviceMode).isEqualTo(UserSettings().deviceMode)
         assertThat(settings.bedtime).isEqualTo(UserSettings().bedtime)
+    }
+
+    @Test
+    fun `alarm, routine and health connect settings are persisted`() = runTest {
+        val store = dataStore()
+        val routine = EveningRoutine(
+            steps = listOf(
+                RoutineStep(10, heat = RoutineHeat(4)),
+                RoutineStep(5),
+                RoutineStep(20, heat = RoutineHeat(1), massage = RoutineMassage("custom:3", 25)),
+            ),
+            endWhenAsleep = false,
+            side = SockSide.LEFT,
+        )
+        DataStoreSettingsRepository(store).update {
+            it.copy(
+                alarm = AlarmPreferences(enabled = true, windowMinutes = 45, method = AlarmMethod.SOUND),
+                routine = routine,
+                routineWithNight = true,
+                healthConnectAutoExport = true,
+            )
+        }
+        val settings = DataStoreSettingsRepository(store).settings.first()
+        assertThat(settings.alarm).isEqualTo(AlarmPreferences(enabled = true, windowMinutes = 45, method = AlarmMethod.SOUND))
+        assertThat(settings.routine).isEqualTo(routine)
+        assertThat(settings.routineWithNight).isTrue()
+        assertThat(settings.healthConnectAutoExport).isTrue()
+    }
+
+    @Test
+    fun `broken routine and unknown alarm values fall back to defaults`() = runTest {
+        val store = dataStore()
+        store.edit {
+            it[stringPreferencesKey("evening_routine")] = "{kaputt"
+            it[stringPreferencesKey("alarm_method")] = "TROMPETE"
+            it[intPreferencesKey("alarm_window_minutes")] = 17
+        }
+        val settings = DataStoreSettingsRepository(store).settings.first()
+        assertThat(settings.routine).isEqualTo(EveningRoutine.Default)
+        assertThat(settings.alarm).isEqualTo(AlarmPreferences())
     }
 }

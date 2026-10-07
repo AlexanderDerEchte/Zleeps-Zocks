@@ -36,20 +36,14 @@
   <string name="control_not_connected_massage">Pair your socks to start massage programs.</string>
 
   <string name="settings_section_general">General</string>
-  <string name="settings_units">Units</string>
-  <string name="settings_units_value">°C, 24 hours</string>
   <string name="settings_notifications">Notifications</string>
   <string name="settings_section_devices">Devices</string>
-  <string name="settings_devices">Manage devices</string>
-  <string name="settings_devices_value">No socks paired</string>
   <string name="settings_section_data">Data</string>
-  <string name="settings_export_csv">Export as CSV</string>
   <string name="settings_health_connect">Health Connect</string>
   <string name="settings_delete_data">Delete all data</string>
   <string name="settings_section_about">About</string>
   <string name="settings_version">Version</string>
   <string name="settings_developer">Developer options</string>
-  <string name="settings_coming_soon">Coming soon</string>
   <string name="settings_offline_hint">All data stays on this device. No account, no cloud.</string>
   <string name="wellness_title">Wellness product</string>
   <string name="wellness_body">Zocks Zleep is a wellness product, not a medical device. Values are estimates and not intended for diagnosis or treatment.</string>
@@ -425,4 +419,128 @@
     <item quantity="one">%1$d without</item>
     <item quantity="other">%1$d without</item>
   </plurals>
+  <!-- Phase 6: alarm -->
+  <string name="alarm_notification_title">Good morning</string>
+  <string name="alarm_notification_text">Time to get up.</string>
+  <string name="alarm_notification_text_massage">Waking you gently with a massage.</string>
+  <string name="alarm_dismiss">Stop</string>
+  <string name="alarm_snooze">Snooze</string>
+  <string name="alarm_channel_sound">Alarm</string>
+  <string name="alarm_channel_sound_description">Rings at your wake time until you turn it off.</string>
+  <string name="alarm_channel_silent">Gentle wake-up</string>
+  <string name="alarm_channel_silent_description">Silent notice while the socks wake you with a massage.</string>
+  <!-- Phase 6: evening routine -->
+  <string name="control_routine">Routine</string>
+  <string name="routine_title">Your evening routine</string>
+  <string name="routine_body">Warmth and massage one after another, combined freely.</string>
+  <string name="routine_step_title">Step %1$d</string>
+  <string name="routine_step_heat">Warmth</string>
+  <string name="routine_step_massage">Massage</string>
+  <string name="routine_step_pause">Pause – neither warmth nor massage</string>
+  <string name="routine_step_duration">Duration</string>
+  <string name="routine_shorter">Shorter</string>
+  <string name="routine_longer">Longer</string>
+  <string name="routine_level_lower">Lower level</string>
+  <string name="routine_level_higher">Raise level</string>
+  <string name="routine_intensity_value">%1$d %%</string>
+  <string name="routine_add_step">Add step</string>
+  <string name="routine_remove_step">Remove: step %1$d</string>
+  <string name="routine_move_up">Move up: step %1$d</string>
+  <string name="routine_move_down">Move down: step %1$d</string>
+  <string name="routine_end_when_asleep">Ends when you fall asleep</string>
+  <string name="routine_end_when_asleep_body">Detects sleep from movement and gently turns off warmth and massage.</string>
+  <string name="routine_with_night">Start together with the night</string>
+  <string name="routine_total">Total %1$s</string>
+  <string name="routine_start">Start routine</string>
+  <string name="routine_stop">End routine</string>
+  <string name="routine_running">Running · step %1$d/%2$d</string>
+  <string name="routine_step_remaining">This step %1$s left</string>
+  <string name="routine_ends_at">Ends at %1$s at the latest</string>
+  <string name="routine_ended_completed">Evening routine finished.</string>
+  <string name="routine_ended_asleep">You fell asleep – the evening routine stopped gently.</string>
+  <string name="routine_safety">Warmth stays within the safety limits: at most 90 minutes in a row.</string>
+  <string name="routine_reset">Restore suggestion</string>
+
+  <!-- Phase 6: night start -->
+  <string name="start_sheet_tonight">For tonight</string>
+  <string name="start_routine_title">Start evening routine</string>
+  <string name="start_routine_body">%1$s of warmth and massage, ends when you fall asleep</string>
+  <string name="start_alarm_title">Smart alarm</string>
+  <string name="start_alarm_body">Wakes you between %1$s and %2$s in light sleep</string>
+  <string name="alarm_armed">Alarm %1$s – %2$s</string>
+
+  <!-- Phase 6: alarm in the app -->
+  <string name="alarm_reason_light">You are sleeping lightly – a good moment to get up.</string>
+  <string name="alarm_reason_time">It is your wake time.</string>
+
+  <!-- Phase 6: settings -->
+  <string name="settings_temperature">Temperature</string>
+  <string name="unit_celsius">°C</string>
+  <string name="unit_fahrenheit">°F</string>
+  <string name="settings_24h">24-hour clock</string>
+  <string name="settings_sleep_goal">Sleep goal</string>
+  <string name="settings_sleep_goal_shorter">Shorten sleep goal</string>
+  <string name="settings_sleep_goal_longer">Extend sleep goal</string>
+  <string name="settings_bedtime">Bedtime</string>
+  <string name="settings_wake_time">Wake time</string>
+  <string name="settings_notifications_body">Set in the system settings</string>
+  <string name="settings_section_alarm">Smart alarm</string>
+  <string name="alarm_enabled_body">Wakes you in the window before your wake time as soon as you sleep lightly – during a night recording.</string>
+  <string name="alarm_window">Window before wake time</string>
+  <string name="alarm_method">Wake with</string>
+  <string name="alarm_method_sound">Sound</string>
+  <string name="alarm_method_massage">Massage</string>
+  <string name="alarm_method_both">Massage, then sound</string>
+  <string name="alarm_exact_missing">For the alarm to ring on time even when the app is closed, Zocks needs the “Alarms &amp; reminders” permission.</string>
+  <string name="action_allow">Allow</string>
+  <string name="settings_device_mode">Connection</string>
+  <string name="settings_device_mode_simulator">Simulator (switch in the developer options)</string>
+  <string name="settings_device_mode_ble">Real socks via Bluetooth</string>
+  <string name="settings_export_nights">Nights as CSV</string>
+  <string name="settings_export_nights_body">One row per night with key figures, tags and notes</string>
+  <string name="settings_export_measurements">Readings as CSV</string>
+  <string name="settings_export_measurements_body">All 30-second values of both socks</string>
+  <plurals name="export_done">
+    <item quantity="one">%1$d night exported.</item>
+    <item quantity="other">%1$d nights exported.</item>
+  </plurals>
+  <string name="export_failed">Export failed.</string>
+  <string name="hc_not_installed">Health Connect is not installed.</string>
+  <string name="hc_update_required">Health Connect needs an update.</string>
+  <string name="hc_not_supported">Not available on this device.</string>
+  <string name="hc_not_connected">Sends sleep stages and pulse of your real nights. Zocks reads nothing.</string>
+  <string name="hc_connected">Connected – writes sleep and pulse only.</string>
+  <string name="hc_install">Install</string>
+  <string name="hc_connect">Connect</string>
+  <string name="hc_auto">Send every night automatically</string>
+  <string name="hc_export_now">Send all now</string>
+  <plurals name="hc_exported">
+    <item quantity="one">%1$d night sent.</item>
+    <item quantity="other">%1$d nights sent.</item>
+  </plurals>
+  <string name="hc_nothing">No real nights to send. Demo and simulator nights stay in the app.</string>
+  <string name="hc_failed">Sending failed.</string>
+  <string name="settings_delete_body">All nights with readings, notes and tags</string>
+  <string name="delete_title">Delete all nights?</string>
+  <string name="delete_body">Deletes all nights with readings, notes and tags on this device. This cannot be undone.</string>
+  <string name="delete_confirm">Delete</string>
+  <string name="delete_done">All nights deleted.</string>
+  <string name="settings_onboarding_again">Show setup again</string>
+
+  <!-- Phase 6: setup -->
+  <string name="onboarding_welcome_title">Welcome to Zocks Zleep</string>
+  <string name="onboarding_welcome_body">Your socks warm, massage and accompany your sleep. All data stays on this device.</string>
+  <string name="onboarding_feature_heat">Warmth with fixed safety limits</string>
+  <string name="onboarding_feature_massage">Massage programs and evening routine</string>
+  <string name="onboarding_feature_sleep">Sleep analysis with score, trends and smart alarm</string>
+  <string name="onboarding_pair_title">Pair your socks</string>
+  <string name="onboarding_pair_body">Put on the socks and switch them on. In the simulator this works without socks.</string>
+  <string name="onboarding_pair_done">Both socks connected.</string>
+  <string name="onboarding_times_title">Your sleep times</string>
+  <string name="onboarding_times_body">They set your sleep goal and wake time. You can change everything later in the settings.</string>
+  <string name="onboarding_next">Next</string>
+  <string name="onboarding_back">Back</string>
+  <string name="onboarding_later">Later</string>
+  <string name="onboarding_finish">Let\'s go</string>
+  <string name="onboarding_step">Step %1$d/%2$d</string>
 </resources>

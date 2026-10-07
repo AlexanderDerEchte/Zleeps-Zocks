@@ -29,6 +29,7 @@ import at.zocks.zleep.ui.heat.HeatRoute
 import at.zocks.zleep.ui.massage.MassageRoute
 import at.zocks.zleep.ui.components.ZocksCard
 import at.zocks.zleep.ui.navigation.ControlSection
+import at.zocks.zleep.ui.routine.RoutineRoute
 import at.zocks.zleep.ui.theme.Dimens
 import at.zocks.zleep.ui.theme.ZocksTheme
 import at.zocks.zleep.ui.theme.ZocksThemeExt
@@ -43,6 +44,7 @@ fun ControlRoute(initialSection: ControlSection, viewModel: ControlViewModel = h
         onPairSocks = { viewModel.onEvent(ControlEvent.ConnectSocks) },
         heatContent = { HeatRoute() },
         massageContent = { MassageRoute() },
+        routineContent = { RoutineRoute() },
     )
 }
 
@@ -53,6 +55,7 @@ fun ControlScreen(
     onPairSocks: () -> Unit,
     heatContent: @Composable () -> Unit,
     massageContent: @Composable () -> Unit,
+    routineContent: @Composable () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var section by rememberSaveable(initialSection) { mutableStateOf(initialSection) }
@@ -78,10 +81,12 @@ fun ControlScreen(
             }
         }
 
-        if (connected) {
+        // Die Routine lässt sich auch ohne Socken zusammenstellen.
+        if (connected || section == ControlSection.ROUTINE) {
             when (section) {
                 ControlSection.HEAT -> heatContent()
                 ControlSection.MASSAGE -> massageContent()
+                ControlSection.ROUTINE -> routineContent()
             }
             return@ScreenColumn
         }
@@ -105,6 +110,7 @@ fun ControlScreen(
                     onAction = onPairSocks,
                     modifier = Modifier.testTag("control_massage_content"),
                 )
+                ControlSection.ROUTINE -> Unit
             }
         }
     }
@@ -114,16 +120,18 @@ private val ControlSection.label: Int
     get() = when (this) {
         ControlSection.HEAT -> R.string.control_heat
         ControlSection.MASSAGE -> R.string.control_massage
+        ControlSection.ROUTINE -> R.string.control_routine
     }
 
 @Composable
 private fun ControlSection.accentContainer() = when (this) {
     ControlSection.HEAT -> ZocksThemeExt.colors.heatContainer
     ControlSection.MASSAGE -> ZocksThemeExt.colors.massageContainer
+    ControlSection.ROUTINE -> ZocksThemeExt.colors.sleepContainer
 }
 
 @Preview
 @Composable
 private fun ControlScreenPreview() {
-    ZocksTheme { ControlScreen(ControlSection.HEAT, connected = false, onPairSocks = {}, heatContent = {}, massageContent = {}) }
+    ZocksTheme { ControlScreen(ControlSection.HEAT, connected = false, onPairSocks = {}, heatContent = {}, massageContent = {}, routineContent = {}) }
 }

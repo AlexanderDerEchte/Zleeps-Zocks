@@ -101,7 +101,7 @@ fun RecordingScreen(state: RecordingUiState, onEvent: (RecordingEvent) -> Unit, 
                 modifier = Modifier.testTag("recording_clock"),
             )
             if (active.simulated) InfoBadge(stringResource(R.string.recording_simulated), color = ZocksThemeExt.colors.sleep)
-            RecordingStatusLines(active, state.use24HourClock, state.temperatureUnit)
+            RecordingStatusLines(active, state.use24HourClock, state.temperatureUnit, state.armedWindow)
             Spacer(Modifier.weight(1f))
             OutlinedButton(
                 onClick = { onEvent(RecordingEvent.RequestStop) },

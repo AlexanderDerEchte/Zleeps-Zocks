@@ -3,15 +3,20 @@ package at.zocks.zleep.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import at.zocks.zleep.R
+import at.zocks.zleep.domain.alarm.AlarmState
+import at.zocks.zleep.domain.alarm.SmartAlarmController
 import at.zocks.zleep.domain.analysis.NightSummaryUpdater
+import at.zocks.zleep.domain.health.HealthExporter
 import at.zocks.zleep.domain.heat.HeatController
 import at.zocks.zleep.domain.heat.HeatNotice
 import at.zocks.zleep.domain.model.SockSide
 import at.zocks.zleep.domain.recording.RecordingLauncher
+import at.zocks.zleep.domain.repository.SettingsRepository
 import at.zocks.zleep.ui.components.UiText
 import at.zocks.zleep.ui.format.rejectionRes
 import at.zocks.zleep.ui.format.shutoffReasonRes
 import at.zocks.zleep.ui.format.sideLabelRes
+import at.zocks.zleep.ui.onboarding.OnboardingPolicy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -33,6 +38,10 @@ import javax.inject.Inject
 data class AppUiState(
     val heatingRemaining: Duration? = null,
     val notice: UiText? = null,
+    val alarm: AlarmState = AlarmState.Off,
+    /** `null`, solange die Einstellungen noch nicht geladen sind. */
+    val showOnboarding: Boolean? = null,
+    val use24HourClock: Boolean = true,
 ) {
     val isHeating: Boolean get() = heatingRemaining != null
 }
@@ -44,13 +53,21 @@ class AppViewModel @Inject constructor(
     private val clock: Clock,
     launcher: RecordingLauncher,
     summaryUpdater: NightSummaryUpdater,
+    private val smartAlarm: SmartAlarmController,
+    healthExporter: HealthExporter,
+    private val settingsRepository: SettingsRepository,
+    onboardingPolicy: OnboardingPolicy,
 ) : ViewModel() {
+
+    private val offerOnboarding = onboardingPolicy.offerOnboarding()
 
     init {
         // Eine offene Nacht (z. B. nach Absturz oder Update) weiter aufzeichnen.
         launcher.resumeIfNeeded()
         // Kennzahlen für Nächte nachtragen, die noch keine haben (z. B. nach einem Update).
         summaryUpdater.start()
+        smartAlarm.start()
+        healthExporter.start()
     }
 
     private val ticker = heatController.state.map { it.isHeating }.distinctUntilChanged().flatMapLatest { heating ->
@@ -66,13 +83,29 @@ class AppViewModel @Inject constructor(
         }
     }
 
-    val uiState: StateFlow<AppUiState> = combine(heatController.state, ticker) { state, _ ->
+    val uiState: StateFlow<AppUiState> = combine(
+        heatController.state,
+        ticker,
+        smartAlarm.state,
+        settingsRepository.settings.map { it.onboardingCompleted to it.use24HourClock }.distinctUntilChanged(),
+    ) { state, _, alarm, (onboardingDone, use24h) ->
         val now = clock.instant()
         AppUiState(
             heatingRemaining = state.plans.values.maxOfOrNull { Duration.between(now, it.endsAt) }?.coerceAtLeast(Duration.ZERO),
             notice = state.notice?.toUiText(),
+            alarm = alarm,
+            showOnboarding = offerOnboarding && !onboardingDone,
+            use24HourClock = use24h,
         )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppUiState())
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppUiState(showOnboarding = if (offerOnboarding) null else false))
+
+    fun dismissAlarm() {
+        viewModelScope.launch { smartAlarm.dismiss() }
+    }
+
+    fun snoozeAlarm() {
+        viewModelScope.launch { smartAlarm.snooze() }
+    }
 
     fun stopHeating() {
         viewModelScope.launch { heatController.stop(SockSide.BOTH) }

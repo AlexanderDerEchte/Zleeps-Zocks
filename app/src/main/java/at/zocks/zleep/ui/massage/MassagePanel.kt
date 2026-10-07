@@ -47,6 +47,7 @@ import at.zocks.zleep.domain.massage.MassageController
 import at.zocks.zleep.domain.massage.MassageProgramType
 import at.zocks.zleep.domain.massage.MassageTempo
 import at.zocks.zleep.domain.model.MassageZone
+import at.zocks.zleep.ui.components.Labeled
 import at.zocks.zleep.ui.components.BigActionButton
 import at.zocks.zleep.ui.components.BigSegmentedChoice
 import at.zocks.zleep.ui.components.BigStepper
@@ -60,7 +61,6 @@ import at.zocks.zleep.ui.format.programName
 import at.zocks.zleep.ui.format.programTypeLabel
 import at.zocks.zleep.ui.format.tempoLabel
 import at.zocks.zleep.ui.format.zoneLabel
-import at.zocks.zleep.ui.heat.Labeled
 import at.zocks.zleep.ui.theme.Dimens
 import at.zocks.zleep.ui.theme.ZocksTheme
 import at.zocks.zleep.ui.theme.ZocksThemeExt

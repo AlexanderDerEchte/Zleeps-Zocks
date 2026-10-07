@@ -24,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import at.zocks.zleep.domain.model.SockSide
 import at.zocks.zleep.ui.format.sideLabelRes
@@ -98,6 +99,7 @@ fun BigStepper(
     canIncrease: Boolean = true,
     color: Color = MaterialTheme.colorScheme.onSurface,
     testTag: String? = null,
+    valueStyle: TextStyle = MetricTextStyle,
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -115,7 +117,7 @@ fun BigStepper(
         }
         Text(
             text = value,
-            style = MetricTextStyle,
+            style = valueStyle,
             color = color,
             textAlign = TextAlign.Center,
             modifier = Modifier

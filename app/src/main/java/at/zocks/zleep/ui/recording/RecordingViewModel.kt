@@ -2,25 +2,29 @@ package at.zocks.zleep.ui.recording
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import at.zocks.zleep.domain.alarm.AlarmState
+import at.zocks.zleep.domain.alarm.SmartAlarmController
+import at.zocks.zleep.domain.alarm.WakeWindow
 import at.zocks.zleep.domain.model.TemperatureUnit
 import at.zocks.zleep.domain.recording.NightRecorder
 import at.zocks.zleep.domain.recording.RecordingLauncher
 import at.zocks.zleep.domain.recording.RecordingState
 import at.zocks.zleep.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import javax.inject.Inject
 
 data class RecordingUiState(
     val recording: RecordingState = RecordingState.Idle(),
     val use24HourClock: Boolean = true,
     val temperatureUnit: TemperatureUnit = TemperatureUnit.CELSIUS,
     val confirmStop: Boolean = false,
+    val armedWindow: WakeWindow? = null,
 )
 
 sealed interface RecordingEvent {
@@ -34,12 +38,24 @@ class RecordingViewModel @Inject constructor(
     recorder: NightRecorder,
     settingsRepository: SettingsRepository,
     private val launcher: RecordingLauncher,
+    smartAlarm: SmartAlarmController,
 ) : ViewModel() {
 
     private val confirmStop = MutableStateFlow(false)
 
-    val uiState: StateFlow<RecordingUiState> = combine(recorder.state, settingsRepository.settings, confirmStop) { recording, settings, confirm ->
-        RecordingUiState(recording, settings.use24HourClock, settings.temperatureUnit, confirm && recording is RecordingState.Active)
+    val uiState: StateFlow<RecordingUiState> = combine(
+        recorder.state,
+        settingsRepository.settings,
+        confirmStop,
+        smartAlarm.state,
+    ) { recording, settings, confirm, alarm ->
+        RecordingUiState(
+            recording = recording,
+            use24HourClock = settings.use24HourClock,
+            temperatureUnit = settings.temperatureUnit,
+            confirmStop = confirm && recording is RecordingState.Active,
+            armedWindow = (alarm as? AlarmState.Armed)?.window,
+        )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), RecordingUiState(recording = recorder.state.value))
 
     fun onEvent(event: RecordingEvent) {

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bedtime
+import androidx.compose.material.icons.outlined.Alarm
 import androidx.compose.material.icons.outlined.BluetoothDisabled
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -24,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import at.zocks.zleep.R
+import at.zocks.zleep.domain.alarm.WakeWindow
 import at.zocks.zleep.domain.model.TemperatureUnit
 import at.zocks.zleep.domain.recording.RecordingState
 import at.zocks.zleep.ui.components.BigActionButton
@@ -45,6 +47,7 @@ fun RecordingCard(
     unit: TemperatureUnit,
     onOpenNightMode: () -> Unit,
     onStop: () -> Unit,
+    armedWindow: WakeWindow? = null,
 ) {
     val colors = ZocksThemeExt.colors
     Card(
@@ -66,7 +69,7 @@ fun RecordingCard(
                 )
                 if (state.simulated) InfoBadge(stringResource(R.string.badge_simulator), color = colors.sleep)
             }
-            RecordingStatusLines(state, use24h, unit)
+            RecordingStatusLines(state, use24h, unit, armedWindow)
             BigActionButton(
                 text = stringResource(R.string.recording_stop),
                 icon = Icons.Filled.Bedtime,
@@ -90,7 +93,7 @@ fun RecordingCard(
 
 /** Gemeinsame Statuszeilen für Karte und Nachtmodus. */
 @Composable
-fun RecordingStatusLines(state: RecordingState.Active, use24h: Boolean, unit: TemperatureUnit) {
+fun RecordingStatusLines(state: RecordingState.Active, use24h: Boolean, unit: TemperatureUnit, armedWindow: WakeWindow? = null) {
     val locale = currentLocale()
     Column(verticalArrangement = Arrangement.spacedBy(Dimens.SpaceXs), modifier = Modifier.semantics(mergeDescendants = true) {}) {
         Text(
@@ -113,6 +116,17 @@ fun RecordingStatusLines(state: RecordingState.Active, use24h: Boolean, unit: Te
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+        armedWindow?.let { window ->
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.testTag("recording_alarm")) {
+                Icon(Icons.Outlined.Alarm, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
+                Text(
+                    stringResource(R.string.alarm_armed, formatTime(window.start, use24h, locale), formatTime(window.end, use24h, locale)),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = Dimens.SpaceXs),
+                )
+            }
+        }
         state.openGaps.forEach { side ->
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Outlined.BluetoothDisabled, contentDescription = null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(18.dp))

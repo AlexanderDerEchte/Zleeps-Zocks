@@ -46,20 +46,14 @@
 
   <!-- Einstellungen -->
   <string name="settings_section_general">Allgemein</string>
-  <string name="settings_units">Einheiten</string>
-  <string name="settings_units_value">°C, 24 Stunden</string>
   <string name="settings_notifications">Benachrichtigungen</string>
   <string name="settings_section_devices">Geräte</string>
-  <string name="settings_devices">Geräteverwaltung</string>
-  <string name="settings_devices_value">Keine Socken gekoppelt</string>
   <string name="settings_section_data">Daten</string>
-  <string name="settings_export_csv">Als CSV exportieren</string>
   <string name="settings_health_connect">Health Connect</string>
   <string name="settings_delete_data">Alle Daten löschen</string>
   <string name="settings_section_about">Info</string>
   <string name="settings_version">Version</string>
   <string name="settings_developer">Entwickleroptionen</string>
-  <string name="settings_coming_soon">Bald verfügbar</string>
   <string name="settings_offline_hint">Alle Daten bleiben auf diesem Gerät. Kein Konto, keine Cloud.</string>
   <string name="wellness_title">Wellnessprodukt</string>
   <string name="wellness_body">Zocks Zleep ist ein Wellnessprodukt und kein Medizinprodukt. Die Werte sind Schätzungen und nicht für Diagnose oder Behandlung gedacht.</string>
@@ -445,4 +439,128 @@
     <item quantity="one">%1$d ohne</item>
     <item quantity="other">%1$d ohne</item>
   </plurals>
+  <!-- Phase 6: Wecker -->
+  <string name="alarm_notification_title">Guten Morgen</string>
+  <string name="alarm_notification_text">Zeit aufzustehen.</string>
+  <string name="alarm_notification_text_massage">Sanftes Wecken mit Massage.</string>
+  <string name="alarm_dismiss">Aus</string>
+  <string name="alarm_snooze">Schlummern</string>
+  <string name="alarm_channel_sound">Wecker</string>
+  <string name="alarm_channel_sound_description">Klingelt zur Aufstehzeit, bis du ihn ausschaltest.</string>
+  <string name="alarm_channel_silent">Sanftes Wecken</string>
+  <string name="alarm_channel_silent_description">Lautlose Anzeige, während die Socken massierend wecken.</string>
+  <!-- Phase 6: Abendroutine -->
+  <string name="control_routine">Routine</string>
+  <string name="routine_title">Deine Abendroutine</string>
+  <string name="routine_body">Wärme und Massage nacheinander, frei kombiniert.</string>
+  <string name="routine_step_title">Schritt %1$d</string>
+  <string name="routine_step_heat">Wärme</string>
+  <string name="routine_step_massage">Massage</string>
+  <string name="routine_step_pause">Pause – weder Wärme noch Massage</string>
+  <string name="routine_step_duration">Dauer</string>
+  <string name="routine_shorter">Kürzer</string>
+  <string name="routine_longer">Länger</string>
+  <string name="routine_level_lower">Stufe senken</string>
+  <string name="routine_level_higher">Stufe erhöhen</string>
+  <string name="routine_intensity_value">%1$d %%</string>
+  <string name="routine_add_step">Schritt hinzufügen</string>
+  <string name="routine_remove_step">Entfernen: Schritt %1$d</string>
+  <string name="routine_move_up">Nach oben: Schritt %1$d</string>
+  <string name="routine_move_down">Nach unten: Schritt %1$d</string>
+  <string name="routine_end_when_asleep">Endet, wenn du einschläfst</string>
+  <string name="routine_end_when_asleep_body">Erkennt Schlaf an der Bewegung und schaltet Wärme und Massage sanft ab.</string>
+  <string name="routine_with_night">Beim Start der Nacht mitstarten</string>
+  <string name="routine_total">Gesamt %1$s</string>
+  <string name="routine_start">Routine starten</string>
+  <string name="routine_stop">Routine beenden</string>
+  <string name="routine_running">Läuft · Schritt %1$d/%2$d</string>
+  <string name="routine_step_remaining">Dieser Schritt noch %1$s</string>
+  <string name="routine_ends_at">Endet spätestens um %1$s</string>
+  <string name="routine_ended_completed">Abendroutine beendet.</string>
+  <string name="routine_ended_asleep">Du bist eingeschlafen – die Abendroutine hat sanft aufgehört.</string>
+  <string name="routine_safety">Wärme bleibt in den Sicherheitsgrenzen: höchstens 90 Minuten am Stück.</string>
+  <string name="routine_reset">Vorschlag wiederherstellen</string>
+
+  <!-- Phase 6: Nachtstart -->
+  <string name="start_sheet_tonight">Für diese Nacht</string>
+  <string name="start_routine_title">Abendroutine starten</string>
+  <string name="start_routine_body">%1$s Wärme und Massage, endet beim Einschlafen</string>
+  <string name="start_alarm_title">Smarter Wecker</string>
+  <string name="start_alarm_body">Weckt zwischen %1$s und %2$s in leichtem Schlaf</string>
+  <string name="alarm_armed">Wecker %1$s – %2$s</string>
+
+  <!-- Phase 6: Wecker in der App -->
+  <string name="alarm_reason_light">Du schläfst gerade leicht – ein guter Moment zum Aufstehen.</string>
+  <string name="alarm_reason_time">Es ist deine Aufstehzeit.</string>
+
+  <!-- Phase 6: Einstellungen -->
+  <string name="settings_temperature">Temperatur</string>
+  <string name="unit_celsius">°C</string>
+  <string name="unit_fahrenheit">°F</string>
+  <string name="settings_24h">24-Stunden-Uhr</string>
+  <string name="settings_sleep_goal">Schlafziel</string>
+  <string name="settings_sleep_goal_shorter">Schlafziel verkürzen</string>
+  <string name="settings_sleep_goal_longer">Schlafziel verlängern</string>
+  <string name="settings_bedtime">Schlafenszeit</string>
+  <string name="settings_wake_time">Aufstehzeit</string>
+  <string name="settings_notifications_body">In den Systemeinstellungen festlegen</string>
+  <string name="settings_section_alarm">Smarter Wecker</string>
+  <string name="alarm_enabled_body">Weckt im Zeitfenster vor deiner Aufstehzeit, sobald du leicht schläfst – während einer Nachtaufzeichnung.</string>
+  <string name="alarm_window">Zeitfenster vor der Aufstehzeit</string>
+  <string name="alarm_method">Wecken mit</string>
+  <string name="alarm_method_sound">Ton</string>
+  <string name="alarm_method_massage">Massage</string>
+  <string name="alarm_method_both">Massage, dann Ton</string>
+  <string name="alarm_exact_missing">Damit der Wecker auch bei geschlossener App pünktlich klingelt, braucht Zocks die Erlaubnis „Wecker und Erinnerungen“.</string>
+  <string name="action_allow">Erlauben</string>
+  <string name="settings_device_mode">Verbindung</string>
+  <string name="settings_device_mode_simulator">Simulator (in den Entwickleroptionen umstellbar)</string>
+  <string name="settings_device_mode_ble">Echte Socken über Bluetooth</string>
+  <string name="settings_export_nights">Nächte als CSV</string>
+  <string name="settings_export_nights_body">Eine Zeile pro Nacht mit Kennzahlen, Tags und Notizen</string>
+  <string name="settings_export_measurements">Messwerte als CSV</string>
+  <string name="settings_export_measurements_body">Alle 30-Sekunden-Werte beider Socken</string>
+  <plurals name="export_done">
+    <item quantity="one">%1$d Nacht exportiert.</item>
+    <item quantity="other">%1$d Nächte exportiert.</item>
+  </plurals>
+  <string name="export_failed">Export fehlgeschlagen.</string>
+  <string name="hc_not_installed">Health Connect ist nicht installiert.</string>
+  <string name="hc_update_required">Health Connect braucht ein Update.</string>
+  <string name="hc_not_supported">Auf diesem Gerät nicht verfügbar.</string>
+  <string name="hc_not_connected">Überträgt Schlafphasen und Puls deiner echten Nächte. Zocks liest nichts aus.</string>
+  <string name="hc_connected">Verbunden – nur Schreiben von Schlaf und Puls.</string>
+  <string name="hc_install">Installieren</string>
+  <string name="hc_connect">Verbinden</string>
+  <string name="hc_auto">Jede Nacht automatisch übertragen</string>
+  <string name="hc_export_now">Jetzt alle übertragen</string>
+  <plurals name="hc_exported">
+    <item quantity="one">%1$d Nacht übertragen.</item>
+    <item quantity="other">%1$d Nächte übertragen.</item>
+  </plurals>
+  <string name="hc_nothing">Keine echten Nächte zum Übertragen. Demo- und Simulator-Nächte bleiben in der App.</string>
+  <string name="hc_failed">Übertragen fehlgeschlagen.</string>
+  <string name="settings_delete_body">Alle Nächte mit Messwerten, Notizen und Tags</string>
+  <string name="delete_title">Alle Nächte löschen?</string>
+  <string name="delete_body">Löscht alle Nächte mit Messwerten, Notizen und Tags auf diesem Gerät. Das lässt sich nicht rückgängig machen.</string>
+  <string name="delete_confirm">Löschen</string>
+  <string name="delete_done">Alle Nächte gelöscht.</string>
+  <string name="settings_onboarding_again">Einrichtung erneut ansehen</string>
+
+  <!-- Phase 6: Einrichtung -->
+  <string name="onboarding_welcome_title">Willkommen bei Zocks Zleep</string>
+  <string name="onboarding_welcome_body">Deine Socken wärmen, massieren und begleiten deinen Schlaf. Alle Daten bleiben auf diesem Gerät.</string>
+  <string name="onboarding_feature_heat">Wärme mit festen Sicherheitsgrenzen</string>
+  <string name="onboarding_feature_massage">Massageprogramme und Abendroutine</string>
+  <string name="onboarding_feature_sleep">Schlafanalyse mit Score, Trends und smartem Wecker</string>
+  <string name="onboarding_pair_title">Socken koppeln</string>
+  <string name="onboarding_pair_body">Zieh die Socken an und schalte sie ein. Im Simulator klappt das auch ohne Socken.</string>
+  <string name="onboarding_pair_done">Beide Socken verbunden.</string>
+  <string name="onboarding_times_title">Deine Schlafzeiten</string>
+  <string name="onboarding_times_body">Daraus ergeben sich Schlafziel und Weckzeit. Du kannst alles später in den Einstellungen ändern.</string>
+  <string name="onboarding_next">Weiter</string>
+  <string name="onboarding_back">Zurück</string>
+  <string name="onboarding_later">Später</string>
+  <string name="onboarding_finish">Los geht\'s</string>
+  <string name="onboarding_step">Schritt %1$d/%2$d</string>
 </resources>

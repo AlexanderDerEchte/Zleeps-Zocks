@@ -1,5 +1,6 @@
 package at.zocks.zleep.ui.format
 
+import android.content.res.Resources
 import android.text.format.DateFormat
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
@@ -90,6 +91,18 @@ fun eventLabel(type: NightEventType): String = stringResource(
         NightEventType.SAFETY_SHUTOFF -> R.string.event_safety_shutoff
     },
 )
+
+/** Wie [tagLabel], außerhalb der Oberfläche (z. B. für den Export). */
+fun tagLabel(resources: Resources, tag: Tag): String = when (tag.key) {
+    Tag.CAFFEINE -> resources.getString(R.string.tag_caffeine)
+    Tag.SPORT -> resources.getString(R.string.tag_sport)
+    Tag.ALCOHOL -> resources.getString(R.string.tag_alcohol)
+    Tag.STRESS -> resources.getString(R.string.tag_stress)
+    Tag.LATE_MEAL -> resources.getString(R.string.tag_late_meal)
+    Tag.SCREEN_TIME -> resources.getString(R.string.tag_screen_time)
+    null -> tag.label.orEmpty()
+    else -> tag.label ?: tag.key
+}
 
 /** Eingebaute Tags werden übersetzt, eigene zeigen ihren Text. */
 @Composable

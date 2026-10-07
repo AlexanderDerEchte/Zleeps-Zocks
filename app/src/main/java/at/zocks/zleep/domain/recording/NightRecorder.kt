@@ -51,6 +51,9 @@ sealed interface RecordingState {
         val epochCount: Int = 0,
         val asleep: Boolean = false,
         val sleepOnset: Instant? = null,
+        /** Zuletzt geschätzte Schlafphase und ihr Beginn (für den smarten Wecker). */
+        val latestStage: SleepStage? = null,
+        val latestStageAt: Instant? = null,
         val latest: Map<SockSide, SensorSample> = emptyMap(),
         val connection: Map<SockSide, ConnectionState> = emptyMap(),
         val openGaps: Set<SockSide> = emptySet(),
@@ -58,6 +61,14 @@ sealed interface RecordingState {
     ) : RecordingState {
         val elapsed: Duration get() = Duration.between(startedAt, now).coerceAtLeast(Duration.ZERO)
     }
+}
+
+/** Laufende Aufzeichnung, wie Wecker und Export sie sehen. */
+interface LiveRecording {
+    val state: StateFlow<RecordingState>
+
+    /** Setzt den Abstand der laufenden Auswertung (in Epochen, mindestens 1). */
+    fun setAnalysisInterval(epochs: Int)
 }
 
 /**
@@ -77,12 +88,20 @@ class NightRecorder(
     private val massageController: MassageController,
     private val clock: DeviceClock,
     private val scope: CoroutineScope,
-) {
+) : LiveRecording {
     private val _state = MutableStateFlow<RecordingState>(RecordingState.Idle())
-    val state: StateFlow<RecordingState> = _state.asStateFlow()
+    override val state: StateFlow<RecordingState> = _state.asStateFlow()
 
     private val lifecycle = Mutex()
     private var session: Session? = null
+
+    /** Epochen zwischen zwei Auswertungen; der Wecker verkürzt das im Weckfenster. */
+    @Volatile
+    private var analysisEvery = ANALYSIS_EVERY_EPOCHS
+
+    override fun setAnalysisInterval(epochs: Int) {
+        analysisEvery = epochs.coerceAtLeast(1)
+    }
     private var sessionJob: Job? = null
 
     /** Startet eine neue Nacht (oder liefert die laufende). */
@@ -188,7 +207,7 @@ class NightRecorder(
                         epochCount++
                         epochsSinceAnalysis++
                     }
-                    val due = epochsSinceAnalysis >= ANALYSIS_EVERY_EPOCHS
+                    val due = epochsSinceAnalysis >= analysisEvery
                     if (due) epochsSinceAnalysis = 0
                     latest[sample.side] = sample
                     lastSampleAt = sample.timestamp
@@ -226,6 +245,8 @@ class NightRecorder(
                 it.copy(
                     asleep = recent && lastStage!!.stage != SleepStage.AWAKE,
                     sleepOnset = result.window?.sleepOnset,
+                    latestStage = lastStage?.stage,
+                    latestStageAt = lastStage?.start,
                 )
             }
             if (!allowAutoStop) return
@@ -328,7 +349,7 @@ class NightRecorder(
         val MIN_SLEEP_FOR_AUTO_STOP: Duration = Duration.ofHours(3)
         val AWAKE_FOR_AUTO_STOP: Duration = Duration.ofMinutes(30)
 
-        /** Auswertung alle 10 Epochen (5 Minuten Messzeit). */
+        /** Auswertung alle 10 Epochen (5 Minuten Messzeit), im Weckfenster öfter. */
         const val ANALYSIS_EVERY_EPOCHS = 10
         const val MAX_BUFFER = 40
         const val FLUSH_INTERVAL_MS = 10_000L

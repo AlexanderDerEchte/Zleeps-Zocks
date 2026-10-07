@@ -46,7 +46,9 @@ app/src/main/java/at/zocks/zleep/
 │   ├── theme/               Farben, Typografie, Abstände, ZocksTheme
 │   ├── navigation/          typsichere Routen, Ziele der unteren Leiste
 │   ├── components/          Karten, große Aktionsknöpfe, Lade-/Leer-/Fehlerzustände
-│   ├── home/ nights/ control/ settings/
+│   ├── home/ nights/ control/ settings/ routine/
+│   ├── onboarding/          Einrichtung beim ersten Start
+│   ├── alarm/               Vollbild des klingelnden Weckers
 │   ├── developer/           Entwickleroptionen (Simulator, Demo-Daten)
 │   ├── nightdetail/         Nachtdetail
 │   └── format/              Zahlen, Zeiten, Einheiten, Übersetzungen
@@ -60,9 +62,15 @@ app/src/main/java/at/zocks/zleep/
 │   ├── sleep/               Live-Erkennung „eingeschlafen“
 │   ├── control/             ControlCoordinator (Einstellungen ↔ Regler)
 │   ├── recording/           NightRecorder, EpochAggregator, NightAnalyzer
-│   └── analysis/            Schlafphasen-Heuristik, Schlaffenster, Kennzahlen
-├── data/                    Room (db/), Repositories, DataStore (settings/), Wecker (schedule/)
-├── device/                  Simulator (simulator/), Aufzeichnungsdienst (recording/), BLE (ble/, ab Phase 7)
+│   ├── analysis/            Schlafphasen-Heuristik, Schlaffenster, Kennzahlen, Score, Trends
+│   ├── routine/             Abendroutine (EveningRoutine, RoutineRunner)
+│   ├── alarm/               smarter Wecker (Fenster, Entscheidung, SmartAlarmController)
+│   ├── export/              CSV-Export
+│   └── health/              Health-Connect-Export (Zuordnung, HealthExporter)
+├── data/                    Room (db/), Repositories, DataStore (settings/), Vorwärmen (schedule/),
+│                            Health Connect (health/), Dateiexport (export/)
+├── device/                  Simulator (simulator/), Aufzeichnungsdienst (recording/), Wecker (alarm/),
+│                            BLE (ble/, ab Phase 7)
 └── di/                      Hilt-Module
 ```
 
@@ -99,7 +107,7 @@ Danach liegt die Debug-APK unter *Actions → letzter Lauf → Artifacts →
 | 3 | Gerätesteuerung: Heizen und Massage | ✅ fertig |
 | 4 | Nachtaufzeichnung mit Foreground Service | ✅ fertig |
 | 5 | Analyse, Score, Diagramme, Trends | ✅ fertig |
-| 6 | Abendroutine, smarter Wecker, Health Connect, Export | ⏳ offen |
+| 6 | Abendroutine, smarter Wecker, Health Connect, Export | ✅ fertig |
 | 7 | BLE-Implementierung, Feinschliff, Tests | ⏳ offen |
 
 ### Phase 1 – enthalten
@@ -238,6 +246,37 @@ Berechtigung läuft die Aufzeichnung nur, solange die App offen ist (die App sag
 - **Tags und Notiz** in der Nachtansicht bearbeiten, eigene Tags anlegen.
 - **Start:** letzte Nacht mit Score, Dauer und Phasenbalken.
 - Farben der Schlafphasen neu gewählt und für Farbsehschwächen geprüft (hell und dunkel).
+
+### Phase 6 – enthalten
+
+- **Einrichtung** beim ersten Start: kurze Erklärung (mit Hinweis „kein Medizinprodukt“),
+  Socken koppeln, Schlafens- und Aufstehzeit, Schlafziel (Vorschlag aus den Zeiten), smarter
+  Wecker. Jeder Schritt lässt sich überspringen; in den Einstellungen erneut aufrufbar.
+- **Abendroutine** (Steuerung → Routine): bis zu 8 Schritte aus Wärme (Stufe), Massage
+  (Programm, Intensität), beidem oder Pause, je 5–60 min, frei sortierbar. Endet auf Wunsch,
+  sobald Schlaf erkannt wird (Bewegung), und schaltet dann Wärme ab und lässt die Massage
+  ausklingen. Wärme läuft dabei über den Sicherheitswächter: aufeinanderfolgende Wärme-Schritte
+  zählen als ein Heizen, nach 90 min ist Schluss. Lässt sich mit der Nacht mitstarten.
+- **Smarter Wecker** während der Aufzeichnung: Fenster (10–45 min) vor der Aufstehzeit; im
+  Fenster wertet der Recorder jede Minute aus und weckt, sobald die Phase „leicht“ oder „wach“
+  ist, spätestens am Fensterende. Wecken per Ton, sanfter Massage oder erst Massage und nach
+  3 min Ton; ohne verbundene Socken immer mit Ton. Klingeln als Vollbild (auch über dem
+  Sperrbildschirm) mit „Aus“ und „Schlummern“ (9 min). Ausfallsicherung: ein exakter
+  Systemwecker auf dem Fensterende – er weckt auch, wenn die App beendet wurde (Freigabe
+  „Wecker und Erinnerungen“ nötig; ohne sie kann er sich verspäten).
+- **Einstellungen:** Temperatur °C/°F, 24-h-Uhr, Schlafziel, Schlafens- und Aufstehzeit,
+  Benachrichtigungen, Wecker, Geräte, CSV-Export, Health Connect, alle Nächte löschen.
+- **CSV-Export** über die Dateiauswahl des Systems: `Nächte` (eine Zeile pro Nacht mit
+  Kennzahlen, Score, Tags, Notiz) und `Messwerte` (je Socke und 30-s-Epoche mit Phase).
+  Format: RFC 4180, Komma als Trenner, Punkt als Dezimalzeichen, Zeitpunkte ISO 8601 mit
+  Offset, UTF-8; fehlende Werte bleiben leer.
+- **Health Connect** (optional): schreibt Schlafsession mit Phasen und Puls (nur Schreiben,
+  nichts Lesen), auf Wunsch nach jeder Nacht automatisch. Nur echte Nächte vom Gerät –
+  Demo- und Simulator-Nächte nie. Erneutes Übertragen ersetzt statt zu verdoppeln.
+
+**Grenzen:** Im Simulator (Zeitraffer) gibt es keine Ausfallsicherung über den Systemwecker,
+weil die echte Uhr nicht zur simulierten Nacht passt. Der Wecker klingelt über eine
+Benachrichtigung; ohne Erlaubnis für Benachrichtigungen nur, solange die App offen ist.
 
 ### Simulator ausprobieren
 

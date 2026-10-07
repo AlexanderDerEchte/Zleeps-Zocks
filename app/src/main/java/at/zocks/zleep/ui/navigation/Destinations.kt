@@ -22,13 +22,13 @@ data object HomeDestination
 @Serializable
 data object NightsDestination
 
-/** Steuerung; [section] wählt den Reiter (Heizen oder Massage) beim Öffnen. */
+/** Steuerung; [section] wählt den Reiter (Heizen, Massage oder Abendroutine) beim Öffnen. */
 @Serializable
 data class ControlDestination(val section: ControlSection = ControlSection.HEAT)
 
 @Keep
 @Serializable
-enum class ControlSection { HEAT, MASSAGE }
+enum class ControlSection { HEAT, MASSAGE, ROUTINE }
 
 @Serializable
 data object SettingsDestination

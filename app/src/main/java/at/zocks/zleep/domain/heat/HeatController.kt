@@ -45,8 +45,13 @@ class HeatController(
 
     init {
         scope.launch {
+            var previous: SockPair? = null
             pairProvider.pair.collectLatest { pair ->
-                stopAllLocally()
+                // Nur bei einem echten Wechsel des Paares (Simulator ↔ Gerät) vergessen. Beim ersten
+                // Wert nicht: Ein Start direkt nach dem Erzeugen ginge sonst verloren, während die
+                // Socke weiterheizt.
+                if (previous != null && previous !== pair) stopAllLocally()
+                previous = pair
                 merge(pair.left.sensorData, pair.right.sensorData).collect { sample ->
                     val reason = mutex.withLock { guard.onSample(sample, clock.instant()) }
                     if (reason != null) shutOff(pair, sample.side, HeatNotice.SafetyShutoff(sample.side, reason))

@@ -48,6 +48,12 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import at.zocks.zleep.R
 import at.zocks.zleep.ui.components.BigActionButton
+import at.zocks.zleep.ui.components.SwitchRow
+import at.zocks.zleep.ui.format.currentLocale
+import at.zocks.zleep.ui.format.formatDuration
+import at.zocks.zleep.ui.format.formatLocalTime
+import java.time.Duration
+import java.time.LocalTime
 import at.zocks.zleep.ui.theme.Dimens
 
 /**
@@ -58,6 +64,9 @@ import at.zocks.zleep.ui.theme.Dimens
 @Composable
 fun NightStartSheet(
     socksConnected: Boolean,
+    options: TonightOptions,
+    onRoutineWithNight: (Boolean) -> Unit,
+    onAlarmEnabled: (Boolean) -> Unit,
     onConnectSocks: () -> Unit,
     onStart: () -> Unit,
     onDismiss: () -> Unit,
@@ -127,6 +136,7 @@ fun NightStartSheet(
                     color = MaterialTheme.colorScheme.error,
                 )
             }
+            TonightSection(options, onRoutineWithNight, onAlarmEnabled)
             BigActionButton(
                 text = stringResource(R.string.start_sheet_start),
                 icon = Icons.Filled.Bedtime,
@@ -139,6 +149,44 @@ fun NightStartSheet(
             )
         }
     }
+}
+
+/** Was zur Nacht dazugehört: Abendroutine und smarter Wecker (aus den Einstellungen). */
+data class TonightOptions(
+    val routineWithNight: Boolean = false,
+    val routineMinutes: Int = 0,
+    val alarmEnabled: Boolean = false,
+    val wakeTime: LocalTime = LocalTime.of(6, 45),
+    val alarmWindowMinutes: Int = 30,
+    val use24h: Boolean = true,
+)
+
+@Composable
+private fun TonightSection(options: TonightOptions, onRoutineWithNight: (Boolean) -> Unit, onAlarmEnabled: (Boolean) -> Unit) {
+    val locale = currentLocale()
+    Text(
+        stringResource(R.string.start_sheet_tonight),
+        style = MaterialTheme.typography.titleMedium,
+        modifier = Modifier.semantics { heading() },
+    )
+    SwitchRow(
+        title = stringResource(R.string.start_routine_title),
+        body = stringResource(R.string.start_routine_body, formatDuration(Duration.ofMinutes(options.routineMinutes.toLong()))),
+        checked = options.routineWithNight,
+        onCheckedChange = onRoutineWithNight,
+        testTag = "start_routine",
+    )
+    SwitchRow(
+        title = stringResource(R.string.start_alarm_title),
+        body = stringResource(
+            R.string.start_alarm_body,
+            formatLocalTime(options.wakeTime.minusMinutes(options.alarmWindowMinutes.toLong()), options.use24h, locale),
+            formatLocalTime(options.wakeTime, options.use24h, locale),
+        ),
+        checked = options.alarmEnabled,
+        onCheckedChange = onAlarmEnabled,
+        testTag = "start_alarm",
+    )
 }
 
 @Composable

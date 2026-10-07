@@ -2,7 +2,10 @@ package at.zocks.zleep.ui
 
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -29,7 +32,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import at.zocks.zleep.R
+import at.zocks.zleep.domain.alarm.AlarmState
+import at.zocks.zleep.ui.alarm.AlarmOverlay
+import at.zocks.zleep.ui.onboarding.OnboardingRoute
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import at.zocks.zleep.ui.components.HeatingBanner
@@ -50,7 +55,7 @@ import at.zocks.zleep.ui.recording.RecordingRoute
 import at.zocks.zleep.ui.navigation.SettingsDestination
 import at.zocks.zleep.ui.navigation.TopLevelDestination
 import at.zocks.zleep.ui.nights.NightsRoute
-import at.zocks.zleep.ui.settings.SettingsScreen
+import at.zocks.zleep.ui.settings.SettingsRoute
 
 @Composable
 fun ZocksApp(
@@ -60,8 +65,22 @@ fun ZocksApp(
     val snackbarHostState = remember { SnackbarHostState() }
     val appState by appViewModel.uiState.collectAsStateWithLifecycle()
 
+    when (appState.showOnboarding) {
+        // Einstellungen laden noch: nur der ruhige Hintergrund, kein kurzes Aufblitzen der Startseite.
+        null -> {
+            Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background))
+            return
+        }
+        true -> {
+            OnboardingRoute()
+            return
+        }
+        false -> Unit
+    }
+
     CompositionLocalProvider(LocalSnackbarHostState provides snackbarHostState) {
     UserMessageEffect(appState.notice, appViewModel::noticeShown)
+    Box(Modifier.fillMaxSize()) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = { HeatingBanner(appState.heatingRemaining, appViewModel::stopHeating) },
@@ -109,12 +128,16 @@ fun ZocksApp(
                 ControlRoute(initialSection = entry.toRoute<ControlDestination>().section)
             }
             composable<SettingsDestination> {
-                SettingsScreen(onOpenDeveloperOptions = { navController.navigate(DeveloperDestination) })
+                SettingsRoute(onOpenDeveloperOptions = { navController.navigate(DeveloperDestination) })
             }
             composable<DeveloperDestination> {
                 DeveloperRoute(onBack = navController::popBackStack)
             }
         }
+    }
+    (appState.alarm as? AlarmState.Ringing)?.let { ringing ->
+        AlarmOverlay(ringing, appState.use24HourClock, onDismiss = appViewModel::dismissAlarm, onSnooze = appViewModel::snoozeAlarm)
+    }
     }
     }
 }

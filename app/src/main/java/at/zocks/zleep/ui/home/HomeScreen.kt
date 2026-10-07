@@ -54,6 +54,7 @@ import at.zocks.zleep.ui.format.formatShortDate
 import at.zocks.zleep.ui.format.formatTime
 import at.zocks.zleep.ui.recording.NightStartSheet
 import at.zocks.zleep.ui.recording.RecordingCard
+import at.zocks.zleep.ui.recording.TonightOptions
 import at.zocks.zleep.ui.theme.Dimens
 import at.zocks.zleep.ui.theme.ZocksTheme
 import at.zocks.zleep.ui.theme.ZocksThemeExt
@@ -82,6 +83,16 @@ fun HomeRoute(
     if (state.showStartSheet) {
         NightStartSheet(
             socksConnected = state.pairStatus?.anyConnected == true,
+            options = TonightOptions(
+                routineWithNight = state.routineWithNight,
+                routineMinutes = state.routineMinutes,
+                alarmEnabled = state.alarmEnabled,
+                wakeTime = state.wakeTime,
+                alarmWindowMinutes = state.alarmWindowMinutes,
+                use24h = state.use24HourClock,
+            ),
+            onRoutineWithNight = { viewModel.onEvent(HomeEvent.SetRoutineWithNight(it)) },
+            onAlarmEnabled = { viewModel.onEvent(HomeEvent.SetAlarmEnabled(it)) },
             onConnectSocks = { viewModel.onEvent(HomeEvent.ConnectSocks) },
             onStart = {
                 viewModel.onEvent(HomeEvent.ConfirmStart)
@@ -127,6 +138,7 @@ fun HomeScreen(
         if (recording != null) {
             RecordingCard(
                 state = recording,
+                armedWindow = state.armedWindow,
                 use24h = state.use24HourClock,
                 unit = state.temperatureUnit,
                 onOpenNightMode = onOpenNightMode,

@@ -1,7 +1,9 @@
 package at.zocks.zleep.ui.components
 
+import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 
 /**
@@ -10,6 +12,9 @@ import androidx.compose.ui.res.stringResource
  */
 sealed interface UiText {
     data class Res(@param:StringRes val id: Int, val args: List<Any> = emptyList()) : UiText
+
+    /** Mengenabhängiger Text; [count] ist zugleich das erste Argument. */
+    data class Plural(@param:PluralsRes val id: Int, val count: Int) : UiText
 
     companion object {
         fun of(@StringRes id: Int, vararg args: Any): UiText = Res(id, args.toList())
@@ -22,4 +27,5 @@ fun UiText.resolve(): String = when (this) {
         val resolved = args.map { if (it is UiText) it.resolve() else it }
         stringResource(id, *resolved.toTypedArray())
     }
+    is UiText.Plural -> pluralStringResource(id, count, count)
 }

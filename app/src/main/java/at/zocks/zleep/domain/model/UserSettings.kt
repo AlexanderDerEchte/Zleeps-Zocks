@@ -1,7 +1,9 @@
 package at.zocks.zleep.domain.model
 
+import at.zocks.zleep.domain.alarm.AlarmMethod
 import at.zocks.zleep.domain.heat.HeatMode
 import at.zocks.zleep.domain.massage.BuiltInMassagePrograms
+import at.zocks.zleep.domain.routine.EveningRoutine
 import java.time.LocalTime
 
 enum class DeviceMode { SIMULATOR, BLE }
@@ -21,7 +23,24 @@ data class UserSettings(
     val simulatorSpeed: Int = 300,
     val heat: HeatPreferences = HeatPreferences(),
     val massage: MassagePreferences = MassagePreferences(),
+    val alarm: AlarmPreferences = AlarmPreferences(),
+    val routine: EveningRoutine = EveningRoutine.Default,
+    /** Abendroutine beim Start der Nacht mitstarten. */
+    val routineWithNight: Boolean = false,
+    /** Abgeschlossene Nächte automatisch nach Health Connect übertragen. */
+    val healthConnectAutoExport: Boolean = false,
 )
+
+/** Smarter Wecker: weckt im Fenster vor [UserSettings.wakeTime] in leichtem Schlaf. */
+data class AlarmPreferences(
+    val enabled: Boolean = false,
+    val windowMinutes: Int = 30,
+    val method: AlarmMethod = AlarmMethod.MASSAGE_THEN_SOUND,
+) {
+    companion object {
+        val WINDOW_OPTIONS = listOf(10, 20, 30, 45)
+    }
+}
 
 /** Zuletzt gewählte Heizeinstellungen und Vorwärmen. */
 data class HeatPreferences(

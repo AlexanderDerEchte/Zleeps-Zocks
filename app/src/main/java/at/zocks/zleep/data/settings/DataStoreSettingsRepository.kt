@@ -10,6 +10,7 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
+import at.zocks.zleep.domain.model.AlarmPreferences
 import at.zocks.zleep.domain.model.HeatPreferences
 import at.zocks.zleep.domain.model.MassagePreferences
 import at.zocks.zleep.domain.model.UserSettings
@@ -70,6 +71,15 @@ class DataStoreSettingsRepository @Inject constructor(
                 durationMinutes = this[Keys.MASSAGE_DURATION] ?: defaults.massage.durationMinutes,
                 favorites = this[Keys.MASSAGE_FAVORITES] ?: defaults.massage.favorites,
             ),
+            alarm = AlarmPreferences(
+                enabled = this[Keys.ALARM_ENABLED] ?: defaults.alarm.enabled,
+                windowMinutes = (this[Keys.ALARM_WINDOW] ?: defaults.alarm.windowMinutes)
+                    .takeIf { it in AlarmPreferences.WINDOW_OPTIONS } ?: defaults.alarm.windowMinutes,
+                method = enumOr(this[Keys.ALARM_METHOD], defaults.alarm.method),
+            ),
+            routine = RoutineJson.decode(this[Keys.ROUTINE]),
+            routineWithNight = this[Keys.ROUTINE_WITH_NIGHT] ?: defaults.routineWithNight,
+            healthConnectAutoExport = this[Keys.HEALTH_AUTO_EXPORT] ?: defaults.healthConnectAutoExport,
         )
     }
 
@@ -100,6 +110,12 @@ class DataStoreSettingsRepository @Inject constructor(
             this@write[Keys.MASSAGE_DURATION] = durationMinutes
             this@write[Keys.MASSAGE_FAVORITES] = favorites
         }
+        this[Keys.ALARM_ENABLED] = settings.alarm.enabled
+        this[Keys.ALARM_WINDOW] = settings.alarm.windowMinutes
+        this[Keys.ALARM_METHOD] = settings.alarm.method.name
+        this[Keys.ROUTINE] = RoutineJson.encode(settings.routine)
+        this[Keys.ROUTINE_WITH_NIGHT] = settings.routineWithNight
+        this[Keys.HEALTH_AUTO_EXPORT] = settings.healthConnectAutoExport
     }
 
     private inline fun <reified E : Enum<E>> enumOr(value: String?, default: E): E =
@@ -131,5 +147,11 @@ class DataStoreSettingsRepository @Inject constructor(
         val MASSAGE_INTENSITY = intPreferencesKey("massage_intensity")
         val MASSAGE_DURATION = intPreferencesKey("massage_duration_minutes")
         val MASSAGE_FAVORITES = stringSetPreferencesKey("massage_favorites")
+        val ALARM_ENABLED = booleanPreferencesKey("alarm_enabled")
+        val ALARM_WINDOW = intPreferencesKey("alarm_window_minutes")
+        val ALARM_METHOD = stringPreferencesKey("alarm_method")
+        val ROUTINE = stringPreferencesKey("evening_routine")
+        val ROUTINE_WITH_NIGHT = booleanPreferencesKey("routine_with_night")
+        val HEALTH_AUTO_EXPORT = booleanPreferencesKey("health_connect_auto_export")
     }
 }
